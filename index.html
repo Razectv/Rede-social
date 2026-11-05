@@ -43,7 +43,7 @@
 </head>
 <body class="min-h-screen flex flex-col md:flex-row relative">
 
-    <!-- NOTIFICAÇÃO FLUTUANTE (TOAST) -->
+    <!-- NOTIFICAÇÃO FLUTUANTE NO TOPO (TOAST) -->
     <div id="toast-container" class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-sm px-4 pointer-events-none space-y-2"></div>
 
     <!-- TELA DE AUTENTICAÇÃO -->
@@ -325,7 +325,6 @@
 
             <!-- ABA 4: COMUNIDADES & BATE-PAPO EM GRUPO -->
             <section id="tab-communities" class="space-y-6 hidden">
-                <!-- Visualização da Lista de Comunidades -->
                 <div id="communities-list-view" class="space-y-6">
                     <div class="flex justify-between items-center">
                         <div>
@@ -339,7 +338,6 @@
                     </div>
                 </div>
 
-                <!-- Visualização do Chat da Comunidade (Oculto até entrar em um grupo) -->
                 <div id="community-chat-view" class="hidden space-y-4">
                     <div class="flex items-center justify-between bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-xl">
                         <div class="flex items-center gap-3">
@@ -354,13 +352,11 @@
                         <span class="text-xs px-3 py-1 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20">Bate-papo em Grupo</span>
                     </div>
 
-                    <!-- Mensagens do Grupo -->
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col h-[500px]">
                         <div id="community-messages" class="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-2 mb-3">
                             <div class="text-center text-xs text-slate-500 py-24">Carregando conversa do grupo...</div>
                         </div>
 
-                        <!-- Envio no Grupo -->
                         <div class="space-y-2 pt-2 border-t border-slate-800">
                             <div class="flex gap-1 flex-wrap">
                                 <button onclick="insertCommunityEmoji('😊')" class="bg-slate-800 hover:bg-slate-700 text-xs px-2 py-1 rounded-lg">😊</button>
@@ -489,6 +485,7 @@
         let activeChatFriendUid = null;
         let activeCommunityId = null;
         let initialPostsLoaded = false;
+        let initialChatsLoaded = {}; 
         let typingTimeout = null;
 
         window.playNotificationSound = function() {
@@ -516,6 +513,7 @@
             
             if(type === 'success') { bgClass = 'bg-slate-900/95 border-emerald-500/40 text-emerald-300'; iconName = 'check-circle-2'; playNotificationSound(); }
             else if(type === 'post') { bgClass = 'bg-slate-900/95 border-fuchsia-500/40 text-fuchsia-300'; iconName = 'zap'; playNotificationSound(); }
+            else if(type === 'chat') { bgClass = 'bg-slate-900/95 border-violet-500/50 text-violet-300'; iconName = 'message-square'; playNotificationSound(); }
 
             container.insertAdjacentHTML('beforeend', `
                 <div id="${toastId}" class="toast-notification pointer-events-auto flex items-center gap-3 p-4 rounded-2xl border ${bgClass} backdrop-blur-md shadow-2xl transition-all">
@@ -612,10 +610,12 @@
                 listenToFriendsAndUsers();
                 listenToFriendRequests();
                 listenToCommunities();
+                listenToAllGlobalChats();
             } else {
                 if(currentUser) set(ref(db, `users/${currentUser.uid}/online`), false);
                 currentUser = null;
                 initialPostsLoaded = false;
+                initialChatsLoaded = {};
                 document.getElementById('app-container').classList.add('hidden');
                 document.getElementById('auth-screen').classList.remove('hidden');
                 
@@ -634,6 +634,16 @@
         window.switchTab = function(tabId) {
             document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            // Se sair da aba de amigos, limpa o chat ativo para não marcar como lido sem estar olhando
+            if(tabId !== 'friends' && activeChatFriendUid) {
+                activeChatFriendUid = null;
+                document.getElementById('chat-title').innerText = "Selecione um amigo para conversar";
+                document.getElementById('chat-input').setAttribute('disabled', 'true');
+                document.getElementById('chat-send-btn').setAttribute('disabled', 'true');
+                document.getElementById('call-btn').classList.add('hidden');
+                document.getElementById('chat-messages').innerHTML = `<div class="text-center text-xs text-slate-500 py-24">Clique em "Conversar" em um amigo ao lado.</div>`;
+            }
 
             document.querySelectorAll('aside nav button').forEach(btn => {
                 btn.classList.remove('bg-violet-600/10', 'text-violet-400', 'border', 'border-violet-500/20');
@@ -768,6 +778,37 @@
                 document.getElementById('sidebar-user-avatar').src = avatar;
                 document.getElementById('feed-user-avatar').src = avatar;
                 if(banner) document.getElementById('profile-banner-container').style.backgroundImage = `url(${banner})`;
+            });
+        }
+
+        // --- MONITORAR TODAS AS CONVERSAS PARA NOTIFICAÇÕES NO TOPO ---
+        function listenToAllGlobalChats() {
+            const friendsRef = ref(db, `friends/${currentUser.uid}`);
+            onValue(friendsRef, (friendsSnap) => {
+                const friends = friendsSnap.val() || {};
+                Object.keys(friends).forEach(friendUid => {
+                    const roomId = getChatRoomId(currentUser.uid, friendUid);
+                    onValue(ref(db, `chats/${roomId}`), (chatSnap) => {
+                        const chatData = chatSnap.val();
+                        if(!chatData) return;
+
+                        const messages = Object.keys(chatData).map(k => ({ id: k, ...chatData[k] }));
+                        const latestMsg = messages[messages.length - 1];
+
+                        if(!initialChatsLoaded[roomId]) {
+                            initialChatsLoaded[roomId] = true;
+                            return;
+                        }
+
+                        // Se a última mensagem for de outra pessoa e não estiver lida
+                        if(latestMsg.senderUid !== currentUser.uid && !latestMsg.read) {
+                            // Se o usuário não estiver com essa conversa aberta, exibe notificação no topo
+                            if(activeChatFriendUid !== friendUid) {
+                                showToast(`Nova mensagem de ${escapeHtml(latestMsg.senderName)}: "${escapeHtml(latestMsg.text || 'Foto enviada')}"`, "chat");
+                            }
+                        }
+                    });
+                });
             });
         }
 
@@ -931,7 +972,7 @@
             onValue(ref(db, `typing/${roomId}/${friendUid}`), (snapshot) => {
                 const isTyping = snapshot.val();
                 const indicator = document.getElementById('typing-indicator');
-                if(isTyping) indicator.classList.remove('hidden');
+                if(isTyping && activeChatFriendUid === friendUid) indicator.classList.remove('hidden');
                 else indicator.classList.add('hidden');
             });
         }
@@ -961,6 +1002,9 @@
             const chatContainer = document.getElementById('chat-messages');
             const roomId = getChatRoomId(currentUser.uid, friendUid);
             onValue(ref(db, `chats/${roomId}`), (snapshot) => {
+                // Se o usuário saiu do chat ou mudou de aba, não marca como lido
+                if(activeChatFriendUid !== friendUid) return;
+
                 const data = snapshot.val();
                 if(!data) { chatContainer.innerHTML = `<div class="text-center text-xs text-slate-500 py-24">Nenhuma mensagem ainda.</div>`; return; }
 
@@ -968,7 +1012,11 @@
                 Object.keys(data).forEach(key => {
                     const msg = data[key];
                     const isMe = msg.senderUid === currentUser.uid;
-                    if(!isMe && !msg.read) update(ref(db, `chats/${roomId}/${key}`), { read: true });
+
+                    // Marca como lido SOMENTE se estiver com a conversa aberta ativamente na tela
+                    if(!isMe && !msg.read && activeChatFriendUid === friendUid) {
+                        update(ref(db, `chats/${roomId}/${key}`), { read: true });
+                    }
 
                     let contentHtml = msg.text ? `<p>${escapeHtml(msg.text)}</p>` : '';
                     if(msg.image) contentHtml += `<img src="${msg.image}" class="mt-2 rounded-xl max-h-48 object-cover">`;
@@ -1165,7 +1213,6 @@
                 createdAt: Date.now()
             });
 
-            // O criador entra automaticamente como membro
             await set(ref(db, `communityMembers/${groupId}/${currentUser.uid}`), true);
 
             closeCreateGroupModal();
@@ -1287,7 +1334,7 @@
             try {
                 await push(ref(db, `communityMessages/${activeCommunityId}`), {
                     senderUid: currentUser.uid,
-                    senderName: document.getElementById('profile-name').innerText,
+                    senderName: document.getElementById('profile-name-innerText') || document.getElementById('profile-name').innerText,
                     text: text, createdAt: Date.now()
                 });
                 input.value = "";
