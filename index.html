@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Corse - Conecte-se com estilo</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Ícones Lucide -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #0f172a;
+            color: #f8fafc;
+            touch-action: manipulation;
+        }
+        input, select, textarea {
+            font-size: 16px !important;
+        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col md:flex-row">
+
+    <!-- TELA DE AUTENTICAÇÃO (LOGIN / CADASTRO) -->
+    <div id="auth-screen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 sm:p-8 shadow-2xl space-y-6">
+            <div class="text-center space-y-2">
+                <div class="inline-flex bg-gradient-to-tr from-violet-600 to-fuchsia-600 p-3 rounded-2xl shadow-lg shadow-violet-500/20 mb-2">
+                    <i data-lucide="zap" class="w-8 h-8 text-white"></i>
+                </div>
+                <h1 class="text-3xl font-black tracking-wider bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Corse</h1>
+                <p id="auth-subtitle" class="text-xs text-slate-400">Entre na sua conta para acessar o feed</p>
+            </div>
+
+            <!-- Formulário -->
+            <div class="space-y-4">
+                <div id="name-field-container" class="hidden">
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Seu Nome / Apelido</label>
+                    <input type="text" id="auth-name" placeholder="Ex: Dr. Cezar" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-violet-500 transition-all">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">E-mail</label>
+                    <input type="email" id="auth-email" placeholder="seu@email.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-violet-500 transition-all">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Senha</label>
+                    <input type="password" id="auth-password" placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-violet-500 transition-all">
+                </div>
+                
+                <div id="auth-error" class="text-xs text-red-400 font-medium p-3 bg-red-950/40 border border-red-900/50 rounded-xl hidden"></div>
+
+                <button id="auth-submit-btn" onclick="handleAuthSubmit()" class="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white py-3 rounded-xl font-semibold shadow-lg shadow-violet-600/20 transition-all text-sm">
+                    Entrar na Conta
+                </button>
+            </div>
+
+            <div class="text-center pt-2 border-t border-slate-800">
+                <p class="text-xs text-slate-400">
+                    <span id="auth-switch-text">Não tem uma conta?</span> 
+                    <button onclick="toggleAuthMode()" id="auth-switch-btn" class="text-violet-400 font-semibold hover:underline ml-1">Criar conta</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- APLICATIVO PRINCIPAL -->
+    <div id="app-container" class="hidden flex-1 flex flex-col md:flex-row w-full min-h-screen">
+        
+        <!-- BARRA LATERAL DE NAVEGAÇÃO (DESKTOP) -->
+        <aside class="hidden md:flex flex-col w-64 border-r border-slate-800 bg-slate-950 p-6 sticky top-0 h-screen justify-between">
+            <div>
+                <div class="flex items-center gap-3 mb-10">
+                    <div class="bg-gradient-to-tr from-violet-600 to-fuchsia-600 p-2.5 rounded-2xl shadow-lg shadow-violet-500/20">
+                        <i data-lucide="zap" class="w-6 h-6 text-white"></i>
+                    </div>
+                    <span class="text-2xl font-black tracking-wider bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Corse</span>
+                </div>
+
+                <nav class="space-y-2">
+                    <button onclick="switchTab('feed')" id="nav-feed" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl font-medium text-slate-300 hover:bg-slate-900 hover:text-white transition-all bg-violet-600/10 text-violet-400 border border-violet-500/20">
+                        <i data-lucide="home" class="w-5 h-5"></i>
+                        <span>Feed</span>
+                    </button>
+                    <button onclick="switchTab('profile')" id="nav-profile" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl font-medium text-slate-300 hover:bg-slate-900 hover:text-white transition-all">
+                        <i data-lucide="user" class="w-5 h-5"></i>
+                        <span>Meu Perfil</span>
+                    </button>
+                    <button onclick="switchTab('communities')" id="nav-communities" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl font-medium text-slate-300 hover:bg-slate-900 hover:text-white transition-all">
+                        <i data-lucide="users" class="w-5 h-5"></i>
+                        <span>Comunidades</span>
+                    </button>
+                </nav>
+            </div>
+
+            <div class="space-y-4">
+                <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs">
+                    <span class="text-slate-400">Firebase DB:</span>
+                    <span id="db-status" class="text-emerald-400 font-semibold flex items-center gap-1.5">
+                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Conectado
+                    </span>
+                </div>
+                
+                <div class="flex items-center justify-between px-2 py-3 border-t border-slate-800/80">
+                    <div class="flex items-center gap-3 overflow-hidden cursor-pointer" onclick="switchTab('profile')">
+                        <img id="sidebar-user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Avatar" class="w-10 h-10 rounded-full object-cover border border-violet-500/40">
+                        <div class="overflow-hidden">
+                            <h4 id="user-display-name" class="text-sm font-semibold truncate">Usuário</h4>
+                            <p class="text-xs text-emerald-400 flex items-center gap-1.5 mt-0.5">
+                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Online
+                            </p>
+                        </div>
+                    </div>
+                    <button onclick="logoutUser()" title="Sair da Conta" class="text-slate-400 hover:text-red-400 p-2 transition-colors">
+                        <i data-lucide="log-out" class="w-5 h-5"></i>
+                    </button>
+                </div>
+            </div>
+        </aside>
+
+        <!-- NAVEGAÇÃO MOBILE -->
+        <div class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-950/90 backdrop-blur-md border-t border-slate-800 z-50 flex justify-around p-3">
+            <button onclick="switchTab('feed')" id="mob-nav-feed" class="p-2 text-violet-400"><i data-lucide="home" class="w-6 h-6"></i></button>
+            <button onclick="switchTab('profile')" id="mob-nav-profile" class="p-2 text-slate-400"><i data-lucide="user" class="w-6 h-6"></i></button>
+            <button onclick="switchTab('communities')" id="mob-nav-communities" class="p-2 text-slate-400"><i data-lucide="users" class="w-6 h-6"></i></button>
+            <button onclick="logoutUser()" class="p-2 text-red-400"><i data-lucide="log-out" class="w-6 h-6"></i></button>
+        </div>
+
+        <!-- CONTEÚDO PRINCIPAL -->
+        <main class="flex-1 max-w-3xl mx-auto p-4 md:p-8 pb-24 md:pb-8 w-full">
+            
+            <!-- TOPO MOBILE LOGO -->
+            <div class="md:hidden flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
+                <div class="flex items-center gap-2">
+                    <div class="bg-violet-600 p-2 rounded-xl">
+                        <i data-lucide="zap" class="w-5 h-5 text-white"></i>
+                    </div>
+                    <span class="text-xl font-black bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Corse</span>
+                </div>
+                <span id="mob-db-status" class="text-xs text-emerald-400 font-medium">Firebase Online</span>
+            </div>
+
+            <!-- ABA 1: FEED -->
+            <section id="tab-feed" class="space-y-6">
+                <!-- Caixa de Criação de Post -->
+                <div class="bg-slate-900/80 backdrop-blur border border-slate-800 rounded-2xl p-4 shadow-xl">
+                    <div class="flex gap-3">
+                        <img id="feed-user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="w-11 h-11 rounded-full object-cover">
+                        <div class="flex-1">
+                            <textarea id="post-content" placeholder="O que está rolando no Corse hoje?" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-violet-500 transition-all resize-none"></textarea>
+                            
+                            <div id="image-preview-container" class="hidden relative mb-3 rounded-xl overflow-hidden max-h-60 bg-slate-950 border border-slate-800">
+                                <img id="image-preview" src="" class="w-full h-full object-cover">
+                                <button onclick="removeImage()" class="absolute top-2 right-2 bg-slate-900/80 hover:bg-red-600 text-white p-1.5 rounded-full transition-all">
+                                    <i data-lucide="x" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+
+                            <div class="flex items-center justify-between pt-3 border-t border-slate-800/60">
+                                <div class="flex gap-2">
+                                    <label class="cursor-pointer p-2 hover:bg-slate-800 rounded-xl text-violet-400 transition-all flex items-center gap-1.5 text-sm font-medium" title="Enviar Foto da Galeria">
+                                        <i data-lucide="image" class="w-5 h-5"></i>
+                                        <span class="hidden sm:inline">Galeria</span>
+                                        <input type="file" id="image-input" accept="image/*" class="hidden" onchange="handleImageSelect(event)">
+                                    </label>
+                                    <label class="cursor-pointer p-2 hover:bg-slate-800 rounded-xl text-fuchsia-400 transition-all flex items-center gap-1.5 text-sm font-medium" title="Tirar Foto com a Câmera">
+                                        <i data-lucide="camera" class="w-5 h-5"></i>
+                                        <span class="hidden sm:inline">Câmera</span>
+                                        <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden" onchange="handleImageSelect(event)">
+                                    </label>
+                                </div>
+                                <button onclick="createPost()" class="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white px-5 py-2 rounded-xl font-semibold shadow-lg shadow-violet-600/20 transition-all flex items-center gap-2">
+                                    <span>Publicar</span>
+                                    <i data-lucide="send" class="w-4 h-4"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Lista de Posts do Feed -->
+                <div id="posts-feed" class="space-y-6">
+                    <div class="text-center py-8 text-slate-500 text-sm">Carregando posts do Realtime Database...</div>
+                </div>
+            </section>
+
+            <!-- ABA 2: MEU PERFIL -->
+            <section id="tab-profile" class="space-y-6 hidden">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+                    <div class="h-36 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-indigo-600 relative">
+                        <div class="absolute -bottom-10 left-6">
+                            <img id="profile-avatar-img" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="w-24 h-24 rounded-2xl object-cover border-4 border-slate-900 shadow-xl">
+                        </div>
+                    </div>
+                    <div class="pt-12 p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                        <div>
+                            <h2 id="profile-name" class="text-2xl font-bold text-slate-100">Usuário</h2>
+                            <p id="profile-email" class="text-xs text-violet-400 font-medium mt-0.5">email@exemplo.com</p>
+                            <p id="profile-bio-text" class="text-sm text-slate-300 mt-2 max-w-md">Conectado e construindo o futuro das redes sociais no Corse.</p>
+                        </div>
+                        <button onclick="openEditProfileModal()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all border border-slate-700 flex items-center gap-2">
+                            <i data-lucide="edit-3" class="w-4 h-4"></i>
+                            <span>Editar Perfil</span>
+                        </button>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 p-6 border-t border-slate-800 bg-slate-950/40 text-center">
+                        <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+                            <p class="text-xs text-slate-400 font-medium">Confiável</p>
+                            <p class="text-lg font-bold text-emerald-400 mt-1">💯 100%</p>
+                        </div>
+                        <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+                            <p class="text-xs text-slate-400 font-medium">Legal</p>
+                            <p class="text-lg font-bold text-amber-400 mt-1">⭐ 100%</p>
+                        </div>
+                        <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
+                            <p class="text-xs text-slate-400 font-medium">Sexy</p>
+                            <p class="text-lg font-bold text-fuchsia-400 mt-1">🔥 100%</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Mural de Recados (Scraps) -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+                    <h3 class="text-lg font-bold text-slate-100 flex items-center gap-2">
+                        <i data-lucide="message-square-quote" class="w-5 h-5 text-violet-400"></i>
+                        <span>Mural de Recados (Scraps)</span>
+                    </h3>
+                    <div class="flex gap-2">
+                        <input type="text" id="scrap-input" placeholder="Deixe um recado no mural..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-violet-500">
+                        <button onclick="addScrap()" class="bg-violet-600 hover:bg-violet-500 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all">Enviar</button>
+                    </div>
+                    <div id="scraps-list" class="space-y-3 pt-2">
+                        <div class="text-center py-4 text-slate-500 text-sm">Carregando scraps...</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ABA 3: COMUNIDADES -->
+            <section id="tab-communities" class="space-y-6 hidden">
+                <div class="flex justify-between items-center">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-100">Comunidades do Corse</h2>
+                        <p class="text-sm text-slate-400">Conecte-se com pessoas dos mesmos interesses.</p>
+                    </div>
+                    <button class="bg-violet-600 hover:bg-violet-500 text-white text-xs px-4 py-2 rounded-xl font-semibold transition-all shadow-lg shadow-violet-600/20">+ Criar</button>
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex gap-4 items-center shadow-xl">
+                        <img src="https://images.unsplash.com/photo-1517694712202-14dd9538aa97?w=150" class="w-16 h-16 rounded-xl object-cover">
+                        <div class="flex-1 overflow-hidden">
+                            <h4 class="font-bold text-slate-100 truncate text-sm">Desenvolvedores Web Brasil</h4>
+                            <p class="text-xs text-slate-400 mt-0.5">14.2k membros</p>
+                            <button class="mt-2 bg-slate-800 hover:bg-violet-600 text-slate-300 hover:text-white text-xs px-3 py-1.5 rounded-lg transition-all font-medium">Participar</button>
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex gap-4 items-center shadow-xl">
+                        <img src="https://images.unsplash.com/photo-1511512578047-dfb367046420?w=150" class="w-16 h-16 rounded-xl object-cover">
+                        <div class="flex-1 overflow-hidden">
+                            <h4 class="font-bold text-slate-100 truncate text-sm">Amantes de Café & Código</h4>
+                            <p class="text-xs text-slate-400 mt-0.5">8.9k membros</p>
+                            <button class="mt-2 bg-slate-800 hover:bg-violet-600 text-slate-300 hover:text-white text-xs px-3 py-1.5 rounded-lg transition-all font-medium">Participar</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- MODAL DE EDITAR PERFIL -->
+    <div id="edit-profile-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-4">
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-slate-100 flex items-center gap-2">
+                    <i data-lucide="user-pen" class="w-5 h-5 text-violet-400"></i>
+                    <span>Editar Perfil</span>
+                </h3>
+                <button onclick="closeEditProfileModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            
+            <div class="space-y-4">
+                <div class="flex flex-col items-center gap-3">
+                    <img id="modal-avatar-preview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="w-20 h-20 rounded-full object-cover border-2 border-violet-500">
+                    <div class="flex gap-2">
+                        <label class="cursor-pointer bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all">
+                            <span>Alterar Foto</span>
+                            <input type="file" accept="image/*" class="hidden" onchange="handleProfileAvatarSelect(event)">
+                        </label>
+                        <label class="cursor-pointer bg-violet-600/20 hover:bg-violet-600/30 text-violet-400 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all border border-violet-500/30">
+                            <span>Tirar com Câmera</span>
+                            <input type="file" accept="image/*" capture="user" class="hidden" onchange="handleProfileAvatarSelect(event)">
+                        </label>
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Seu Nome</label>
+                    <input type="text" id="edit-name-input" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-violet-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Biografia</label>
+                    <textarea id="edit-bio-input" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-violet-500 resize-none"></textarea>
+                </div>
+            </div>
+
+            <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
+                <button onclick="closeEditProfileModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white">Cancelar</button>
+                <button onclick="saveProfileChanges()" class="bg-violet-600 hover:bg-violet-500 text-white px-4 py-2 rounded-xl text-xs font-semibold transition-all shadow-lg shadow-violet-600/20">Salvar Alterações</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FIREBASE SDKs & LÓGICA -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, push, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDtNh6DX5NZNzJdoTWN9Dklu97munmJf1w",
+          authDomain: "gestaofazenda-106ec.firebaseapp.com",
+          databaseURL: "https://gestaofazenda-106ec-default-rtdb.firebaseio.com",
+          projectId: "gestaofazenda-106ec",
+          storageBucket: "gestaofazenda-106ec.firebasestorage.app",
+          messagingSenderId: "241491924291",
+          appId: "1:241491924291:web:5d7825b174d235a66d0bf6",
+          measurementId: "G-147QY6PKN5"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const analytics = getAnalytics(app);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        let isRegistering = false;
+        let currentUser = null;
+        let uploadedImageUrl = "";
+        let newAvatarBase64 = "";
+
+        window.toggleAuthMode = function() {
+            isRegistering = !isRegistering;
+            const title = document.getElementById('auth-subtitle');
+            const nameContainer = document.getElementById('name-field-container');
+            const submitBtn = document.getElementById('auth-submit-btn');
+            const switchText = document.getElementById('auth-switch-text');
+            const switchBtn = document.getElementById('auth-switch-btn');
+            const errorDiv = document.getElementById('auth-error');
+            errorDiv.classList.add('hidden');
+
+            if(isRegistering) {
+                title.innerText = "Crie sua conta gratuita no Corse";
+                nameContainer.classList.remove('hidden');
+                submitBtn.innerText = "Cadastrar Conta";
+                switchText.innerText = "Já tem uma conta?";
+                switchBtn.innerText = "Fazer login";
+            } else {
+                title.innerText = "Entre na sua conta para acessar o feed";
+                nameContainer.classList.add('hidden');
+                submitBtn.innerText = "Entrar na Conta";
+                switchText.innerText = "Não tem uma conta?";
+                switchBtn.innerText = "Criar conta";
+            }
+        }
+
+        window.handleAuthSubmit = async function() {
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value.trim();
+            const name = document.getElementById('auth-name').value.trim();
+            const errorDiv = document.getElementById('auth-error');
+            errorDiv.classList.add('hidden');
+
+            if(!email || !password) {
+                errorDiv.innerText = "Preencha o e-mail e a senha.";
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                if(isRegistering) {
+                    if(!name) {
+                        errorDiv.innerText = "Informe seu nome para o cadastro.";
+                        errorDiv.classList.remove('hidden');
+                        return;
+                    }
+                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                    // Salva o nome inicial direto no banco Realtime Database
+                    const userRef = ref(db, `users/${userCredential.user.uid}`);
+                    await set(userRef, {
+                        name: name,
+                        bio: "Conectado e construindo o futuro das redes sociais no Corse.",
+                        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150"
+                    });
+                } else {
+                    await signInWithEmailAndPassword(auth, email, password);
+                }
+            } catch (error) {
+                console.error("Erro completo:", error);
+                errorDiv.innerText = "Erro Firebase: " + error.code + " - " + error.message;
+                errorDiv.classList.remove('hidden');
+            }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if (user) {
+                currentUser = user;
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('app-container').classList.remove('hidden');
+                
+                const defaultName = user.email.split('@')[0];
+                document.getElementById('profile-email').innerText = user.email;
+
+                loadUserProfileData(user.uid, defaultName);
+                listenToPosts();
+                listenToScraps();
+            } else {
+                currentUser = null;
+                document.getElementById('app-container').classList.add('hidden');
+                document.getElementById('auth-screen').classList.remove('hidden');
+            }
+            lucide.createIcons();
+        });
+
+        window.logoutUser = async function() {
+            await signOut(auth);
+        }
+
+        window.switchTab = function(tabId) {
+            document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('aside nav button').forEach(btn => {
+                btn.classList.remove('bg-violet-600/10', 'text-violet-400', 'border', 'border-violet-500/20');
+                btn.classList.add('text-slate-300');
+            });
+            const activeBtn = document.getElementById(`nav-${tabId}`);
+            if(activeBtn) {
+                activeBtn.classList.add('bg-violet-600/10', 'text-violet-400', 'border', 'border-violet-500/20');
+                activeBtn.classList.remove('text-slate-300');
+            }
+
+            document.querySelectorAll('.md\\:hidden.fixed button').forEach(btn => {
+                if(!btn.classList.contains('text-red-400')) btn.classList.replace('text-violet-400', 'text-slate-400');
+            });
+            const mobBtn = document.getElementById(`mob-nav-${tabId}`);
+            if(mobBtn) mobBtn.classList.replace('text-slate-400', 'text-violet-400');
+        }
+
+        window.handleImageSelect = function(event) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    uploadedImageUrl = e.target.result;
+                    document.getElementById('image-preview').src = uploadedImageUrl;
+                    document.getElementById('image-preview-container').classList.remove('hidden');
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        window.removeImage = function() {
+            uploadedImageUrl = "";
+            document.getElementById('image-input').value = "";
+            document.getElementById('camera-input').value = "";
+            document.getElementById('image-preview-container').classList.add('hidden');
+        }
+
+        // FUNÇÕES DE EDIÇÃO DE PERFIL CORRIGIDAS (SEM O ERRO DE URL DO FIREBASE AUTH)
+        window.openEditProfileModal = function() {
+            document.getElementById('edit-name-input').value = document.getElementById('profile-name').innerText;
+            document.getElementById('edit-bio-input').value = document.getElementById('profile-bio-text').innerText;
+            document.getElementById('modal-avatar-preview').src = document.getElementById('profile-avatar-img').src;
+            newAvatarBase64 = "";
+            document.getElementById('edit-profile-modal').classList.remove('hidden');
+        }
+
+        window.closeEditProfileModal = function() {
+            document.getElementById('edit-profile-modal').classList.add('hidden');
+        }
+
+        window.handleProfileAvatarSelect = function(event) {
+            const file = event.target.files[0];
+            if(file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = new Image();
+                    img.onload = function() {
+                        const canvas = document.createElement('canvas');
+                        const ctx = canvas.getContext('2d');
+                        const MAX_SIZE = 250;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                            if (width > MAX_SIZE) {
+                                height *= MAX_SIZE / width;
+                                width = MAX_SIZE;
+                            }
+                        } else {
+                            if (height > MAX_SIZE) {
+                                width *= MAX_SIZE / height;
+                                height = MAX_SIZE;
+                            }
+                        }
+
+                        canvas.width = width;
+                        canvas.height = height;
+                        ctx.drawImage(img, 0, 0, width, height);
+                        newAvatarBase64 = canvas.toDataURL('image/jpeg', 0.7);
+                        document.getElementById('modal-avatar-preview').src = newAvatarBase64;
+                    }
+                    img.src = e.target.result;
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        window.saveProfileChanges = async function() {
+            const newName = document.getElementById('edit-name-input').value.trim();
+            const newBio = document.getElementById('edit-bio-input').value.trim();
+            const currentAvatar = document.getElementById('profile-avatar-img').src;
+            const finalAvatar = newAvatarBase64 || currentAvatar;
+
+            if(!newName) {
+                alert("O nome não pode ficar vazio.");
+                return;
+            }
+
+            try {
+                // Salvar diretamente no Realtime Database sem tocar no Auth URL
+                const userRef = ref(db, `users/${currentUser.uid}`);
+                await set(userRef, {
+                    name: newName,
+                    bio: newBio,
+                    avatar: finalAvatar
+                });
+
+                // Atualizar elementos na tela imediatamente
+                document.getElementById('user-display-name').innerText = newName;
+                document.getElementById('profile-name').innerText = newName;
+                document.getElementById('profile-bio-text').innerText = newBio || "Sem biografia.";
+                document.getElementById('sidebar-user-avatar').src = finalAvatar;
+                document.getElementById('feed-user-avatar').src = finalAvatar;
+                document.getElementById('profile-avatar-img').src = finalAvatar;
+
+                closeEditProfileModal();
+                alert("Perfil atualizado com sucesso!");
+            } catch (error) {
+                console.error("Erro ao atualizar perfil:", error);
+                alert("Erro ao salvar alterações: " + error.message);
+            }
+        }
+
+        function loadUserProfileData(uid, defaultName) {
+            const userRef = ref(db, `users/${uid}`);
+            onValue(userRef, (snapshot) => {
+                const data = snapshot.val();
+                const name = (data && data.name) ? data.name : defaultName;
+                const bio = (data && data.bio) ? data.bio : "Conectado e construindo o futuro das redes sociais no Corse.";
+                const avatar = (data && data.avatar) ? data.avatar : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150";
+
+                document.getElementById('profile-name').innerText = name;
+                document.getElementById('user-display-name').innerText = name;
+                document.getElementById('profile-bio-text').innerText = bio;
+                document.getElementById('profile-avatar-img').src = avatar;
+                document.getElementById('sidebar-user-avatar').src = avatar;
+                document.getElementById('feed-user-avatar').src = avatar;
+            });
+        }
+
+        // Feed em Tempo Real
+        function listenToPosts() {
+            const feed = document.getElementById('posts-feed');
+            const postsRef = ref(db, 'posts');
+            
+            onValue(postsRef, (snapshot) => {
+                const data = snapshot.val();
+                if(!data) {
+                    feed.innerHTML = `<div class="text-center py-8 text-slate-500 text-sm">Nenhum post no banco ainda. Seja o primeiro a publicar!</div>`;
+                    return;
+                }
+
+                feed.innerHTML = "";
+                const postsArray = Object.keys(data).map(key => ({
+                    id: key,
+                    ...data[key]
+                })).reverse();
+
+                postsArray.forEach(post => {
+                    renderPostCard(post);
+                });
+            });
+        }
+
+        function renderPostCard(post) {
+            const feed = document.getElementById('posts-feed');
+            let imageHtml = post.image ? `<div class="mt-3"><img src="${post.image}" class="w-full object-cover max-h-96"></div>` : '';
+
+            const postHTML = `
+                <div class="bg-slate-900/80 backdrop-blur border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+                    <div class="p-4 flex items-center justify-between">
+                        <div class="flex items-center gap-3">
+                            <img src="${post.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" class="w-10 h-10 rounded-full object-cover">
+                            <div>
+                                <h3 class="font-semibold text-slate-100 text-sm">${escapeHtml(post.author)}</h3>
+                                <p class="text-xs text-slate-400">Postado no Corse</p>
+                            </div>
+                        </div>
+                        <span class="text-xs px-2.5 py-1 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20">Geral</span>
+                    </div>
+                    <p class="px-4 text-slate-300 text-sm leading-relaxed">${escapeHtml(post.content)}</p>
+                    ${imageHtml}
+                    <div class="p-4 flex items-center justify-between border-t border-slate-800/60 text-slate-400 text-sm">
+                        <button onclick="likePost(this)" class="flex items-center gap-2 hover:text-violet-400 transition-colors">
+                            <i data-lucide="heart" class="w-5 h-5"></i>
+                            <span class="likes-count">${post.likes || 0}</span>
+                        </button>
+                        <button class="flex items-center gap-2 hover:text-violet-400 transition-colors">
+                            <i data-lucide="message-circle" class="w-5 h-5"></i>
+                            <span>Comentários</span>
+                        </button>
+                        <button class="hover:text-violet-400 transition-colors">
+                            <i data-lucide="share-2" class="w-5 h-5"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+            feed.insertAdjacentHTML('beforeend', postHTML);
+            lucide.createIcons();
+        }
+
+        window.createPost = async function() {
+            const content = document.getElementById('post-content').value.trim();
+            if(!content && !uploadedImageUrl) return alert("Escreva alguma coisa ou adicione uma foto para publicar!");
+
+            try {
+                const postsRef = ref(db, 'posts');
+                const newPostRef = push(postsRef);
+                const currentName = document.getElementById('profile-name').innerText;
+                const currentAvatar = document.getElementById('profile-avatar-img').src;
+                
+                await set(newPostRef, {
+                    author: currentName,
+                    avatar: currentAvatar,
+                    content: content,
+                    image: uploadedImageUrl || "",
+                    likes: 0,
+                    createdAt: Date.now()
+                });
+                
+                document.getElementById('post-content').value = "";
+                window.removeImage();
+            } catch (error) {
+                console.error("Erro ao salvar post:", error);
+                alert("Erro ao publicar post no Realtime Database.");
+            }
+        }
+
+        window.likePost = function(btn) {
+            const countSpan = btn.querySelector('.likes-count');
+            let count = parseInt(countSpan.textContent);
+            count++;
+            countSpan.textContent = count;
+            btn.classList.add('text-violet-400');
+            const icon = btn.querySelector('i');
+            icon.setAttribute('fill', 'currentColor');
+        }
+
+        // Mural de Scraps em Tempo Real
+        window.addScrap = async function() {
+            const input = document.getElementById('scrap-input');
+            const text = input.value.trim();
+            if(!text) return;
+
+            try {
+                const scrapsRef = ref(db, 'scraps');
+                const newScrapRef = push(scrapsRef);
+                const currentName = document.getElementById('profile-name').innerText;
+                
+                await set(newScrapRef, {
+                    author: currentName,
+                    content: text,
+                    createdAt: Date.now()
+                });
+                input.value = "";
+            } catch(e) {
+                console.error("Erro ao enviar scrap:", e);
+                alert("Erro ao enviar recado.");
+            }
+        }
+
+        function listenToScraps() {
+            const list = document.getElementById('scraps-list');
+            const scrapsRef = ref(db, 'scraps');
+
+            onValue(scrapsRef, (snapshot) => {
+                const data = snapshot.val();
+                if(!data) {
+                    list.innerHTML = `<div class="text-center py-4 text-slate-500 text-sm">Nenhum recado no mural ainda.</div>`;
+                    return;
+                }
+
+                list.innerHTML = "";
+                const scrapsArray = Object.keys(data).map(key => ({
+                    id: key,
+                    ...data[key]
+                })).reverse();
+
+                scrapsArray.forEach(scrap => {
+                    const scrapHTML = `
+                        <div class="bg-slate-950/60 border border-slate-800/80 p-4 rounded-xl">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="font-semibold text-xs text-violet-400">${escapeHtml(scrap.author)}</span>
+                                <span class="text-xs text-slate-500">recente</span>
+                            </div>
+                            <p class="text-sm text-slate-300">${escapeHtml(scrap.content)}</p>
+                        </div>
+                    `;
+                    list.insertAdjacentHTML('beforeend', scrapHTML);
+                });
+            });
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
+        }
+
+        lucide.createIcons();
+    </script>
+</body>
+</html>
