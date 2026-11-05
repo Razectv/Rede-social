@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Corse - Conecte-se com estilo</title>
     
-    <!-- Ícones para Atalho na Tela Inicial (Android / iOS / PWA) -->
+    <!-- Ícones para Atalho na Tela Inicial -->
     <link rel="icon" type="image/png" sizes="192x192" href="logo-icon.png">
     <link rel="apple-touch-icon" sizes="180x180" href="logo-icon.png">
     <link rel="manifest" href="manifest.json">
@@ -36,20 +36,18 @@
         .toast-notification {
             animation: slideDown 0.3s ease-out forwards;
         }
-        @keyframes pulseDot {
-            0%, 100% { opacity: 0.3; transform: scale(0.8); }
-            50% { opacity: 1; transform: scale(1.2); }
+        @keyframes pulsePlant {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.08); }
         }
-        .typing-dot {
-            animation: pulseDot 1.4s infinite ease-in-out both;
+        .animate-plant {
+            animation: pulsePlant 2s infinite ease-in-out;
         }
-        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
-        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col md:flex-row relative">
 
-    <!-- NOTIFICAÇÃO FLUTUANTE NO TOPO (TOAST) -->
+    <!-- NOTIFICAÇÃO FLUTUANTE NO TOPO -->
     <div id="toast-container" class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-sm px-4 pointer-events-none space-y-2"></div>
 
     <!-- TELA DE AUTENTICAÇÃO -->
@@ -383,10 +381,10 @@
                 </div>
             </section>
 
-            <!-- ABA 5: JOGOS & ARCADE (MINI FAZENDA + QUIZ EM TEMPO REAL) -->
+            <!-- ABA 5: JOGOS & ARCADE (MINI FAZENDA ANIMADA + QUIZ SIMULTÂNEO) -->
             <section id="tab-games" class="space-y-6 hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- MINI FAZENDA -->
+                    <!-- MINI FAZENDA ANIMADA -->
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
                         <div class="flex items-center gap-3 border-b border-slate-800 pb-3">
                             <div class="p-2.5 rounded-xl bg-emerald-600/20 text-emerald-400">
@@ -394,16 +392,16 @@
                             </div>
                             <div>
                                 <h3 class="font-bold text-slate-100 text-base">Mini Fazenda Corse</h3>
-                                <p class="text-xs text-slate-400">Plante, cuide e colha para liderar o ranking!</p>
+                                <p class="text-xs text-slate-400">Plante, veja crescer com animações e colha!</p>
                             </div>
                         </div>
 
                         <div id="farm-plots" class="grid grid-cols-2 gap-3 py-2">
-                            <!-- Canteiros gerados via JS -->
+                            <!-- Canteiros gerados dinamicamente com animação -->
                         </div>
                     </div>
 
-                    <!-- QUIZ EM TEMPO REAL COM MATCHMAKING -->
+                    <!-- QUIZ SIMULTÂNEO EM TEMPO REAL -->
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
                         <div class="space-y-4">
                             <div class="flex items-center gap-3 border-b border-slate-800 pb-3">
@@ -411,8 +409,8 @@
                                     <i data-lucide="help-circle" class="w-6 h-6"></i>
                                 </div>
                                 <div>
-                                    <h3 class="font-bold text-slate-100 text-base">Quiz Ao Vivo Online</h3>
-                                    <p class="text-xs text-slate-400">Desafie usuários online em tempo real!</p>
+                                    <h3 class="font-bold text-slate-100 text-base">Quiz Relâmpago Simultâneo</h3>
+                                    <p class="text-xs text-slate-400">História, Matemática & Cultura Geral</p>
                                 </div>
                             </div>
 
@@ -421,8 +419,8 @@
                                     <i data-lucide="users" class="w-8 h-8"></i>
                                 </div>
                                 <div>
-                                    <h4 class="font-bold text-slate-200 text-sm">Modo Batalha de Perguntas</h4>
-                                    <p class="text-xs text-slate-400 mt-1 max-w-xs mx-auto">Ao buscar partida, o Corse notificará os usuários online para encontrarem você!</p>
+                                    <h4 class="font-bold text-slate-200 text-sm">Batalha de Conhecimento</h4>
+                                    <p class="text-xs text-slate-400 mt-1 max-w-xs mx-auto">Ao buscar partida, o convite será enviado para todos os usuários online no Corse!</p>
                                 </div>
                                 <button onclick="startQuizMatchmaking()" class="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white px-6 py-3 rounded-xl font-semibold text-xs shadow-lg shadow-violet-600/25 transition-all cursor-pointer">
                                     🔍 Procurar Oponente Online
@@ -442,7 +440,7 @@
                         </div>
 
                         <div id="quiz-footer-status" class="text-center text-xs text-slate-500 pt-4 border-t border-slate-800">
-                            Pronto para duelar?
+                            Pronto para o duelo simultâneo?
                         </div>
                     </div>
                 </div>
@@ -450,19 +448,19 @@
         </main>
     </div>
 
-    <!-- MODAL CONVITE DE QUIZ (NOTIFICAÇÃO INTERATIVA) -->
+    <!-- MODAL CONVITE DE QUIZ (TRANSMITIDO A TODOS) -->
     <div id="quiz-invite-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-violet-500/50 rounded-2xl w-full max-w-sm p-6 shadow-2xl text-center space-y-4 animate-bounce">
-            <div class="w-14 h-14 bg-violet-600/20 rounded-full flex items-center justify-center mx-auto text-violet-400">
+        <div class="bg-slate-900 border border-violet-500/50 rounded-2xl w-full max-w-sm p-6 shadow-2xl text-center space-y-4">
+            <div class="w-14 h-14 bg-violet-600/20 rounded-full flex items-center justify-center mx-auto text-violet-400 animate-bounce">
                 <i data-lucide="zap" class="w-7 h-7"></i>
             </div>
             <div>
-                <h3 id="quiz-invite-title" class="font-bold text-slate-100 text-base">Desafio de Quiz!</h3>
-                <p id="quiz-invite-desc" class="text-xs text-slate-400 mt-1">Um usuário te chamou para uma partida relâmpago de perguntas.</p>
+                <h3 id="quiz-invite-title" class="font-bold text-slate-100 text-base">Alguém quer jogar Quiz!</h3>
+                <p id="quiz-invite-desc" class="text-xs text-slate-400 mt-1">Um oponente iniciou uma busca aberta por partida.</p>
             </div>
             <div class="flex gap-2 pt-2">
-                <button onclick="rejectQuizInvite()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-xs font-semibold cursor-pointer">Recusar</button>
-                <button onclick="acceptQuizInvite()" class="flex-1 bg-violet-600 hover:bg-violet-500 text-white py-2.5 rounded-xl text-xs font-semibold cursor-pointer">Aceitar!</button>
+                <button onclick="rejectQuizInvite()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-xs font-semibold cursor-pointer">Ignorar</button>
+                <button onclick="acceptQuizInvite()" class="flex-1 bg-violet-600 hover:bg-violet-500 text-white py-2.5 rounded-xl text-xs font-semibold cursor-pointer">Aceitar Duelo!</button>
             </div>
         </div>
     </div>
@@ -575,15 +573,17 @@
         let initialChatsLoaded = {}; 
         let typingTimeout = null;
 
-        // Quiz States
+        // Quiz Simultâneo States
         let currentQuizMatchId = null;
         let currentQuestionIndex = 0;
         let myQuizScore = 0;
         let quizTimerInterval = null;
         const quizQuestions = [
-            { q: "Qual foi a rede social brasileira precursora de comunidades e depoimentos em 2004?", options: ["Orkut", "MySpace", "Hi5", "Facebook"], correct: 0 },
-            { q: "Em que ano o Orkut foi oficialmente encerrado pelo Google?", options: ["2010", "2012", "2014", "2016"], correct: 2 },
-            { q: "Qual jogo de mini fazenda era febre absoluta no Orkut?", options: ["FarmVille", "Colheita Feliz", "Stardew Valley", "Hay Day"], correct: 1 }
+            { q: "Qual foi o império responsável pela construção do Coliseu em Roma?", options: ["Império Persa", "Império Romano", "Império Grego", "Império Otomano"], correct: 1 },
+            { q: "Quanto é 7 x 8 + 4?", options: ["56", "60", "64", "52"], correct: 1 },
+            { q: "Em que ano ocorreu a proclamação da independência do Brasil?", options: ["1500", "1822", "1889", "1930"], correct: 1 },
+            { q: "Qual o planeta mais próximo do Sol no sistema solar?", options: ["Vênus", "Terra", "Mercúrio", "Marte"], correct: 2 },
+            { q: "Quem pintou a Mona Lisa?", options: ["Van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Michelangelo"], correct: 2 }
         ];
 
         window.playNotificationSound = function() {
@@ -710,7 +710,7 @@
                 listenToFriendRequests();
                 listenToCommunities();
                 listenToAllGlobalChats();
-                listenToQuizInvites();
+                listenToGlobalQuizBroadcast();
                 loadMiniFarm(user.uid);
             } else {
                 if(currentUser) set(ref(db, `users/${currentUser.uid}/online`), false);
@@ -883,7 +883,7 @@
             });
         }
 
-        // --- MINI FAZENDA (ESTILO COLHEITA FELIZ) ---
+        // --- MINI FAZENDA VISUAL E ANIMADA ---
         function loadMiniFarm(uid) {
             const plotsContainer = document.getElementById('farm-plots');
             onValue(ref(db, `farms/${uid}`), (snapshot) => {
@@ -893,29 +893,34 @@
                 Object.keys(plots).forEach(plotId => {
                     const plot = plots[plotId];
                     const now = Date.now();
-                    const growTime = 10000; // 10 segundos para crescer
+                    const growTime = 8000; // 8 segundos para crescer
                     let statusHtml = '';
                     let actionBtn = '';
+                    let iconState = '🟫';
+                    let animClass = '';
 
                     if(!plot.crop) {
-                        statusHtml = `<span class="text-xs text-slate-400">Terra vazia</span>`;
-                        actionBtn = `<button onclick="plantCrop('${plotId}', '🌽 Milho')" class="mt-2 bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg text-[10px] font-semibold cursor-pointer">Plantar Milho</button>`;
+                        statusHtml = `<span class="text-[11px] text-slate-400">Terra fértil</span>`;
+                        actionBtn = `<button onclick="plantCrop('${plotId}', '🌽 Milho')" class="mt-2 bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-[11px] font-semibold transition-all cursor-pointer shadow-md shadow-emerald-600/30">Plantar Milho</button>`;
                     } else {
                         const elapsed = now - plot.plantedAt;
                         if(elapsed >= growTime) {
-                            statusHtml = `<span class="text-xs text-amber-400 font-bold">✨ Pronto para Colher!</span>`;
-                            actionBtn = `<button onclick="harvestCrop('${plotId}')" class="mt-2 bg-amber-600 hover:bg-amber-500 text-white px-3 py-1 rounded-lg text-[10px] font-semibold cursor-pointer">Colher ${plot.crop}</button>`;
+                            iconState = '🌽';
+                            animClass = 'animate-plant';
+                            statusHtml = `<span class="text-[11px] text-amber-400 font-bold">✨ Pronto p/ colher!</span>`;
+                            actionBtn = `<button onclick="harvestCrop('${plotId}')" class="mt-2 bg-amber-500 hover:bg-amber-400 text-slate-950 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all cursor-pointer shadow-md shadow-amber-500/30 animate-bounce">Colher Agora</button>`;
                         } else {
+                            iconState = '🌱';
                             const remaining = Math.ceil((growTime - elapsed) / 1000);
-                            statusHtml = `<span class="text-xs text-violet-400">Crescendo... (${remaining}s)</span>`;
-                            actionBtn = `<div class="mt-2 text-[10px] text-slate-500">Aguarde</div>`;
+                            statusHtml = `<span class="text-[11px] text-violet-400">Crescendo... (${remaining}s)</span>`;
+                            actionBtn = `<div class="mt-2 text-[10px] text-slate-500 font-medium">Cultivando</div>`;
                         }
                     }
 
                     plotsContainer.insertAdjacentHTML('beforeend', `
-                        <div class="bg-slate-950/60 border border-slate-800 p-3 rounded-xl flex flex-col items-center justify-center text-center">
-                            <span class="text-2xl mb-1">${plot.crop ? '🌽' : '🟫'}</span>
-                            <span class="text-xs font-semibold text-slate-200">Canteiro #${plotId}</span>
+                        <div class="bg-slate-950/70 border border-slate-800 p-4 rounded-2xl flex flex-col items-center justify-center text-center shadow-inner relative overflow-hidden">
+                            <span class="text-3xl mb-1 ${animClass}">${iconState}</span>
+                            <span class="text-xs font-bold text-slate-300 mt-1">Canteiro #${plotId}</span>
                             ${statusHtml}
                             ${actionBtn}
                         </div>
@@ -929,7 +934,7 @@
                 crop: cropName,
                 plantedAt: Date.now()
             });
-            showToast("Plantação iniciada com sucesso! 🌽", "game");
+            showToast("Semente plantada! Veja a planta crescer. 🌱", "game");
         }
 
         window.harvestCrop = async function(plotId) {
@@ -938,7 +943,6 @@
                 plantedAt: 0
             });
             
-            // Atualizar pontuação da fazenda
             const userRef = ref(db, `users/${currentUser.uid}`);
             const userSnap = await get(userRef);
             const currentScore = userSnap.val().farmScore || 0;
@@ -947,92 +951,78 @@
             showToast("Colheita realizada com sucesso! +1 Ponto 🌾", "success");
         }
 
-        // --- QUIZ MULTIJOGADOR COM MATCHMAKING E NOTIFICAÇÃO ---
+        // --- QUIZ SIMULTÂNEO EM TEMPO REAL COM TRANSMISSÃO A TODOS ---
         window.startQuizMatchmaking = async function() {
-            showToast("Buscando usuários online para o Quiz...", "game");
+            showToast("Procurando oponente online...", "game");
             document.getElementById('quiz-lobby').innerHTML = `
                 <div class="w-16 h-16 bg-amber-600/20 rounded-full flex items-center justify-center mx-auto text-amber-400 animate-spin">
                     <i data-lucide="loader" class="w-8 h-8"></i>
                 </div>
-                <h4 class="font-bold text-slate-200 text-sm">Procurando oponente...</h4>
-                <p class="text-xs text-slate-400 mt-1">Notificando membros conectados no Corse.</p>
+                <h4 class="font-bold text-slate-200 text-sm">Buscando na rede...</h4>
+                <p class="text-xs text-slate-400 mt-1">Transmitindo convite de quiz para todos os usuários online.</p>
             `;
             lucide.createIcons();
 
-            // Buscar outros usuários online
-            const usersSnap = await get(ref(db, 'users'));
-            const users = usersSnap.val() || {};
-            let targetUid = null;
-            let targetName = "";
-
-            Object.keys(users).forEach(uid => {
-                if(uid !== currentUser.uid && users[uid].online === true) {
-                    targetUid = uid;
-                    targetName = users[uid].name;
-                }
-            });
-
-            if(!targetUid) {
-                setTimeout(() => {
-                    alert("Nenhum outro usuário online no momento para o duelo. Jogue contra o bot!");
-                    resetQuizLobby();
-                }, 2000);
-                return;
-            }
-
-            // Enviar convite em tempo real para o usuário encontrado
-            const matchId = push(ref(db, 'quizMatches')).key;
+            const matchId = push(ref(db, 'quizBroadcasts')).key;
             currentQuizMatchId = matchId;
 
-            await set(ref(db, `quizInvites/${targetUid}`), {
-                fromUid: currentUser.uid,
-                fromName: document.getElementById('profile-name').innerText,
-                matchId: matchId,
+            // Publicar transmissão global para qualquer usuário online aceitar
+            await set(ref(db, `quizBroadcasts/${matchId}`), {
+                hostUid: currentUser.uid,
+                hostName: document.getElementById('profile-name').innerText,
+                status: 'waiting',
                 createdAt: Date.now()
             });
 
-            document.getElementById('quiz-footer-status').innerText = `Aguardando ${targetName} aceitar o convite...`;
+            document.getElementById('quiz-footer-status').innerText = `Transmitindo partida... Aguardando oponente aceitar.`;
         }
 
-        function listenToQuizInvites() {
-            onValue(ref(db, `quizInvites/${currentUser.uid}`), (snapshot) => {
-                const invite = snapshot.val();
-                if(!invite) return;
-
-                window.pendingQuizInvite = invite;
-                document.getElementById('quiz-invite-title').innerText = `Desafio de ${invite.fromName}!`;
-                document.getElementById('quiz-invite-modal').classList.remove('hidden');
-                playNotificationSound();
+        function listenToGlobalQuizBroadcast() {
+            onValue(ref(db, 'quizBroadcasts'), (snapshot) => {
+                const broadcasts = snapshot.val() || {};
+                Object.keys(broadcasts).forEach(matchId => {
+                    const b = broadcasts[matchId];
+                    // Se houver uma partida aberta por outro usuário e você não for o host
+                    if(b.status === 'waiting' && b.hostUid !== currentUser.uid) {
+                        // Evita spam exibindo apenas se não estiver jogando
+                        window.activeBroadcastId = matchId;
+                        window.activeHostName = b.hostName;
+                        document.getElementById('quiz-invite-title').innerText = `${b.hostName} desafiou para um Quiz!`;
+                        document.getElementById('quiz-invite-modal').classList.remove('hidden');
+                        playNotificationSound();
+                    }
+                });
             });
         }
 
         window.rejectQuizInvite = async function() {
-            await remove(ref(db, `quizInvites/${currentUser.uid}`));
             document.getElementById('quiz-invite-modal').classList.add('hidden');
         }
 
         window.acceptQuizInvite = async function() {
-            const invite = window.pendingQuizInvite;
-            if(!invite) return;
+            const matchId = window.activeBroadcastId;
+            if(!matchId) return;
 
-            currentQuizMatchId = invite.matchId;
-            await remove(ref(db, `quizInvites/${currentUser.uid}`));
+            currentQuizMatchId = matchId;
             document.getElementById('quiz-invite-modal').classList.add('hidden');
 
-            startQuizGame();
+            // Atualiza a transmissão para iniciada
+            await update(ref(db, `quizBroadcasts/${matchId}`), { status: 'started', guestUid: currentUser.uid, guestName: document.getElementById('profile-name').innerText });
+
+            startSimultaneousQuiz();
         }
 
-        function startQuizGame() {
+        function startSimultaneousQuiz() {
             document.getElementById('quiz-lobby').classList.add('hidden');
             document.getElementById('quiz-arena').classList.remove('hidden');
             currentQuestionIndex = 0;
             myQuizScore = 0;
-            loadQuizQuestion();
+            loadSimultaneousQuestion();
         }
 
-        function loadQuizQuestion() {
+        function loadSimultaneousQuestion() {
             if(currentQuestionIndex >= quizQuestions.length) {
-                endQuizGame();
+                finishSimultaneousQuiz();
                 return;
             }
 
@@ -1045,7 +1035,7 @@
 
             q.options.forEach((opt, idx) => {
                 optionsContainer.insertAdjacentHTML('beforeend', `
-                    <button onclick="answerQuiz(${idx}, ${q.correct})" class="w-full text-left bg-slate-950 hover:bg-violet-600/20 border border-slate-800 hover:border-violet-500/50 p-3 rounded-xl text-xs font-semibold text-slate-200 transition-all cursor-pointer">
+                    <button onclick="submitSimultaneousAnswer(${idx}, ${q.correct})" class="w-full text-left bg-slate-950 hover:bg-violet-600/20 border border-slate-800 hover:border-violet-500/50 p-3.5 rounded-xl text-xs font-semibold text-slate-200 transition-all cursor-pointer">
                         ${opt}
                     </button>
                 `);
@@ -1055,7 +1045,7 @@
         }
 
         function startQuizTimer() {
-            let timeLeft = 15;
+            let timeLeft = 12;
             document.getElementById('quiz-timer').innerText = `⏱️ ${timeLeft}s`;
             clearInterval(quizTimerInterval);
 
@@ -1065,53 +1055,81 @@
                 if(timeLeft <= 0) {
                     clearInterval(quizTimerInterval);
                     currentQuestionIndex++;
-                    loadQuizQuestion();
+                    loadSimultaneousQuestion();
                 }
             }, 1000);
         }
 
-        window.answerQuiz = function(selectedIdx, correctIdx) {
+        window.submitSimultaneousAnswer = async function(selectedIdx, correctIdx) {
             clearInterval(quizTimerInterval);
             if(selectedIdx === correctIdx) {
                 myQuizScore += 10;
-                showToast("Resposta Correta! +10 pts", "success");
+                showToast("Resposta registrada! ✅", "success");
             } else {
-                showToast("Resposta Errada!", "info");
+                showToast("Resposta registrada! ❌", "info");
+            }
+
+            // Salva a pontuação parcial no banco sem o oponente ver até o final
+            if(currentQuizMatchId) {
+                await set(ref(db, `quizScores/${currentQuizMatchId}/${currentUser.uid}`), myQuizScore);
             }
 
             currentQuestionIndex++;
-            loadQuizQuestion();
+            loadSimultaneousQuestion();
         }
 
-        async function endQuizGame() {
+        async function finishSimultaneousQuiz() {
+            clearInterval(quizTimerInterval);
             document.getElementById('quiz-arena').classList.add('hidden');
             document.getElementById('quiz-lobby').classList.remove('hidden');
-            document.getElementById('quiz-lobby').innerHTML = `
-                <div class="w-16 h-16 bg-emerald-600/20 rounded-full flex items-center justify-center mx-auto text-emerald-400">
-                    <i data-lucide="trophy" class="w-8 h-8"></i>
-                </div>
-                <h4 class="font-bold text-slate-200 text-sm">Fim de Jogo!</h4>
-                <p class="text-xs text-slate-400 mt-1">Sua pontuação final: <strong class="text-amber-400">${myQuizScore} pontos</strong></p>
-                <button onclick="startQuizMatchmaking()" class="mt-3 bg-violet-600 hover:bg-violet-500 text-white px-6 py-2.5 rounded-xl font-semibold text-xs cursor-pointer">Jogar Novamente</button>
-            `;
-            lucide.createIcons();
 
-            if(myQuizScore > 0) {
+            // Busca os placares finais para comparar simultaneamente
+            let opponentScore = 0;
+            if(currentQuizMatchId) {
+                const scoresSnap = await get(ref(db, `quizScores/${currentQuizMatchId}`));
+                const scores = scoresSnap.val() || {};
+                Object.keys(scores).forEach(uid => {
+                    if(uid !== currentUser.uid) opponentScore = scores[uid];
+                });
+            }
+
+            let resultMsg = "Empate técnico!";
+            let badgeColor = "text-amber-400";
+            if(myQuizScore > opponentScore) {
+                resultMsg = "🎉 Parabéns, você VENCEU o duelo!";
+                badgeColor = "text-emerald-400";
                 const userRef = ref(db, `users/${currentUser.uid}`);
                 const snap = await get(userRef);
                 const wins = snap.val().quizWins || 0;
                 await update(userRef, { quizWins: wins + 1 });
+            } else if(myQuizScore < opponentScore) {
+                resultMsg = "Fica para a próxima! O oponente pontuou mais.";
+                badgeColor = "text-red-400";
             }
+
+            document.getElementById('quiz-lobby').innerHTML = `
+                <div class="w-16 h-16 bg-violet-600/20 rounded-full flex items-center justify-center mx-auto text-violet-400">
+                    <i data-lucide="award" class="w-8 h-8"></i>
+                </div>
+                <h4 class="font-bold text-slate-100 text-base">Resultado Simultâneo Revelado!</h4>
+                <div class="space-y-1 text-xs text-slate-300 py-2">
+                    <p>Sua Pontuação: <strong class="text-violet-400">${myQuizScore} pts</strong></p>
+                    <p>Pontuação Oponente: <strong class="text-slate-400">${opponentScore} pts</strong></p>
+                </div>
+                <p class="font-bold text-sm ${badgeColor}">${resultMsg}</p>
+                <button onclick="resetQuizLobby()" class="mt-4 bg-violet-600 hover:bg-violet-500 text-white px-6 py-2.5 rounded-xl font-semibold text-xs cursor-pointer shadow-lg shadow-violet-600/30">Jogar Novamente</button>
+            `;
+            lucide.createIcons();
         }
 
-        function resetQuizLobby() {
+        window.resetQuizLobby = function() {
             document.getElementById('quiz-lobby').innerHTML = `
                 <div class="w-16 h-16 bg-violet-600/20 rounded-full flex items-center justify-center mx-auto text-violet-400 animate-pulse">
                     <i data-lucide="users" class="w-8 h-8"></i>
                 </div>
                 <div>
-                    <h4 class="font-bold text-slate-200 text-sm">Modo Batalha de Perguntas</h4>
-                    <p class="text-xs text-slate-400 mt-1 max-w-xs mx-auto">Ao buscar partida, o Corse notificará os usuários online para encontrarem você!</p>
+                    <h4 class="font-bold text-slate-200 text-sm">Batalha de Conhecimento</h4>
+                    <p class="text-xs text-slate-400 mt-1 max-w-xs mx-auto">Ao buscar partida, o convite será enviado para todos os usuários online no Corse!</p>
                 </div>
                 <button onclick="startQuizMatchmaking()" class="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white px-6 py-3 rounded-xl font-semibold text-xs shadow-lg shadow-violet-600/25 transition-all cursor-pointer">
                     🔍 Procurar Oponente Online
