@@ -56,10 +56,9 @@
     <div id="auth-screen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 sm:p-8 shadow-2xl space-y-6">
             <div class="text-center space-y-2 flex flex-col items-center">
-                <!-- LOGO TELA DE LOGIN -->
                 <img src="logo-icon.png" alt="Logo Corse" class="h-16 w-auto object-contain mb-2 rounded-xl shadow-lg shadow-violet-500/20" onerror="this.outerHTML='<div class=\\'inline-flex bg-gradient-to-tr from-violet-600 to-fuchsia-600 p-3 rounded-2xl shadow-lg shadow-violet-500/20 mb-2\\'><i data-lucide=\\'zap\\' class=\\'w-8 h-8 text-white\\'></i></div>'">
                 <h1 class="text-3xl font-black tracking-wider bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Corse</h1>
-                <p id="auth-subtitle" class="text-xs text-slate-400">Entre na sua conta para acessar o feed</p>
+                <p id="auth-subtitle" class="text-xs text-slate-400">Entre na sua conta para acessar o feed e os jogos</p>
             </div>
 
             <div class="space-y-4">
@@ -99,7 +98,6 @@
         <aside class="hidden md:flex flex-col w-64 border-r border-slate-800 bg-slate-950 p-6 sticky top-0 h-screen justify-between">
             <div>
                 <div class="flex items-center gap-3 mb-10">
-                    <!-- LOGO BARRA LATERAL DESKTOP -->
                     <img src="logo-icon.png" alt="Logo" class="h-8 w-auto object-contain rounded-lg" onerror="this.style.display='none'">
                     <span class="text-2xl font-black tracking-wider bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Corse</span>
                 </div>
@@ -120,6 +118,10 @@
                     <button onclick="switchTab('communities')" id="nav-communities" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl font-medium text-slate-300 hover:bg-slate-900 hover:text-white transition-all cursor-pointer">
                         <i data-lucide="compass" class="w-5 h-5"></i>
                         <span>Comunidades</span>
+                    </button>
+                    <button onclick="switchTab('games')" id="nav-games" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl font-medium text-slate-300 hover:bg-slate-900 hover:text-white transition-all cursor-pointer">
+                        <i data-lucide="gamepad-2" class="w-5 h-5 text-amber-400"></i>
+                        <span>Jogos & Arcade</span>
                     </button>
                 </nav>
             </div>
@@ -155,6 +157,7 @@
             <button onclick="switchTab('profile')" id="mob-nav-profile" class="p-2 text-slate-400 cursor-pointer"><i data-lucide="user" class="w-6 h-6"></i></button>
             <button onclick="switchTab('friends')" id="mob-nav-friends" class="p-2 text-slate-400 cursor-pointer"><i data-lucide="users" class="w-6 h-6"></i></button>
             <button onclick="switchTab('communities')" id="mob-nav-communities" class="p-2 text-slate-400 cursor-pointer"><i data-lucide="compass" class="w-6 h-6"></i></button>
+            <button onclick="switchTab('games')" id="mob-nav-games" class="p-2 text-slate-400 cursor-pointer"><i data-lucide="gamepad-2" class="w-6 h-6 text-amber-400"></i></button>
             <button onclick="logoutUser()" class="p-2 text-red-400 cursor-pointer"><i data-lucide="log-out" class="w-6 h-6"></i></button>
         </div>
 
@@ -164,7 +167,6 @@
             <!-- TOPO MOBILE LOGO -->
             <div class="md:hidden flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
                 <div class="flex items-center gap-2">
-                    <!-- LOGO TOPO MOBILE -->
                     <img src="logo-icon.png" alt="Logo" class="h-7 w-auto object-contain rounded-lg" onerror="this.style.display='none'">
                     <span class="text-xl font-black bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Corse</span>
                 </div>
@@ -234,16 +236,16 @@
                     </div>
                     <div class="grid grid-cols-3 gap-4 p-6 border-t border-slate-800 bg-slate-950/40 text-center">
                         <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
-                            <p class="text-xs text-slate-400 font-medium">Confiável</p>
-                            <p class="text-lg font-bold text-emerald-400 mt-1">💯 100%</p>
+                            <p class="text-xs text-slate-400 font-medium">Fazendeiro</p>
+                            <p id="stat-farm-score" class="text-lg font-bold text-emerald-400 mt-1">🌾 0 Colheitas</p>
                         </div>
                         <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
-                            <p class="text-xs text-slate-400 font-medium">Legal</p>
-                            <p class="text-lg font-bold text-amber-400 mt-1">⭐ 100%</p>
+                            <p class="text-xs text-slate-400 font-medium">Quiz Venceu</p>
+                            <p id="stat-quiz-score" class="text-lg font-bold text-amber-400 mt-1">🏆 0 Vitórias</p>
                         </div>
                         <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
-                            <p class="text-xs text-slate-400 font-medium">Sexy</p>
-                            <p class="text-lg font-bold text-fuchsia-400 mt-1">🔥 100%</p>
+                            <p class="text-xs text-slate-400 font-medium">Status</p>
+                            <p class="text-lg font-bold text-fuchsia-400 mt-1">⭐ VIP</p>
                         </div>
                     </div>
                 </div>
@@ -380,7 +382,89 @@
                     </div>
                 </div>
             </section>
+
+            <!-- ABA 5: JOGOS & ARCADE (MINI FAZENDA + QUIZ EM TEMPO REAL) -->
+            <section id="tab-games" class="space-y-6 hidden">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- MINI FAZENDA -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
+                        <div class="flex items-center gap-3 border-b border-slate-800 pb-3">
+                            <div class="p-2.5 rounded-xl bg-emerald-600/20 text-emerald-400">
+                                <i data-lucide="sprout" class="w-6 h-6"></i>
+                            </div>
+                            <div>
+                                <h3 class="font-bold text-slate-100 text-base">Mini Fazenda Corse</h3>
+                                <p class="text-xs text-slate-400">Plante, cuide e colha para liderar o ranking!</p>
+                            </div>
+                        </div>
+
+                        <div id="farm-plots" class="grid grid-cols-2 gap-3 py-2">
+                            <!-- Canteiros gerados via JS -->
+                        </div>
+                    </div>
+
+                    <!-- QUIZ EM TEMPO REAL COM MATCHMAKING -->
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
+                        <div class="space-y-4">
+                            <div class="flex items-center gap-3 border-b border-slate-800 pb-3">
+                                <div class="p-2.5 rounded-xl bg-amber-600/20 text-amber-400">
+                                    <i data-lucide="help-circle" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-bold text-slate-100 text-base">Quiz Ao Vivo Online</h3>
+                                    <p class="text-xs text-slate-400">Desafie usuários online em tempo real!</p>
+                                </div>
+                            </div>
+
+                            <div id="quiz-lobby" class="py-8 text-center space-y-4">
+                                <div class="w-16 h-16 bg-violet-600/20 rounded-full flex items-center justify-center mx-auto text-violet-400 animate-pulse">
+                                    <i data-lucide="users" class="w-8 h-8"></i>
+                                </div>
+                                <div>
+                                    <h4 class="font-bold text-slate-200 text-sm">Modo Batalha de Perguntas</h4>
+                                    <p class="text-xs text-slate-400 mt-1 max-w-xs mx-auto">Ao buscar partida, o Corse notificará os usuários online para encontrarem você!</p>
+                                </div>
+                                <button onclick="startQuizMatchmaking()" class="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white px-6 py-3 rounded-xl font-semibold text-xs shadow-lg shadow-violet-600/25 transition-all cursor-pointer">
+                                    🔍 Procurar Oponente Online
+                                </button>
+                            </div>
+
+                            <div id="quiz-arena" class="hidden space-y-4 py-2">
+                                <div class="flex justify-between items-center text-xs text-slate-400 font-semibold">
+                                    <span id="quiz-question-counter">Pergunta 1/3</span>
+                                    <span id="quiz-timer" class="text-amber-400">⏱️ 15s</span>
+                                </div>
+                                <h4 id="quiz-question-text" class="font-bold text-slate-100 text-sm min-h-[40px]">Carregando pergunta...</h4>
+                                <div id="quiz-options" class="space-y-2">
+                                    <!-- Opções -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="quiz-footer-status" class="text-center text-xs text-slate-500 pt-4 border-t border-slate-800">
+                            Pronto para duelar?
+                        </div>
+                    </div>
+                </div>
+            </section>
         </main>
+    </div>
+
+    <!-- MODAL CONVITE DE QUIZ (NOTIFICAÇÃO INTERATIVA) -->
+    <div id="quiz-invite-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-violet-500/50 rounded-2xl w-full max-w-sm p-6 shadow-2xl text-center space-y-4 animate-bounce">
+            <div class="w-14 h-14 bg-violet-600/20 rounded-full flex items-center justify-center mx-auto text-violet-400">
+                <i data-lucide="zap" class="w-7 h-7"></i>
+            </div>
+            <div>
+                <h3 id="quiz-invite-title" class="font-bold text-slate-100 text-base">Desafio de Quiz!</h3>
+                <p id="quiz-invite-desc" class="text-xs text-slate-400 mt-1">Um usuário te chamou para uma partida relâmpago de perguntas.</p>
+            </div>
+            <div class="flex gap-2 pt-2">
+                <button onclick="rejectQuizInvite()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-xs font-semibold cursor-pointer">Recusar</button>
+                <button onclick="acceptQuizInvite()" class="flex-1 bg-violet-600 hover:bg-violet-500 text-white py-2.5 rounded-xl text-xs font-semibold cursor-pointer">Aceitar!</button>
+            </div>
+        </div>
     </div>
 
     <!-- MODAL EDITAR PERFIL & BANNER -->
@@ -462,7 +546,7 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getDatabase, ref, push, set, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getDatabase, ref, push, set, onValue, update, remove, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyDtNh6DX5NZNzJdoTWN9Dklu97munmJf1w",
@@ -491,6 +575,17 @@
         let initialChatsLoaded = {}; 
         let typingTimeout = null;
 
+        // Quiz States
+        let currentQuizMatchId = null;
+        let currentQuestionIndex = 0;
+        let myQuizScore = 0;
+        let quizTimerInterval = null;
+        const quizQuestions = [
+            { q: "Qual foi a rede social brasileira precursora de comunidades e depoimentos em 2004?", options: ["Orkut", "MySpace", "Hi5", "Facebook"], correct: 0 },
+            { q: "Em que ano o Orkut foi oficialmente encerrado pelo Google?", options: ["2010", "2012", "2014", "2016"], correct: 2 },
+            { q: "Qual jogo de mini fazenda era febre absoluta no Orkut?", options: ["FarmVille", "Colheita Feliz", "Stardew Valley", "Hay Day"], correct: 1 }
+        ];
+
         window.playNotificationSound = function() {
             try {
                 const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
@@ -517,6 +612,7 @@
             if(type === 'success') { bgClass = 'bg-slate-900/95 border-emerald-500/40 text-emerald-300'; iconName = 'check-circle-2'; playNotificationSound(); }
             else if(type === 'post') { bgClass = 'bg-slate-900/95 border-fuchsia-500/40 text-fuchsia-300'; iconName = 'zap'; playNotificationSound(); }
             else if(type === 'chat') { bgClass = 'bg-slate-900/95 border-violet-500/50 text-violet-300'; iconName = 'message-square'; playNotificationSound(); }
+            else if(type === 'game') { bgClass = 'bg-slate-900/95 border-amber-500/50 text-amber-300'; iconName = 'gamepad-2'; playNotificationSound(); }
 
             container.insertAdjacentHTML('beforeend', `
                 <div id="${toastId}" class="toast-notification pointer-events-auto flex items-center gap-3 p-4 rounded-2xl border ${bgClass} backdrop-blur-md shadow-2xl transition-all">
@@ -583,7 +679,7 @@
                         name: name, email: email,
                         bio: "Conectado e construindo o futuro das redes sociais no Corse.",
                         avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
-                        banner: "", online: true
+                        banner: "", online: true, farmScore: 0, quizWins: 0
                     });
                 } else {
                     await signInWithEmailAndPassword(auth, email, password);
@@ -614,6 +710,8 @@
                 listenToFriendRequests();
                 listenToCommunities();
                 listenToAllGlobalChats();
+                listenToQuizInvites();
+                loadMiniFarm(user.uid);
             } else {
                 if(currentUser) set(ref(db, `users/${currentUser.uid}/online`), false);
                 currentUser = null;
@@ -766,11 +864,11 @@
 
         function loadUserProfileData(uid, defaultName) {
             onValue(ref(db, `users/${uid}`), (snapshot) => {
-                const data = snapshot.val();
-                const name = (data && data.name) ? data.name : defaultName;
-                const bio = (data && data.bio) ? data.bio : "Conectado e construindo o futuro das redes sociais no Corse.";
-                const avatar = (data && data.avatar) ? data.avatar : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150";
-                const banner = (data && data.banner) ? data.banner : "";
+                const data = snapshot.val() || {};
+                const name = data.name || defaultName;
+                const bio = data.bio || "Conectado e construindo o futuro das redes sociais no Corse.";
+                const avatar = data.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150";
+                const banner = data.banner || "";
 
                 document.getElementById('profile-name').innerText = name;
                 document.getElementById('user-display-name').innerText = name;
@@ -779,7 +877,247 @@
                 document.getElementById('sidebar-user-avatar').src = avatar;
                 document.getElementById('feed-user-avatar').src = avatar;
                 if(banner) document.getElementById('profile-banner-container').style.backgroundImage = `url(${banner})`;
+
+                document.getElementById('stat-farm-score').innerText = `🌾 ${data.farmScore || 0} Colheitas`;
+                document.getElementById('stat-quiz-score').innerText = `🏆 ${data.quizWins || 0} Vitórias`;
             });
+        }
+
+        // --- MINI FAZENDA (ESTILO COLHEITA FELIZ) ---
+        function loadMiniFarm(uid) {
+            const plotsContainer = document.getElementById('farm-plots');
+            onValue(ref(db, `farms/${uid}`), (snapshot) => {
+                const plots = snapshot.val() || { 1: { crop: null, plantedAt: 0 }, 2: { crop: null, plantedAt: 0 }, 3: { crop: null, plantedAt: 0 }, 4: { crop: null, plantedAt: 0 } };
+                plotsContainer.innerHTML = "";
+
+                Object.keys(plots).forEach(plotId => {
+                    const plot = plots[plotId];
+                    const now = Date.now();
+                    const growTime = 10000; // 10 segundos para crescer
+                    let statusHtml = '';
+                    let actionBtn = '';
+
+                    if(!plot.crop) {
+                        statusHtml = `<span class="text-xs text-slate-400">Terra vazia</span>`;
+                        actionBtn = `<button onclick="plantCrop('${plotId}', '🌽 Milho')" class="mt-2 bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1 rounded-lg text-[10px] font-semibold cursor-pointer">Plantar Milho</button>`;
+                    } else {
+                        const elapsed = now - plot.plantedAt;
+                        if(elapsed >= growTime) {
+                            statusHtml = `<span class="text-xs text-amber-400 font-bold">✨ Pronto para Colher!</span>`;
+                            actionBtn = `<button onclick="harvestCrop('${plotId}')" class="mt-2 bg-amber-600 hover:bg-amber-500 text-white px-3 py-1 rounded-lg text-[10px] font-semibold cursor-pointer">Colher ${plot.crop}</button>`;
+                        } else {
+                            const remaining = Math.ceil((growTime - elapsed) / 1000);
+                            statusHtml = `<span class="text-xs text-violet-400">Crescendo... (${remaining}s)</span>`;
+                            actionBtn = `<div class="mt-2 text-[10px] text-slate-500">Aguarde</div>`;
+                        }
+                    }
+
+                    plotsContainer.insertAdjacentHTML('beforeend', `
+                        <div class="bg-slate-950/60 border border-slate-800 p-3 rounded-xl flex flex-col items-center justify-center text-center">
+                            <span class="text-2xl mb-1">${plot.crop ? '🌽' : '🟫'}</span>
+                            <span class="text-xs font-semibold text-slate-200">Canteiro #${plotId}</span>
+                            ${statusHtml}
+                            ${actionBtn}
+                        </div>
+                    `);
+                });
+            });
+        }
+
+        window.plantCrop = async function(plotId, cropName) {
+            await set(ref(db, `farms/${currentUser.uid}/${plotId}`), {
+                crop: cropName,
+                plantedAt: Date.now()
+            });
+            showToast("Plantação iniciada com sucesso! 🌽", "game");
+        }
+
+        window.harvestCrop = async function(plotId) {
+            await set(ref(db, `farms/${currentUser.uid}/${plotId}`), {
+                crop: null,
+                plantedAt: 0
+            });
+            
+            // Atualizar pontuação da fazenda
+            const userRef = ref(db, `users/${currentUser.uid}`);
+            const userSnap = await get(userRef);
+            const currentScore = userSnap.val().farmScore || 0;
+            await update(userRef, { farmScore: currentScore + 1 });
+
+            showToast("Colheita realizada com sucesso! +1 Ponto 🌾", "success");
+        }
+
+        // --- QUIZ MULTIJOGADOR COM MATCHMAKING E NOTIFICAÇÃO ---
+        window.startQuizMatchmaking = async function() {
+            showToast("Buscando usuários online para o Quiz...", "game");
+            document.getElementById('quiz-lobby').innerHTML = `
+                <div class="w-16 h-16 bg-amber-600/20 rounded-full flex items-center justify-center mx-auto text-amber-400 animate-spin">
+                    <i data-lucide="loader" class="w-8 h-8"></i>
+                </div>
+                <h4 class="font-bold text-slate-200 text-sm">Procurando oponente...</h4>
+                <p class="text-xs text-slate-400 mt-1">Notificando membros conectados no Corse.</p>
+            `;
+            lucide.createIcons();
+
+            // Buscar outros usuários online
+            const usersSnap = await get(ref(db, 'users'));
+            const users = usersSnap.val() || {};
+            let targetUid = null;
+            let targetName = "";
+
+            Object.keys(users).forEach(uid => {
+                if(uid !== currentUser.uid && users[uid].online === true) {
+                    targetUid = uid;
+                    targetName = users[uid].name;
+                }
+            });
+
+            if(!targetUid) {
+                setTimeout(() => {
+                    alert("Nenhum outro usuário online no momento para o duelo. Jogue contra o bot!");
+                    resetQuizLobby();
+                }, 2000);
+                return;
+            }
+
+            // Enviar convite em tempo real para o usuário encontrado
+            const matchId = push(ref(db, 'quizMatches')).key;
+            currentQuizMatchId = matchId;
+
+            await set(ref(db, `quizInvites/${targetUid}`), {
+                fromUid: currentUser.uid,
+                fromName: document.getElementById('profile-name').innerText,
+                matchId: matchId,
+                createdAt: Date.now()
+            });
+
+            document.getElementById('quiz-footer-status').innerText = `Aguardando ${targetName} aceitar o convite...`;
+        }
+
+        function listenToQuizInvites() {
+            onValue(ref(db, `quizInvites/${currentUser.uid}`), (snapshot) => {
+                const invite = snapshot.val();
+                if(!invite) return;
+
+                window.pendingQuizInvite = invite;
+                document.getElementById('quiz-invite-title').innerText = `Desafio de ${invite.fromName}!`;
+                document.getElementById('quiz-invite-modal').classList.remove('hidden');
+                playNotificationSound();
+            });
+        }
+
+        window.rejectQuizInvite = async function() {
+            await remove(ref(db, `quizInvites/${currentUser.uid}`));
+            document.getElementById('quiz-invite-modal').classList.add('hidden');
+        }
+
+        window.acceptQuizInvite = async function() {
+            const invite = window.pendingQuizInvite;
+            if(!invite) return;
+
+            currentQuizMatchId = invite.matchId;
+            await remove(ref(db, `quizInvites/${currentUser.uid}`));
+            document.getElementById('quiz-invite-modal').classList.add('hidden');
+
+            startQuizGame();
+        }
+
+        function startQuizGame() {
+            document.getElementById('quiz-lobby').classList.add('hidden');
+            document.getElementById('quiz-arena').classList.remove('hidden');
+            currentQuestionIndex = 0;
+            myQuizScore = 0;
+            loadQuizQuestion();
+        }
+
+        function loadQuizQuestion() {
+            if(currentQuestionIndex >= quizQuestions.length) {
+                endQuizGame();
+                return;
+            }
+
+            const q = quizQuestions[currentQuestionIndex];
+            document.getElementById('quiz-question-counter').innerText = `Pergunta ${currentQuestionIndex + 1}/${quizQuestions.length}`;
+            document.getElementById('quiz-question-text').innerText = q.q;
+
+            const optionsContainer = document.getElementById('quiz-options');
+            optionsContainer.innerHTML = "";
+
+            q.options.forEach((opt, idx) => {
+                optionsContainer.insertAdjacentHTML('beforeend', `
+                    <button onclick="answerQuiz(${idx}, ${q.correct})" class="w-full text-left bg-slate-950 hover:bg-violet-600/20 border border-slate-800 hover:border-violet-500/50 p-3 rounded-xl text-xs font-semibold text-slate-200 transition-all cursor-pointer">
+                        ${opt}
+                    </button>
+                `);
+            });
+
+            startQuizTimer();
+        }
+
+        function startQuizTimer() {
+            let timeLeft = 15;
+            document.getElementById('quiz-timer').innerText = `⏱️ ${timeLeft}s`;
+            clearInterval(quizTimerInterval);
+
+            quizTimerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('quiz-timer').innerText = `⏱️ ${timeLeft}s`;
+                if(timeLeft <= 0) {
+                    clearInterval(quizTimerInterval);
+                    currentQuestionIndex++;
+                    loadQuizQuestion();
+                }
+            }, 1000);
+        }
+
+        window.answerQuiz = function(selectedIdx, correctIdx) {
+            clearInterval(quizTimerInterval);
+            if(selectedIdx === correctIdx) {
+                myQuizScore += 10;
+                showToast("Resposta Correta! +10 pts", "success");
+            } else {
+                showToast("Resposta Errada!", "info");
+            }
+
+            currentQuestionIndex++;
+            loadQuizQuestion();
+        }
+
+        async function endQuizGame() {
+            document.getElementById('quiz-arena').classList.add('hidden');
+            document.getElementById('quiz-lobby').classList.remove('hidden');
+            document.getElementById('quiz-lobby').innerHTML = `
+                <div class="w-16 h-16 bg-emerald-600/20 rounded-full flex items-center justify-center mx-auto text-emerald-400">
+                    <i data-lucide="trophy" class="w-8 h-8"></i>
+                </div>
+                <h4 class="font-bold text-slate-200 text-sm">Fim de Jogo!</h4>
+                <p class="text-xs text-slate-400 mt-1">Sua pontuação final: <strong class="text-amber-400">${myQuizScore} pontos</strong></p>
+                <button onclick="startQuizMatchmaking()" class="mt-3 bg-violet-600 hover:bg-violet-500 text-white px-6 py-2.5 rounded-xl font-semibold text-xs cursor-pointer">Jogar Novamente</button>
+            `;
+            lucide.createIcons();
+
+            if(myQuizScore > 0) {
+                const userRef = ref(db, `users/${currentUser.uid}`);
+                const snap = await get(userRef);
+                const wins = snap.val().quizWins || 0;
+                await update(userRef, { quizWins: wins + 1 });
+            }
+        }
+
+        function resetQuizLobby() {
+            document.getElementById('quiz-lobby').innerHTML = `
+                <div class="w-16 h-16 bg-violet-600/20 rounded-full flex items-center justify-center mx-auto text-violet-400 animate-pulse">
+                    <i data-lucide="users" class="w-8 h-8"></i>
+                </div>
+                <div>
+                    <h4 class="font-bold text-slate-200 text-sm">Modo Batalha de Perguntas</h4>
+                    <p class="text-xs text-slate-400 mt-1 max-w-xs mx-auto">Ao buscar partida, o Corse notificará os usuários online para encontrarem você!</p>
+                </div>
+                <button onclick="startQuizMatchmaking()" class="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white px-6 py-3 rounded-xl font-semibold text-xs shadow-lg shadow-violet-600/25 transition-all cursor-pointer">
+                    🔍 Procurar Oponente Online
+                </button>
+            `;
+            lucide.createIcons();
         }
 
         function listenToAllGlobalChats() {
@@ -1327,7 +1665,7 @@
             try {
                 await push(ref(db, `communityMessages/${activeCommunityId}`), {
                     senderUid: currentUser.uid,
-                    senderName: document.getElementById('profile-name-innerText') || document.getElementById('profile-name').innerText,
+                    senderName: document.getElementById('profile-name').innerText,
                     text: text, createdAt: Date.now()
                 });
                 input.value = "";
