@@ -4,6 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Corse - Conecte-se com estilo</title>
+    
+    <!-- Ícones para Atalho na Tela Inicial (Android / iOS / PWA) -->
+    <link rel="icon" type="image/png" sizes="192x192" href="logo-icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="logo-icon.png">
+    <link rel="manifest" href="manifest.json">
+
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Ícones Lucide -->
@@ -49,10 +55,9 @@
     <!-- TELA DE AUTENTICAÇÃO -->
     <div id="auth-screen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 sm:p-8 shadow-2xl space-y-6">
-            <div class="text-center space-y-2">
-                <div class="inline-flex bg-gradient-to-tr from-violet-600 to-fuchsia-600 p-3 rounded-2xl shadow-lg shadow-violet-500/20 mb-2">
-                    <i data-lucide="zap" class="w-8 h-8 text-white"></i>
-                </div>
+            <div class="text-center space-y-2 flex flex-col items-center">
+                <!-- LOGO TELA DE LOGIN -->
+                <img src="logo-icon.png" alt="Logo Corse" class="h-16 w-auto object-contain mb-2 rounded-xl shadow-lg shadow-violet-500/20" onerror="this.outerHTML='<div class=\\'inline-flex bg-gradient-to-tr from-violet-600 to-fuchsia-600 p-3 rounded-2xl shadow-lg shadow-violet-500/20 mb-2\\'><i data-lucide=\\'zap\\' class=\\'w-8 h-8 text-white\\'></i></div>'">
                 <h1 class="text-3xl font-black tracking-wider bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Corse</h1>
                 <p id="auth-subtitle" class="text-xs text-slate-400">Entre na sua conta para acessar o feed</p>
             </div>
@@ -94,9 +99,8 @@
         <aside class="hidden md:flex flex-col w-64 border-r border-slate-800 bg-slate-950 p-6 sticky top-0 h-screen justify-between">
             <div>
                 <div class="flex items-center gap-3 mb-10">
-                    <div class="bg-gradient-to-tr from-violet-600 to-fuchsia-600 p-2.5 rounded-2xl shadow-lg shadow-violet-500/20">
-                        <i data-lucide="zap" class="w-6 h-6 text-white"></i>
-                    </div>
+                    <!-- LOGO BARRA LATERAL DESKTOP -->
+                    <img src="logo-icon.png" alt="Logo" class="h-8 w-auto object-contain rounded-lg" onerror="this.style.display='none'">
                     <span class="text-2xl font-black tracking-wider bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Corse</span>
                 </div>
 
@@ -160,9 +164,8 @@
             <!-- TOPO MOBILE LOGO -->
             <div class="md:hidden flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
                 <div class="flex items-center gap-2">
-                    <div class="bg-violet-600 p-2 rounded-xl">
-                        <i data-lucide="zap" class="w-5 h-5 text-white"></i>
-                    </div>
+                    <!-- LOGO TOPO MOBILE -->
+                    <img src="logo-icon.png" alt="Logo" class="h-7 w-auto object-contain rounded-lg" onerror="this.style.display='none'">
                     <span class="text-xl font-black bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Corse</span>
                 </div>
                 <span id="mob-db-status" class="text-xs text-emerald-400 font-medium">Firebase Online</span>
@@ -635,7 +638,6 @@
             document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
 
-            // Se sair da aba de amigos, limpa o chat ativo para não marcar como lido sem estar olhando
             if(tabId !== 'friends' && activeChatFriendUid) {
                 activeChatFriendUid = null;
                 document.getElementById('chat-title').innerText = "Selecione um amigo para conversar";
@@ -682,7 +684,6 @@
             document.getElementById('image-preview-container').classList.add('hidden');
         }
 
-        // --- PERFIL & BANNER ---
         window.openEditProfileModal = function() {
             document.getElementById('edit-name-input').value = document.getElementById('profile-name').innerText;
             document.getElementById('edit-bio-input').value = document.getElementById('profile-bio-text').innerText;
@@ -781,7 +782,6 @@
             });
         }
 
-        // --- MONITORAR TODAS AS CONVERSAS PARA NOTIFICAÇÕES NO TOPO ---
         function listenToAllGlobalChats() {
             const friendsRef = ref(db, `friends/${currentUser.uid}`);
             onValue(friendsRef, (friendsSnap) => {
@@ -800,9 +800,7 @@
                             return;
                         }
 
-                        // Se a última mensagem for de outra pessoa e não estiver lida
                         if(latestMsg.senderUid !== currentUser.uid && !latestMsg.read) {
-                            // Se o usuário não estiver com essa conversa aberta, exibe notificação no topo
                             if(activeChatFriendUid !== friendUid) {
                                 showToast(`Nova mensagem de ${escapeHtml(latestMsg.senderName)}: "${escapeHtml(latestMsg.text || 'Foto enviada')}"`, "chat");
                             }
@@ -812,7 +810,6 @@
             });
         }
 
-        // --- AMIGOS E CHAT PRIVADO ---
         function listenToFriendsAndUsers() {
             const onlineContainer = document.getElementById('online-users-list');
             const friendsContainer = document.getElementById('my-friends-list');
@@ -1002,7 +999,6 @@
             const chatContainer = document.getElementById('chat-messages');
             const roomId = getChatRoomId(currentUser.uid, friendUid);
             onValue(ref(db, `chats/${roomId}`), (snapshot) => {
-                // Se o usuário saiu do chat ou mudou de aba, não marca como lido
                 if(activeChatFriendUid !== friendUid) return;
 
                 const data = snapshot.val();
@@ -1013,7 +1009,6 @@
                     const msg = data[key];
                     const isMe = msg.senderUid === currentUser.uid;
 
-                    // Marca como lido SOMENTE se estiver com a conversa aberta ativamente na tela
                     if(!isMe && !msg.read && activeChatFriendUid === friendUid) {
                         update(ref(db, `chats/${roomId}/${key}`), { read: true });
                     }
@@ -1055,7 +1050,6 @@
             } catch(e) { console.error(e); }
         }
 
-        // --- FEED E COMENTÁRIOS ---
         function listenToPosts() {
             const feed = document.getElementById('posts-feed');
             onValue(ref(db, 'posts'), (snapshot) => {
@@ -1189,7 +1183,6 @@
             showToast("Publicação repostada!", "success");
         }
 
-        // --- COMUNIDADES & CHAT EM GRUPO ---
         window.openCreateGroupModal = function() {
             document.getElementById('create-group-modal').classList.remove('hidden');
         }
