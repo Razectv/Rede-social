@@ -54,7 +54,7 @@
                 
                 <div id="auth-error" class="text-xs text-red-400 font-medium p-3 bg-red-950/40 border border-red-900/50 rounded-xl hidden"></div>
 
-                <button id="auth-submit-btn" onclick="handleAuthSubmit()" class="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white py-3 rounded-xl font-semibold shadow-lg shadow-violet-600/20 transition-all text-sm">
+                <button id="auth-submit-btn" onclick="handleAuthSubmit()" class="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white py-3 rounded-xl font-semibold shadow-lg shadow-violet-600/20 transition-all text-sm cursor-pointer">
                     Entrar na Conta
                 </button>
             </div>
@@ -178,7 +178,7 @@
                                         <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden" onchange="handleImageSelect(event)">
                                     </label>
                                 </div>
-                                <button onclick="createPost()" class="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white px-5 py-2 rounded-xl font-semibold shadow-lg shadow-violet-600/20 transition-all flex items-center gap-2">
+                                <button onclick="createPost()" class="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white px-5 py-2 rounded-xl font-semibold shadow-lg shadow-violet-600/20 transition-all flex items-center gap-2 cursor-pointer">
                                     <span>Publicar</span>
                                     <i data-lucide="send" class="w-4 h-4"></i>
                                 </button>
@@ -207,7 +207,7 @@
                             <p id="profile-email" class="text-xs text-violet-400 font-medium mt-0.5">email@exemplo.com</p>
                             <p id="profile-bio-text" class="text-sm text-slate-300 mt-2 max-w-md">Conectado e construindo o futuro das redes sociais no Corse.</p>
                         </div>
-                        <button onclick="openEditProfileModal()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all border border-slate-700 flex items-center gap-2">
+                        <button onclick="openEditProfileModal()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all border border-slate-700 flex items-center gap-2 cursor-pointer">
                             <i data-lucide="edit-3" class="w-4 h-4"></i>
                             <span>Editar Perfil</span>
                         </button>
@@ -236,7 +236,7 @@
                     </h3>
                     <div class="flex gap-2">
                         <input type="text" id="scrap-input" placeholder="Deixe um recado no mural..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-violet-500">
-                        <button onclick="addScrap()" class="bg-violet-600 hover:bg-violet-500 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all">Enviar</button>
+                        <button onclick="addScrap()" class="bg-violet-600 hover:bg-violet-500 text-white px-4 py-2.5 rounded-xl text-sm font-semibold transition-all cursor-pointer">Enviar</button>
                     </div>
                     <div id="scraps-list" class="space-y-3 pt-2">
                         <div class="text-center py-4 text-slate-500 text-sm">Carregando scraps...</div>
@@ -247,12 +247,12 @@
             <!-- ABA 3: AMIGOS & CHAT -->
             <section id="tab-friends" class="space-y-6 hidden">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Coluna Esquerda: Membros e Pedidos -->
+                    <!-- Coluna Esquerda: Membros, Pedidos e Amigos -->
                     <div class="space-y-6">
                         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
                             <h3 class="font-bold text-sm text-slate-200 flex items-center gap-2">
                                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                                <span>Membros Online</span>
+                                <span>Membros Disponíveis</span>
                             </h3>
                             <div id="online-users-list" class="space-y-3">
                                 <div class="text-sm text-slate-500">Procurando membros...</div>
@@ -260,7 +260,7 @@
                         </div>
 
                         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-                            <h3 class="font-bold text-sm text-slate-200">Pedidos de Amizade</h3>
+                            <h3 class="font-bold text-sm text-slate-200">Pedidos de Amizade Pendentes</h3>
                             <div id="friend-requests-list" class="space-y-3">
                                 <div class="text-sm text-slate-500">Nenhum pedido pendente.</div>
                             </div>
@@ -289,7 +289,7 @@
                         <!-- Enviar Mensagem -->
                         <div class="flex gap-2 pt-2 border-t border-slate-800">
                             <input type="text" id="chat-input" placeholder="Digite sua mensagem..." disabled class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-violet-500 disabled:opacity-50">
-                            <button id="chat-send-btn" onclick="sendChatMessage()" disabled class="bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white px-4 py-2.5 rounded-xl text-xs font-semibold transition-all">Enviar</button>
+                            <button id="chat-send-btn" onclick="sendChatMessage()" disabled class="bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white px-4 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer">Enviar</button>
                         </div>
                     </div>
                 </div>
@@ -302,7 +302,7 @@
                         <h2 class="text-xl font-bold text-slate-100">Comunidades do Corse</h2>
                         <p class="text-sm text-slate-400">Conecte-se com pessoas dos mesmos interesses.</p>
                     </div>
-                    <button class="bg-violet-600 hover:bg-violet-500 text-white text-xs px-4 py-2 rounded-xl font-semibold transition-all shadow-lg shadow-violet-600/20">+ Criar</button>
+                    <button class="bg-violet-600 hover:bg-violet-500 text-white text-xs px-4 py-2 rounded-xl font-semibold transition-all shadow-lg shadow-violet-600/20 cursor-pointer">+ Criar</button>
                 </div>
                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex gap-4 items-center shadow-xl">
@@ -310,7 +310,7 @@
                         <div class="flex-1 overflow-hidden">
                             <h4 class="font-bold text-slate-100 truncate text-sm">Desenvolvedores Web Brasil</h4>
                             <p class="text-xs text-slate-400 mt-0.5">14.2k membros</p>
-                            <button class="mt-2 bg-slate-800 hover:bg-violet-600 text-slate-300 hover:text-white text-xs px-3 py-1.5 rounded-lg transition-all font-medium">Participar</button>
+                            <button class="mt-2 bg-slate-800 hover:bg-violet-600 text-slate-300 hover:text-white text-xs px-3 py-1.5 rounded-lg transition-all font-medium cursor-pointer">Participar</button>
                         </div>
                     </div>
                     <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 flex gap-4 items-center shadow-xl">
@@ -318,7 +318,7 @@
                         <div class="flex-1 overflow-hidden">
                             <h4 class="font-bold text-slate-100 truncate text-sm">Amantes de Café & Código</h4>
                             <p class="text-xs text-slate-400 mt-0.5">8.9k membros</p>
-                            <button class="mt-2 bg-slate-800 hover:bg-violet-600 text-slate-300 hover:text-white text-xs px-3 py-1.5 rounded-lg transition-all font-medium">Participar</button>
+                            <button class="mt-2 bg-slate-800 hover:bg-violet-600 text-slate-300 hover:text-white text-xs px-3 py-1.5 rounded-lg transition-all font-medium cursor-pointer">Participar</button>
                         </div>
                     </div>
                 </div>
@@ -334,7 +334,7 @@
                     <i data-lucide="user-pen" class="w-5 h-5 text-violet-400"></i>
                     <span>Editar Perfil</span>
                 </h3>
-                <button onclick="closeEditProfileModal()" class="text-slate-400 hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <button onclick="closeEditProfileModal()" class="text-slate-400 hover:text-white cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             
             <div class="space-y-4">
@@ -363,8 +363,8 @@
             </div>
 
             <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
-                <button onclick="closeEditProfileModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white">Cancelar</button>
-                <button onclick="saveProfileChanges()" class="bg-violet-600 hover:bg-violet-500 text-white px-4 py-2 rounded-xl text-xs font-semibold transition-all shadow-lg shadow-violet-600/20">Salvar Alterações</button>
+                <button onclick="closeEditProfileModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white cursor-pointer">Cancelar</button>
+                <button onclick="saveProfileChanges()" class="bg-violet-600 hover:bg-violet-500 text-white px-4 py-2 rounded-xl text-xs font-semibold transition-all shadow-lg shadow-violet-600/20 cursor-pointer">Salvar Alterações</button>
             </div>
         </div>
     </div>
@@ -423,11 +423,18 @@
             }
         }
 
+        // --- AUTENTICAÇÃO BLINDADA CONTRA TRAVAMENTO ---
         window.handleAuthSubmit = async function() {
-            const email = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value.trim();
-            const name = document.getElementById('auth-name').value.trim();
+            const emailField = document.getElementById('auth-email');
+            const passwordField = document.getElementById('auth-password');
+            const nameField = document.getElementById('auth-name');
             const errorDiv = document.getElementById('auth-error');
+            const submitBtn = document.getElementById('auth-submit-btn');
+
+            const email = emailField.value.trim();
+            const password = passwordField.value.trim();
+            const name = nameField.value.trim();
+            
             errorDiv.classList.add('hidden');
 
             if(!email || !password) {
@@ -437,10 +444,15 @@
             }
 
             try {
+                submitBtn.disabled = true;
+                submitBtn.innerText = "Processando...";
+
                 if(isRegistering) {
                     if(!name) {
                         errorDiv.innerText = "Informe seu nome para o cadastro.";
                         errorDiv.classList.remove('hidden');
+                        submitBtn.disabled = false;
+                        submitBtn.innerText = "Cadastrar Conta";
                         return;
                     }
                     const userCredential = await createUserWithEmailAndPassword(auth, email, password);
@@ -456,9 +468,17 @@
                     await signInWithEmailAndPassword(auth, email, password);
                 }
             } catch (error) {
-                console.error("Erro completo:", error);
-                errorDiv.innerText = "Erro Firebase: " + error.code + " - " + error.message;
+                console.error("Erro auth:", error);
+                let msg = error.message;
+                if(error.code === 'auth/invalid-email') msg = "E-mail inválido.";
+                if(error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') msg = "E-mail ou senha incorretos.";
+                if(error.code === 'auth/email-already-in-use') msg = "Este e-mail já está cadastrado.";
+                if(error.code === 'auth/weak-password') msg = "A senha deve ter pelo menos 6 caracteres.";
+                
+                errorDiv.innerText = "Erro: " + msg;
                 errorDiv.classList.remove('hidden');
+                submitBtn.disabled = false;
+                submitBtn.innerText = isRegistering ? "Cadastrar Conta" : "Entrar na Conta";
             }
         }
 
@@ -486,6 +506,11 @@
                 currentUser = null;
                 document.getElementById('app-container').classList.add('hidden');
                 document.getElementById('auth-screen').classList.remove('hidden');
+                
+                // Restaurar botão de login
+                const submitBtn = document.getElementById('auth-submit-btn');
+                submitBtn.disabled = false;
+                submitBtn.innerText = isRegistering ? "Cadastrar Conta" : "Entrar na Conta";
             }
             lucide.createIcons();
         });
@@ -625,13 +650,14 @@
             });
         }
 
-        // --- SISTEMA DE AMIGOS, STATUS E CHAT ---
+        // --- SISTEMA DE AMIGOS ROBUSTO E FILTRAGEM DE BOTÃO ---
         function listenToFriendsAndUsers() {
             const onlineContainer = document.getElementById('online-users-list');
             const friendsContainer = document.getElementById('my-friends-list');
 
             const usersRef = ref(db, 'users');
             const friendsRef = ref(db, `friends/${currentUser.uid}`);
+            const requestsRef = ref(db, `friendRequests/${currentUser.uid}`);
 
             onValue(usersRef, (usersSnap) => {
                 const usersData = usersSnap.val() || {};
@@ -639,65 +665,69 @@
                 onValue(friendsRef, (friendsSnap) => {
                     const friendsData = friendsSnap.val() || {};
 
-                    onlineContainer.innerHTML = "";
-                    friendsContainer.innerHTML = "";
+                    onValue(requestsRef, (reqSnap) => {
+                        const requestsData = reqSnap.val() || {};
 
-                    let hasOnline = false;
-                    let hasFriends = false;
+                        onlineContainer.innerHTML = "";
+                        friendsContainer.innerHTML = "";
 
-                    Object.keys(usersData).forEach(uid => {
-                        if(uid === currentUser.uid) return;
-                        const user = usersData[uid];
-                        const isOnline = user.online === true;
-                        const isAlreadyFriend = friendsData[uid] !== undefined;
+                        let hasOnline = false;
+                        let hasFriends = false;
 
-                        // Se for amigo, renderiza na lista de amigos
-                        if(isAlreadyFriend) {
-                            hasFriends = true;
-                            const friendHTML = `
-                                <div class="flex items-center justify-between bg-slate-950/60 p-3 rounded-xl border border-slate-800">
-                                    <div class="flex items-center gap-3">
-                                        <div class="relative">
-                                            <img src="${user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" class="w-10 h-10 rounded-full object-cover">
-                                            <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-slate-950 ${isOnline ? 'bg-emerald-400' : 'bg-slate-500'}"></span>
+                        Object.keys(usersData).forEach(uid => {
+                            if(uid === currentUser.uid) return;
+                            const user = usersData[uid];
+                            const isOnline = user.online === true;
+                            const isAlreadyFriend = friendsData[uid] !== undefined;
+                            const hasRequested = requestsData[uid] !== undefined;
+
+                            if(isAlreadyFriend) {
+                                hasFriends = true;
+                                const friendHTML = `
+                                    <div class="flex items-center justify-between bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+                                        <div class="flex items-center gap-3">
+                                            <div class="relative">
+                                                <img src="${user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" class="w-10 h-10 rounded-full object-cover">
+                                                <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-slate-950 ${isOnline ? 'bg-emerald-400' : 'bg-slate-500'}"></span>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-semibold text-sm text-slate-100">${escapeHtml(user.name || 'Usuário')}</h4>
+                                                <p class="text-xs ${isOnline ? 'text-emerald-400 font-medium' : 'text-slate-500'}">${isOnline ? 'Online' : 'Offline'}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h4 class="font-semibold text-sm text-slate-100">${escapeHtml(user.name || 'Usuário')}</h4>
-                                            <p class="text-xs ${isOnline ? 'text-emerald-400 font-medium' : 'text-slate-500'}">${isOnline ? 'Online' : 'Offline'}</p>
-                                        </div>
+                                        <button onclick="openChat('${uid}', '${escapeHtml(user.name || 'Usuário')}')" class="bg-violet-600 hover:bg-violet-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer">
+                                            Conversar
+                                        </button>
                                     </div>
-                                    <button onclick="openChat('${uid}', '${escapeHtml(user.name || 'Usuário')}')" class="bg-violet-600 hover:bg-violet-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold transition-all">
-                                        Conversar
-                                    </button>
-                                </div>
-                            `;
-                            friendsContainer.insertAdjacentHTML('beforeend', friendHTML);
-                        } else {
-                            // Se não for amigo, aparece na lista geral de membros online para adicionar
-                            hasOnline = true;
-                            const userHTML = `
-                                <div class="flex items-center justify-between bg-slate-950/60 p-3 rounded-xl border border-slate-800">
-                                    <div class="flex items-center gap-3">
-                                        <div class="relative">
-                                            <img src="${user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" class="w-10 h-10 rounded-full object-cover">
-                                            <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-slate-950 ${isOnline ? 'bg-emerald-400' : 'bg-slate-500'}"></span>
+                                `;
+                                friendsContainer.insertAdjacentHTML('beforeend', friendHTML);
+                            } else if(!hasRequested) {
+                                // Só exibe o botão "Adicionar" se não for amigo e não tiver pedido pendente vindo dele
+                                hasOnline = true;
+                                const userHTML = `
+                                    <div class="flex items-center justify-between bg-slate-950/60 p-3 rounded-xl border border-slate-800">
+                                        <div class="flex items-center gap-3">
+                                            <div class="relative">
+                                                <img src="${user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" class="w-10 h-10 rounded-full object-cover">
+                                                <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-slate-950 ${isOnline ? 'bg-emerald-400' : 'bg-slate-500'}"></span>
+                                            </div>
+                                            <div>
+                                                <h4 class="font-semibold text-sm text-slate-100">${escapeHtml(user.name || 'Usuário')}</h4>
+                                                <p class="text-xs ${isOnline ? 'text-emerald-400 font-medium' : 'text-slate-500'}">${isOnline ? 'Online agora' : 'Offline'}</p>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <h4 class="font-semibold text-sm text-slate-100">${escapeHtml(user.name || 'Usuário')}</h4>
-                                            <p class="text-xs ${isOnline ? 'text-emerald-400 font-medium' : 'text-slate-500'}">${isOnline ? 'Online agora' : 'Offline'}</p>
-                                        </div>
+                                        <button onclick="sendFriendRequest('${uid}', '${escapeHtml(user.name || 'Usuário')}')" class="bg-violet-600/20 hover:bg-violet-600/30 text-violet-400 border border-violet-500/30 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer">
+                                            Adicionar
+                                        </button>
                                     </div>
-                                    <button onclick="sendFriendRequest('${uid}', '${escapeHtml(user.name || 'Usuário')}')" class="bg-violet-600/20 hover:bg-violet-600/30 text-violet-400 border border-violet-500/30 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all">
-                                        Adicionar
-                                    </button>
-                                </div>
-                            `;
-                            onlineContainer.insertAdjacentHTML('beforeend', userHTML);
-                        }
+                                `;
+                                onlineContainer.insertAdjacentHTML('beforeend', userHTML);
+                            }
+                        });
+
+                        if(!hasOnline) onlineContainer.innerHTML = `<div class="text-sm text-slate-500">Nenhum outro membro disponível.</div>`;
+                        if(!hasFriends) friendsContainer.innerHTML = `<div class="text-sm text-slate-500">Nenhum amigo adicionado ainda.</div>`;
                     });
-
-                    if(!hasOnline) onlineContainer.innerHTML = `<div class="text-sm text-slate-500">Nenhum outro membro para adicionar.</div>`;
-                    if(!hasFriends) friendsContainer.innerHTML = `<div class="text-sm text-slate-500">Nenhum amigo adicionado ainda.</div>`;
                 });
             });
         }
@@ -739,8 +769,8 @@
                                 </div>
                             </div>
                             <div class="flex gap-2">
-                                <button onclick="acceptFriend('${fromUid}', '${escapeHtml(req.fromName)}', '${req.fromAvatar}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold">Aceitar</button>
-                                <button onclick="rejectFriend('${fromUid}')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold">Recusar</button>
+                                <button onclick="acceptFriend('${fromUid}', '${escapeHtml(req.fromName)}', '${req.fromAvatar}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer">Aceitar</button>
+                                <button onclick="rejectFriend('${fromUid}')" class="bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer">Recusar</button>
                             </div>
                         </div>
                     `;
@@ -751,18 +781,19 @@
 
         window.acceptFriend = async function(fromUid, fromName, fromAvatar) {
             try {
-                // Adicionar reciprocamente na lista de amigos de ambos
+                // Salvar amizade recíproca para ambos os usuários
+                const myName = document.getElementById('profile-name').innerText;
+                const myAvatar = document.getElementById('profile-avatar-img').src;
+
                 await set(ref(db, `friends/${currentUser.uid}/${fromUid}`), { name: fromName, avatar: fromAvatar });
-                await set(ref(db, `friends/${fromUid}/${currentUser.uid}`), { 
-                    name: document.getElementById('profile-name').innerText, 
-                    avatar: document.getElementById('profile-avatar-img').src 
-                });
+                await set(ref(db, `friends/${fromUid}/${currentUser.uid}`), { name: myName, avatar: myAvatar });
                 
                 // Remover o pedido pendente
                 await remove(ref(db, `friendRequests/${currentUser.uid}/${fromUid}`));
                 alert("Amizade aceita com sucesso!");
             } catch(e) {
-                console.error(e);
+                console.error("Erro ao aceitar amizade:", e);
+                alert("Erro ao aceitar amizade.");
             }
         }
 
@@ -901,15 +932,15 @@
                     
                     <!-- Ações -->
                     <div class="p-4 flex items-center justify-between border-t border-slate-800/60 text-slate-400 text-sm">
-                        <button onclick="likePost('${post.id}', ${post.likes || 0})" class="flex items-center gap-2 hover:text-violet-400 transition-colors">
+                        <button onclick="likePost('${post.id}', ${post.likes || 0})" class="flex items-center gap-2 hover:text-violet-400 transition-colors cursor-pointer">
                             <i data-lucide="heart" class="w-5 h-5"></i>
                             <span>${post.likes || 0}</span>
                         </button>
-                        <button onclick="toggleComments('${post.id}')" class="flex items-center gap-2 hover:text-violet-400 transition-colors">
+                        <button onclick="toggleComments('${post.id}')" class="flex items-center gap-2 hover:text-violet-400 transition-colors cursor-pointer">
                             <i data-lucide="message-circle" class="w-5 h-5"></i>
                             <span>Comentar</span>
                         </button>
-                        <button onclick="repostPost('${escapeHtml(post.author)}', '${escapeHtml(post.content || 'Foto compartilhada')}')" class="flex items-center gap-2 hover:text-violet-400 transition-colors" title="Repostar">
+                        <button onclick="repostPost('${escapeHtml(post.author)}', '${escapeHtml(post.content || 'Foto compartilhada')}')" class="flex items-center gap-2 hover:text-violet-400 transition-colors cursor-pointer" title="Repostar">
                             <i data-lucide="repeat" class="w-5 h-5"></i>
                             <span>Repost</span>
                         </button>
@@ -920,7 +951,7 @@
                         <div class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar">${commentsHtml || '<p class="text-xs text-slate-500">Nenhum comentário ainda.</p>'}</div>
                         <div class="flex gap-2">
                             <input type="text" id="comment-input-${post.id}" placeholder="Escreva um comentário..." class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-violet-500">
-                            <button onclick="addComment('${post.id}')" class="bg-violet-600 hover:bg-violet-500 text-white px-3 py-2 rounded-xl text-xs font-semibold">Enviar</button>
+                            <button onclick="addComment('${post.id}')" class="bg-violet-600 hover:bg-violet-500 text-white px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer">Enviar</button>
                         </div>
                     </div>
                 </div>
@@ -1026,7 +1057,7 @@
             try {
                 const scrapsRef = ref(db, 'scraps');
                 const newScrapRef = push(scrapsRef);
-                const currentName = document.getElementById('profile-name'].innerText;
+                const currentName = document.getElementById('profile-name').innerText;
                 
                 await set(newScrapRef, {
                     author: currentName,
