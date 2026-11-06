@@ -19,6 +19,8 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
         @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .toast-notification { animation: slideDown 0.3s ease-out forwards; }
+        @keyframes progressAnimation { from { width: 0%; } to { width: 100%; } }
+        .story-progress-bar { animation: progressAnimation 5s linear forwards; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start relative pb-28 md:pb-12">
@@ -66,10 +68,8 @@
         <!-- CABEÇALHO DO APP -->
         <header class="sticky top-0 z-40 bg-[#0b0f19]/90 backdrop-blur-md px-4 py-3 flex justify-between items-center border-b border-slate-900/60">
             <div class="flex items-center gap-2">
-                <!-- CLICAR NA FOTO DO PERFIL NO TOPO ABRE OS PRÓPRIOS STORIES -->
-                <div class="relative cursor-pointer" onclick="openMyStories()">
-                    <img id="header-my-avatar" src="" class="w-9 h-9 rounded-xl object-cover border-2 border-violet-500 shadow-md">
-                    <button onclick="event.stopPropagation(); triggerCreatePost();" class="absolute -bottom-1 -right-1 w-4 h-4 bg-violet-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold border border-[#0b0f19]">+</button>
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-600 to-fuchsia-600 flex items-center justify-center shadow-md shadow-violet-600/30">
+                    <i data-lucide="zap" class="w-5 h-5 text-white"></i>
                 </div>
                 <span class="text-2xl font-black tracking-tight text-white">Corse</span>
             </div>
@@ -93,9 +93,15 @@
 
             <!-- ABA 1: INÍCIO / FEED -->
             <section id="tab-feed" class="space-y-4">
-                <!-- CARROSSEL DE STORIES (APENAS DE OUTROS USUÁRIOS/AMIGOS) -->
+                <!-- CARROSSEL DE STORIES -->
                 <div class="w-full overflow-x-auto hide-scrollbar px-4 py-3 flex gap-3.5 custom-scrollbar" id="stories-tray">
-                    <div class="text-center py-2 text-slate-500 text-xs w-full">Nenhum story de amigos no momento.</div>
+                    <div class="flex flex-col items-center gap-1 flex-shrink-0 cursor-pointer" onclick="openMyStories()">
+                        <div class="w-16 h-16 rounded-full p-[2.5px] bg-gradient-to-tr from-violet-600 to-fuchsia-600 relative shadow-lg">
+                            <img id="story-my-avatar" src="" class="w-full h-full rounded-full object-cover border-2 border-[#0b0f19]">
+                            <button onclick="event.stopPropagation(); triggerCreatePost();" class="absolute bottom-0 right-0 w-5 h-5 bg-violet-600 text-white rounded-full flex items-center justify-center border-2 border-[#0b0f19] text-xs font-bold shadow-md cursor-pointer">+</button>
+                        </div>
+                        <span class="text-[11px] text-slate-300 font-medium truncate w-16 text-center">Seu story</span>
+                    </div>
                 </div>
 
                 <div id="posts-feed" class="space-y-4 px-4">
@@ -103,13 +109,15 @@
                 </div>
             </section>
 
-            <!-- ABA 2: EXPLORAR / COMUNIDADES -->
+            <!-- ABA 2: EXPLORAR -->
             <section id="tab-communities" class="space-y-4 px-4 hidden">
-                <div class="flex justify-between items-center py-2">
-                    <div><h2 class="text-lg font-bold text-white">Explorar Grupos</h2><p class="text-xs text-slate-400">Conecte-se com interesses em comum.</p></div>
-                    <button onclick="openCreateGroupModal()" class="bg-violet-600 hover:bg-violet-500 text-white text-xs px-3.5 py-2 rounded-xl font-bold cursor-pointer shadow-md">+ Criar Grupo</button>
+                <div class="py-2">
+                    <h2 class="text-lg font-bold text-white">Explorar</h2>
+                    <p class="text-xs text-slate-400">Descubra publicações dos portais e da comunidade.</p>
                 </div>
-                <div id="communities-grid" class="grid grid-cols-1 gap-3"></div>
+                <div id="explore-grid" class="grid grid-cols-2 gap-2.5">
+                    <div class="text-center py-8 text-slate-500 text-xs col-span-2">Carregando conteúdos...</div>
+                </div>
             </section>
 
             <!-- ABA 3: CHAT & AMIGOS -->
@@ -203,7 +211,7 @@
     <!-- INPUT INVISÍVEL PARA CAPTURAR CÂMERA/GALERIA -->
     <input type="file" id="global-media-input" accept="image/*" capture="environment" class="hidden" onchange="handleNewMediaSelected(event)">
 
-    <!-- MODAL DE CRIAR POST / STORY (COM TRAVA ANTICLIQUE DUPLO) -->
+    <!-- MODAL DE CRIAR POST / STORY -->
     <div id="create-post-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -226,9 +234,14 @@
         </div>
     </div>
 
-    <!-- MODAL DE VISUALIZAR STORY -->
+    <!-- MODAL DE VISUALIZAR STORY (COM TEMPORIZADOR E PAINEL DE VISUALIZAÇÃO SEGURO) -->
     <div id="story-viewer-modal" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col justify-between p-4">
-        <div class="flex justify-between items-center pt-2">
+        <!-- BARRA DE PROGRESSO DO TEMPORIZADOR -->
+        <div class="w-full bg-slate-800 h-1 rounded-full overflow-hidden absolute top-0 left-0">
+            <div id="story-progress-bar-fill" class="h-full bg-white w-0"></div>
+        </div>
+
+        <div class="flex justify-between items-center pt-3">
             <div class="flex items-center gap-3">
                 <img id="viewer-author-avatar" src="" class="w-10 h-10 rounded-full object-cover border border-violet-500">
                 <div>
@@ -236,7 +249,7 @@
                     <span id="viewer-time" class="text-[10px] text-slate-400">Agora</span>
                 </div>
             </div>
-            <button onclick="closeStoryViewer()" class="text-white p-2"><i data-lucide="x" class="w-6 h-6"></i></button>
+            <button onclick="closeStoryViewer()" class="text-white p-2 cursor-pointer"><i data-lucide="x" class="w-6 h-6"></i></button>
         </div>
         <div class="flex-1 flex flex-col items-center justify-center p-2">
             <div class="relative max-w-sm w-full h-[65vh] bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 flex items-center justify-center">
@@ -246,14 +259,29 @@
                 </div>
             </div>
         </div>
+        <!-- PAINEL DE QUEM VIU (APARECE APENAS PARA O DONO DO STORY) -->
         <div id="story-views-panel" class="bg-slate-900 border border-slate-800 rounded-2xl p-3 max-w-sm mx-auto w-full flex items-center justify-between hidden">
-            <div class="flex items-center gap-2">
+            <button onclick="openStoryViewersList()" class="flex items-center gap-2 cursor-pointer hover:opacity-80">
                 <i data-lucide="eye" class="w-4 h-4 text-violet-400"></i>
-                <span id="story-views-count" class="text-xs text-slate-200 font-semibold">0 visualizações</span>
-            </div>
-            <button onclick="likeCurrentStory()" class="flex items-center gap-1.5 text-fuchsia-400 text-xs font-bold bg-fuchsia-950/40 px-3 py-1.5 rounded-xl border border-fuchsia-900">
+                <span id="story-views-count" class="text-xs text-slate-200 font-semibold underline">0 visualizações</span>
+            </button>
+            <button onclick="likeCurrentStory()" class="flex items-center gap-1.5 text-fuchsia-400 text-xs font-bold bg-fuchsia-950/40 px-3 py-1.5 rounded-xl border border-fuchsia-900 cursor-pointer">
                 <i data-lucide="heart" class="w-4 h-4"></i><span id="story-likes-count">Curtir</span>
             </button>
+        </div>
+    </div>
+
+    <!-- MODAL DA LISTA DE QUEM VIU O STORY (ESTILO INSTAGRAM) -->
+    <div id="story-viewers-list-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-5 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-slate-100 text-sm">Quem viu este story</h3>
+                <button onclick="closeStoryViewersList()" class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div id="story-viewers-container" class="space-y-2 max-h-64 overflow-y-auto custom-scrollbar">
+                <div class="text-xs text-slate-500 text-center py-4">Nenhuma visualização ainda.</div>
+            </div>
+            <button onclick="closeStoryViewersList()" class="w-full bg-slate-800 text-white py-2 rounded-xl text-xs font-bold cursor-pointer">Fechar</button>
         </div>
     </div>
 
@@ -285,24 +313,6 @@
             <div class="flex justify-end gap-2 pt-2">
                 <button onclick="closeEditProfileModal()" class="text-slate-400 text-xs">Cancelar</button>
                 <button onclick="saveProfileChanges()" class="bg-violet-600 text-white px-4 py-2 rounded-xl text-xs font-bold">Salvar Alterações</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL DE CRIAR GRUPO -->
-    <div id="create-group-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-4">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                <h3 class="font-bold text-slate-100 text-sm">Criar Grupo</h3>
-                <button onclick="closeCreateGroupModal()" class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div class="space-y-3">
-                <input type="text" id="group-name-input" placeholder="Nome do Grupo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-100">
-                <input type="text" id="group-icon-input" placeholder="Emoji (ex: 🚜)" value="🚜" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-100">
-            </div>
-            <div class="flex justify-end gap-2 pt-2">
-                <button onclick="closeCreateGroupModal()" class="text-slate-400 text-xs">Cancelar</button>
-                <button onclick="submitGroupModal()" class="bg-violet-600 text-white px-4 py-2 rounded-xl text-xs font-bold">Criar</button>
             </div>
         </div>
     </div>
@@ -343,7 +353,8 @@
         let isRegistering = false, currentUser = null, activeMediaBase64 = "", chatImageBase64 = "", activeChatFriendUid = null;
         let globalUsersCache = {}, globalFriendsCache = {}, openCommentSections = new Set();
         let typingTimeout = null, portalTimer = null, activeViewingStoryId = null;
-        let isSubmittingPost = false; // TRAVA ANTICLIQUE DUPLO
+        let storyTimer = null; // Temporizador automático do story
+        let isSubmittingPost = false;
 
         window.escapeHtml = text => (text || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         window.showToast = function(msg, type = 'info') {
@@ -354,10 +365,37 @@
         }
 
         // ==========================
-        // PORTAIS DE NOTÍCIAS AUTOMATIZADOS (A CADA 1 MINUTO)
+        // GESTÃO DE LIMITE MÁXIMO DE 4 POSTS POR BOT (FIFO)
+        // ==========================
+        async function enforceBotPostLimit(botUid) {
+            try {
+                const postsRef = ref(db, 'posts');
+                const snapshot = await get(postsRef);
+                const posts = snapshot.val() || {};
+                
+                let botPosts = [];
+                Object.keys(posts).forEach(id => {
+                    if (posts[id].uid === botUid) {
+                        botPosts.push({ id, timestamp: posts[id].timestamp || 0 });
+                    }
+                });
+
+                botPosts.sort((a, b) => a.timestamp - b.timestamp);
+
+                while (botPosts.length >= 4) {
+                    const oldest = botPosts.shift();
+                    await remove(ref(db, `posts/${oldest.id}`));
+                }
+            } catch (err) { console.error("Erro ao limitar posts:", err); }
+        }
+
+        // ==========================
+        // 1. CORSE NOTÍCIA
         // ==========================
         window.fetchCorseNews = async function(isAutomatic = false) {
             try {
+                await enforceBotPostLimit("corse_noticia_bot");
+
                 const response = await fetch("https://api.apitube.io/v1/news/everything?language.code=pt&per_page=3", {
                     method: "GET",
                     headers: { "X-API-Key": "api_live_xpjJ039TjmQobLLMo4oolzkVgJqpQ9jH4dXOc9Fm6BNajkcmNdugeWhw4ZI" }
@@ -389,25 +427,38 @@
                         timestamp: Date.now()
                     });
                     count++;
-                    if (count >= 2) break;
+                    if (count >= 1) break;
                 }
-                if (!isAutomatic && count > 0) showToast("2 novas notícias no Corse Notícia!", "success");
+                if (!isAutomatic && count > 0) showToast("Nova notícia no Corse Notícia!", "success");
             } catch (err) { console.error(err); }
         }
 
+        // ==========================
+        // 2. FOFOCALIZA (COM FALLBACK SEGURO)
+        // ==========================
         window.fetchFofocalizaNews = async function(isAutomatic = false) {
             try {
-                const response = await fetch("https://api.api-ninjas.com/v1/stockprice?ticker=AAPL", {
-                    method: "GET",
-                    headers: { "X-Api-Key": "TI22ELUkGQozawR0PeJMnQJcMzoFcQtSIlmbHS6U" }
-                });
-                let stock = null;
-                if (response.ok) stock = await response.json();
+                await enforceBotPostLimit("fofocaliza_bot");
+
+                let stockPriceVal = null;
+                try {
+                    const response = await fetch("https://api.api-ninjas.com/v1/stockprice?ticker=AAPL", {
+                        method: "GET",
+                        headers: { "X-Api-Key": "TI22ELUkGQozawR0PeJMnQJcMzoFcQtSIlmbHS6U" }
+                    });
+                    if (response.ok) {
+                        const stock = await response.json();
+                        stockPriceVal = stock.price;
+                    }
+                } catch (apiErr) {
+                    console.warn("API-Ninjas indisponível, usando fallback de fofocas.");
+                }
 
                 const fofocasPool = [
                     { title: "Bafão nos bastidores da TV! 🌟", desc: "Fontes exclusivas revelam novos segredos de celebridades que estão dando o que falar nas redes sociais!", image: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=600" },
                     { title: "Flagra exclusivo das estrelas ✨", desc: "Artistas são vistos em evento vip badalado. Todo mundo comentando os looks da noite!", image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600" },
-                    { title: "O mundo dos famosos e negócios 📈", desc: stock ? `Cotação e investimentos das estrelas: Apple (AAPL) em US$ ${stock.price || '185.00'}.` : "Astros fecham contratos milionários para campanhas.", image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600" }
+                    { title: "O mundo dos famosos e negócios 📈", desc: stockPriceVal ? `Cotação e investimentos das estrelas: Apple (AAPL) em US$ ${stockPriceVal}.` : "Astros fecham contratos milionários para campanhas exclusivas.", image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600" },
+                    { title: "Segredos revelados! 🤫", desc: "Cantor famoso deixa escapar detalhes sobre o seu novo álbum que promete agitar o mundo da música.", image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600" }
                 ];
 
                 const postsRef = ref(db, 'posts');
@@ -428,26 +479,66 @@
                         timestamp: Date.now()
                     });
                     count++;
-                    if (count >= 2) break;
+                    if (count >= 1) break;
                 }
-                if (!isAutomatic && count > 0) showToast("2 novas fofocas no Fofocaliza!", "success");
-            } catch (err) { console.error(err); }
+                if (!isAutomatic && count > 0) showToast("Nova fofoca no Fofocaliza!", "success");
+            } catch (err) { console.error("Erro no Fofocaliza:", err); }
         }
 
         window.fetchAllPortalsNews = function(isAuto = false) {
             fetchCorseNews(isAuto);
-            fetchFofocalizaNews(isAuto);
+            setTimeout(() => fetchFofocalizaNews(isAuto), 3000);
             if (!isAuto) showToast("Atualizando portais...", "info");
         }
 
         function startPortalsAutoUpdater() {
             if (portalTimer) clearInterval(portalTimer);
             fetchAllPortalsNews(true);
-            portalTimer = setInterval(() => { if (currentUser) fetchAllPortalsNews(true); }, 60000);
+            portalTimer = setInterval(() => { if (currentUser) fetchAllPortalsNews(true); }, 3600000);
         }
 
         // ==========================
-        // FLUXO DE CÂMERA / GALERIA E TRAVA ANTICLIQUE DUPLO
+        // ABA EXPLORAR
+        // ==========================
+        function listenExploreGrid() {
+            const grid = document.getElementById('explore-grid');
+            onValue(ref(db, 'posts'), (snap) => {
+                grid.innerHTML = "";
+                const data = snap.val() || {};
+                const keys = Object.keys(data).reverse();
+
+                if(keys.length === 0) {
+                    grid.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs col-span-2">Nenhum conteúdo no Explorar ainda.</div>`;
+                    return;
+                }
+
+                keys.forEach(postId => {
+                    const p = data[postId];
+                    if(!p.image) return;
+
+                    grid.insertAdjacentHTML('beforeend', `
+                        <div class="relative bg-slate-900 rounded-2xl overflow-hidden h-44 border border-slate-800 shadow-md group cursor-pointer" onclick="openExplorePost('${postId}')">
+                            <img src="${p.image}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                            <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5">
+                                <span class="text-[10px] font-bold text-violet-400 block truncate">${escapeHtml(p.author)}</span>
+                                <p class="text-[11px] text-slate-100 truncate">${escapeHtml(p.content)}</p>
+                            </div>
+                        </div>
+                    `);
+                });
+            });
+        }
+
+        window.openExplorePost = function(postId) {
+            switchTab('feed');
+            setTimeout(() => {
+                const el = document.getElementById(`comments-${postId}`)?.closest('.bg-slate-900');
+                if(el) { el.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+            }, 200);
+        }
+
+        // ==========================
+        // FLUXO DE CÂMERA / GALERIA
         // ==========================
         window.triggerCreatePost = () => {
             document.getElementById('global-media-input').click();
@@ -471,7 +562,7 @@
         window.closeCreatePostModal = () => document.getElementById('create-post-modal').classList.add('hidden');
 
         window.submitNewPost = async function(destination) {
-            if (isSubmittingPost) return; // Impede múltiplos cliques
+            if (isSubmittingPost) return;
             const title = document.getElementById('new-post-title-input').value.trim();
             if(!activeMediaBase64) return;
 
@@ -514,7 +605,7 @@
         }
 
         // ==========================
-        // STORIES (EXCLUI O PRÓPRIO DA TRAY E EXIBE SÓ AMIGOS)
+        // STORIES (COM PAINEL DE VISUALIZAÇÃO CONDICIONAL E TEMPORIZADOR)
         // ==========================
         function listenStories() {
             const tray = document.getElementById('stories-tray');
@@ -525,18 +616,23 @@
                     onValue(ref(db, `storyViews/${currentUser.uid}`), (vSnap) => {
                         const viewedMap = vSnap.val() || {};
 
-                        let html = "";
-                        let hasStories = false;
+                        let html = `
+                            <div class="flex flex-col items-center gap-1 flex-shrink-0 cursor-pointer" onclick="openMyStories()">
+                                <div class="w-16 h-16 rounded-full p-[2.5px] bg-gradient-to-tr from-violet-600 to-fuchsia-600 relative shadow-lg">
+                                    <img id="story-my-avatar" src="${document.getElementById('profile-avatar-img')?.src || ''}" class="w-full h-full rounded-full object-cover border-2 border-[#0b0f19]">
+                                    <button onclick="event.stopPropagation(); triggerCreatePost();" class="absolute bottom-0 right-0 w-5 h-5 bg-violet-600 text-white rounded-full flex items-center justify-center border-2 border-[#0b0f19] text-xs font-bold shadow-md cursor-pointer">+</button>
+                                </div>
+                                <span class="text-[11px] text-slate-300 font-medium truncate w-16 text-center">Seu story</span>
+                            </div>
+                        `;
 
                         Object.keys(storiesData).forEach(sId => {
                             const s = storiesData[sId];
                             const isMyStory = s.uid === currentUser.uid;
                             const isFriend = friends[s.uid];
 
-                            // Exibe APENAS stories de amigos (o próprio usuário vê os seus clicando na foto do topo)
                             if (isMyStory || !isFriend) return;
 
-                            hasStories = true;
                             const isViewed = viewedMap[sId];
                             const ringClass = isViewed ? 'p-[2.5px] bg-slate-700' : 'p-[2.5px] bg-gradient-to-tr from-fuchsia-500 via-violet-500 to-pink-500 animate-pulse';
 
@@ -549,18 +645,12 @@
                                 </div>
                             `;
                         });
-
-                        if (!hasStories) {
-                            tray.innerHTML = `<div class="text-center py-2 text-slate-500 text-xs w-full">Nenhum story de amigos no momento.</div>`;
-                        } else {
-                            tray.innerHTML = html;
-                        }
+                        tray.innerHTML = html;
                     });
                 });
             });
         }
 
-        // VISUALIZAR OS PRÓPRIOS STORIES CLICANDO NO AVATAR DO TOPO
         window.openMyStories = function() {
             onValue(ref(db, 'stories'), (snap) => {
                 const storiesData = snap.val() || {};
@@ -582,10 +672,24 @@
             document.getElementById('viewer-story-img').src = storyImg;
             document.getElementById('viewer-story-title').innerText = storyTitle;
 
+            // Reinicia a animação da barra de progresso (5 segundos)
+            const barFill = document.getElementById('story-progress-bar-fill');
+            barFill.classList.remove('story-progress-bar');
+            void barFill.offsetWidth; // Trigger reflow
+            barFill.classList.add('story-progress-bar');
+
+            // Limpa temporizador anterior se houver
+            if (storyTimer) clearTimeout(storyTimer);
+            // Configura o temporizador automático de 5 segundos para fechar o story
+            storyTimer = setTimeout(() => {
+                closeStoryViewer();
+            }, 5000);
+
             await set(ref(db, `storyViews/${currentUser.uid}/${storyId}`), true);
 
             const viewsPanel = document.getElementById('story-views-panel');
             if(authorUid === currentUser.uid) {
+                // EXIBE O OLINHO APENAS SE FOR O DONO DO STORY
                 viewsPanel.classList.remove('hidden');
                 onValue(ref(db, `storyInteractions/${storyId}`), (snap) => {
                     const inter = snap.val() || {};
@@ -596,6 +700,7 @@
                 }, { onlyOnce: true });
                 await set(ref(db, `storyInteractions/${storyId}/views/${currentUser.uid}`), true);
             } else {
+                // ESCONDE O PAINEL DE VISUALIZAÇÕES PARA OUTROS USUÁRIOS
                 viewsPanel.classList.add('hidden');
                 await set(ref(db, `storyInteractions/${storyId}/views/${currentUser.uid}`), true);
             }
@@ -603,13 +708,44 @@
             document.getElementById('story-viewer-modal').classList.remove('hidden');
         }
 
-        window.closeStoryViewer = () => document.getElementById('story-viewer-modal').classList.add('hidden');
+        window.closeStoryViewer = () => {
+            if (storyTimer) clearTimeout(storyTimer);
+            document.getElementById('story-viewer-modal').classList.add('hidden');
+        }
 
         window.likeCurrentStory = async function() {
             if(!activeViewingStoryId) return;
             await set(ref(db, `storyInteractions/${activeViewingStoryId}/likes/${currentUser.uid}`), true);
             showToast("Você curtiu este story!", "success");
         }
+
+        window.openStoryViewersList = function() {
+            if(!activeViewingStoryId) return;
+            const container = document.getElementById('story-viewers-container');
+            container.innerHTML = `<div class="text-xs text-slate-500 text-center py-2">Carregando visualizações...</div>`;
+            document.getElementById('story-viewers-list-modal').classList.remove('hidden');
+
+            onValue(ref(db, `storyInteractions/${activeViewingStoryId}/views`), (snap) => {
+                const viewsObj = snap.val() || {};
+                const uids = Object.keys(viewsObj);
+                if(uids.length === 0) {
+                    container.innerHTML = `<div class="text-xs text-slate-500 text-center py-4">Nenhuma visualização ainda.</div>`;
+                    return;
+                }
+                container.innerHTML = "";
+                uids.forEach(uid => {
+                    const u = globalUsersCache[uid] || { name: "Usuário", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" };
+                    container.insertAdjacentHTML('beforeend', `
+                        <div class="flex items-center gap-3 bg-slate-950 p-2.5 rounded-xl border border-slate-800">
+                            <img src="${u.avatar}" class="w-8 h-8 rounded-full object-cover">
+                            <span class="font-semibold text-xs text-slate-100">${escapeHtml(u.name)}</span>
+                        </div>
+                    `);
+                });
+            }, { onlyOnce: true });
+        }
+
+        window.closeStoryViewersList = () => document.getElementById('story-viewers-list-modal').classList.add('hidden');
 
         // ==========================
         // AUTENTICAÇÃO E ESTADO
@@ -639,7 +775,7 @@
                 document.getElementById('auth-screen').classList.add('hidden');
                 document.getElementById('app-container').classList.remove('hidden');
                 set(ref(db, `users/${user.uid}/online`), true);
-                loadProfile(); listenUsersAndFriends(); listenPosts(); listenCommunities(); listenNotifications(); listenStories();
+                loadProfile(); listenUsersAndFriends(); listenPosts(); listenExploreGrid(); listenNotifications(); listenStories();
                 startPortalsAutoUpdater();
             } else {
                 if(currentUser) set(ref(db, `users/${currentUser.uid}/online`), false);
@@ -671,7 +807,7 @@
                 document.getElementById('profile-name').innerText = name;
                 document.getElementById('profile-email').innerText = d.email || currentUser.email;
                 document.getElementById('profile-bio-text').innerText = d.bio || "Biografia...";
-                if(document.getElementById('header-my-avatar')) document.getElementById('header-my-avatar').src = av;
+                if(document.getElementById('story-my-avatar')) document.getElementById('story-my-avatar').src = av;
                 document.getElementById('profile-avatar-img').src = av;
                 if(d.banner) document.getElementById('profile-banner-container').style.backgroundImage = `url('${d.banner}')`;
             });
@@ -956,23 +1092,6 @@
 
             document.getElementById('chat-input').value = "";
             clearChatImage();
-        }
-
-        window.openCreateGroupModal = () => document.getElementById('create-group-modal').classList.remove('hidden');
-        window.closeCreateGroupModal = () => document.getElementById('create-group-modal').classList.add('hidden');
-        window.submitGroupModal = async function() {
-            const name = document.getElementById('group-name-input').value.trim(), icon = document.getElementById('group-icon-input').value.trim() || '🚜';
-            if(!name) return; await push(ref(db, 'communities'), { name, icon, creator: currentUser.uid });
-            closeCreateGroupModal(); showToast("Grupo criado!", "success");
-        }
-        function listenCommunities() {
-            onValue(ref(db, 'communities'), (snap) => {
-                const grid = document.getElementById('communities-grid'); grid.innerHTML = ""; const data = snap.val() || {};
-                Object.keys(data).forEach(k => {
-                    const c = data[k];
-                    grid.insertAdjacentHTML('beforeend', `<div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-violet-600/20 text-violet-400 flex items-center justify-center font-bold text-lg">${escapeHtml(c.icon || '🚜')}</div><div><h4 class="font-bold text-xs text-white">${escapeHtml(c.name)}</h4><p class="text-[10px] text-slate-400">Comunidade ativa</p></div></div><button onclick="showToast('Você entrou no grupo!', 'success')" class="bg-violet-600/20 text-violet-400 text-xs px-3 py-1.5 rounded-xl font-bold border border-violet-500/30">Participar</button></div>`);
-                });
-            });
         }
 
         window.openUserProfile = function(uid) {
