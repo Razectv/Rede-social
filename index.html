@@ -170,7 +170,7 @@
                     </button>
                 </div>
                 
-                <!-- FEED DE VÍDEOS COM SNAP SCROLL (ESTILO APP NATIVO) -->
+                <!-- FEED DE VÍDEOS COM SNAP SCROLL -->
                 <div id="reels-feed" class="reels-container-snap space-y-6 custom-scrollbar pr-1">
                     <div class="text-center py-12 text-slate-500 text-xs">Carregando vídeos...</div>
                 </div>
@@ -321,10 +321,7 @@
 
     <!-- MODAL DE VISUALIZAR STORY EM TELA CHEIA -->
     <div id="story-viewer-modal" class="fixed inset-0 bg-black z-50 hidden flex flex-col justify-between">
-        <!-- BARRINHAS DE PROGRESSO MÚLTIPLAS NO ESTILO INSTAGRAM -->
-        <div id="story-bars-container" class="w-full flex gap-1 p-2 absolute top-0 left-0 z-20 bg-gradient-to-b from-black/80 to-transparent">
-            <!-- Gerado dinamicamente via JS -->
-        </div>
+        <div id="story-bars-container" class="w-full flex gap-1 p-2 absolute top-0 left-0 z-20 bg-gradient-to-b from-black/80 to-transparent"></div>
 
         <div class="flex justify-between items-center p-4 absolute top-6 inset-x-0 z-20">
             <div class="flex items-center gap-3">
@@ -452,8 +449,8 @@
         </div>
     </div>
 
-    <!-- INPUT INVISÍVEL -->
-    <input type="file" id="global-media-input" accept="image/*" capture="environment" class="hidden" onchange="handleNewMediaSelected(event)">
+    <!-- INPUT GLOBAL CORRIGIDO PARA PERMITIR ESCOLHER DA GALERIA OU CÂMERA -->
+    <input type="file" id="global-media-input" accept="image/*" class="hidden" onchange="handleNewMediaSelected(event)">
 
     <!-- MODAL DE CRIAR POST / STORY -->
     <div id="create-post-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
@@ -787,7 +784,6 @@
             }
         }
 
-        // LÓGICA DE VÍDEOS / REELS INTELIGENTES
         window.openCreateReelModal = () => {
             document.getElementById('reel-link-input').value = "";
             document.getElementById('reel-caption-input').value = "";
@@ -863,18 +859,13 @@
                 keys.forEach((reelId, index) => {
                     const r = data[reelId];
                     const likesObj = r.likes || {}, likesCount = Object.keys(likesObj).length, iLiked = !!likesObj[currentUser.uid];
-
-                    // O primeiro vídeo já inicia tocando com áudio ativo, os demais aguardam o scroll magnético
                     const finalEmbedUrl = index === 0 ? r.embedUrl : r.embedUrl.replace('autoplay=1', 'autoplay=0');
 
                     container.insertAdjacentHTML('beforeend', `
                         <div class="reel-item-snap bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl relative flex flex-col h-[75vh]">
-                            <!-- PLAYER DO YOUTUBE (TELA ESTENDIDA COM SNAP) -->
                             <div class="relative w-full flex-1 bg-black">
                                 <iframe src="${finalEmbedUrl}" class="w-full h-full border-0 pointer-events-auto" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                             </div>
-
-                            <!-- INFORMAÇÕES E AUTOR -->
                             <div class="p-4 space-y-2 bg-slate-900/90 backdrop-blur-md flex-shrink-0">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-3 cursor-pointer" onclick="openUserProfile('${r.uid}')">
@@ -903,7 +894,6 @@
             onValue(refItem, (snap) => { if(snap.exists()) remove(refItem); else set(refItem, true); }, { onlyOnce: true });
         }
 
-        // COMPARTILHAMENTO
         window.openShareModal = function(content, image, author) {
             sharingPostData = { content, image, author };
             const list = document.getElementById('share-chats-list');
@@ -989,7 +979,6 @@
             showToast("Adicionado aos seus Stories!", "success");
         }
 
-        // STORIES COM BARRINHAS MÚLTIPLAS LADO A LADO E DURAÇÃO DE 4 SEGUNDOS
         function listenStories() {
             const tray = document.getElementById('stories-tray');
             onValue(ref(db, 'stories'), (snap) => {
@@ -1095,7 +1084,6 @@
             document.getElementById('viewer-story-img').src = s.image;
             document.getElementById('viewer-story-title').innerText = s.title || "";
 
-            // Renderiza as barrinhas de progresso no topo (quantos stories a pessoa postou)
             const barsContainer = document.getElementById('story-bars-container');
             let barsHtml = '';
             currentAuthor.items.forEach((item, idx) => {
@@ -1124,7 +1112,6 @@
                 }
             }, { onlyOnce: true });
 
-            // Timer exato de 4 segundos por story
             if (storyTimer) clearTimeout(storyTimer);
             storyTimer = setTimeout(() => {
                 nextStoryIndex();
@@ -1348,7 +1335,6 @@
             showToast("Você saiu da conta com sucesso.", "info");
         }
 
-        // TROCA DE ABAS COM LIMPEZA IMEDIATA DOS VÍDEOS
         window.switchTab = function(tabId) {
             if (activeChatId) {
                 closeActiveChat();
