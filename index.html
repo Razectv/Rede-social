@@ -73,7 +73,6 @@
     <div id="auth-screen" class="fixed inset-0 bg-black z-50 flex items-center justify-center p-4">
         <div class="bg-[#121212] border border-[#262626] rounded-3xl w-full max-w-md p-6 sm:p-8 shadow-2xl space-y-6">
             <div class="text-center space-y-2 flex flex-col items-center">
-                <!-- SUA LOGO REAL -->
                 <img src="logo-icon.png" alt="Logo Corse" class="w-24 h-24 mb-2 object-cover rounded-2xl shadow-xl border border-[#262626]" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150'">
                 <h1 class="text-3xl font-black tracking-wider bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Corse</h1>
                 <p id="auth-subtitle" class="text-xs text-slate-400">Conectando pessoas com estilo e tecnologia</p>
@@ -543,7 +542,7 @@
         </div>
     </div>
 
-    <!-- LÓGICA E FIREBASE COM CHAT IDÊNTICO AO INSTAGRAM (AVATAR AO LADO DA MENSAGEM) -->
+    <!-- LÓGICA E FIREBASE COMPLETA COM AUTODESTRUIÇÃO DE ÁUDIOS -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -1537,7 +1536,6 @@
             activeChatId = rId;
             document.getElementById('chat-title').innerHTML = `${escapeHtml(chatName)} <span class="text-slate-400">›</span>`;
 
-            // CARREGA A FOTO DO AVATAR CORRETAMENTE NO CABEÇALHO E PARA AS MENSAGENS
             currentChatPeerAvatar = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150";
             if (rId.startsWith('group_')) {
                 const gId = rId.replace('group_', '');
@@ -1572,30 +1570,41 @@
                     const m = msgs[k], isMe = m.senderUid === currentUser.uid;
                     if (!isMe && !m.read) unreadUpdates[`${k}/read`] = true;
 
+                    // Regra de autodestruição de áudio (mais de 5 min após o 1º play)
+                    if (m.text && m.text.startsWith('data:audio')) {
+                        let firstPlayed = m.firstPlayedTime || 0;
+                        let now = Date.now();
+                        if (firstPlayed > 0 && (now - firstPlayed > 5 * 60 * 1000)) {
+                            remove(ref(db, `chats/${activeChatId}/${k}`));
+                            return;
+                        }
+                    }
+
                     let checkmarks = isMe ? (m.read ? '<span class="text-[10px] text-emerald-400">✓✓</span>' : '<span class="text-[10px] text-slate-400">✓</span>') : '';
                     let imgHtml = m.image ? `<img src="${m.image}" class="mt-2 rounded-2xl max-w-full h-32 object-cover" loading="lazy">` : '';
                     let senderLabel = !isMe && rId.startsWith('group_') ? `<span class="text-[10px] font-bold text-violet-400 block mb-0.5">${escapeHtml(m.senderName || 'Membro')}</span>` : '';
 
                     let contentHtml = '';
                     if (m.text && m.text.startsWith('data:audio')) {
+                        let playCount = m.playCount || 0;
+                        let firstPlayed = m.firstPlayedTime || 0;
                         contentHtml = `
                             <div class="flex flex-col gap-2 min-w-[180px]">
                                 <div class="flex items-center justify-between gap-2">
-                                    <span class="text-[10px] font-bold text-violet-300">🎤 Áudio</span>
+                                    <span class="text-[10px] font-bold text-violet-300">🎤 Áudio (${playCount}/2 ouvidos)</span>
                                     <div class="flex items-center gap-1 bg-black/40 rounded-lg p-0.5 border border-white/10">
                                         <button onclick="setAudioSpeed(this, '${k}', 1)" class="px-1.5 py-0.5 text-[9px] font-bold rounded bg-violet-600 text-white cursor-pointer speed-btn-${k}">1x</button>
                                         <button onclick="setAudioSpeed(this, '${k}', 1.5)" class="px-1.5 py-0.5 text-[9px] font-bold rounded text-slate-300 cursor-pointer speed-btn-${k}">1.5x</button>
                                         <button onclick="setAudioSpeed(this, '${k}', 2)" class="px-1.5 py-0.5 text-[9px] font-bold rounded text-slate-300 cursor-pointer speed-btn-${k}">2x</button>
                                     </div>
                                 </div>
-                                <audio id="audio-el-${k}" src="${m.text}" controls class="w-full h-7"></audio>
+                                <audio id="audio-el-${k}" src="${m.text}" controls class="w-full h-7" onplay="handleAudioPlay('${activeChatId}', '${k}', ${playCount}, ${firstPlayed})"></audio>
                             </div>
                         `;
                     } else {
                         contentHtml = `${escapeHtml(m.text)}${imgHtml}`;
                     }
 
-                    // ESTILO IDÊNTICO AO INSTAGRAM: AVATAR AO LADO DA MENSAGEM RECEBIDA
                     if (isMe) {
                         box.insertAdjacentHTML('beforeend', `
                             <div class="flex flex-col items-end w-full">
@@ -1621,6 +1630,22 @@
             });
         }
 
+        window.handleAudioPlay = async function(chatId, msgKey, currentCount, currentFirstPlayed) {
+            const newCount = currentCount + 1;
+            let updates = { playCount: newCount };
+            if (currentFirstPlayed === 0) {
+                updates.firstPlayedTime = Date.now();
+            }
+            await update(ref(db, `chats/${chatId}/${msgKey}`), updates);
+            
+            if (newCount >= 2) {
+                showToast("Este áudio foi ouvido 2 vezes e vai ser apagado.", "info");
+                setTimeout(async () => {
+                    await remove(ref(db, `chats/${chatId}/${msgKey}`));
+                }, 3000);
+            }
+        }
+
         window.setAudioSpeed = function(btnEl, msgKey, speed) {
             const audio = document.getElementById(`audio-el-${msgKey}`);
             if (audio) {
@@ -1641,8 +1666,20 @@
 
         window.startAudioRecording = async function() {
             try {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    showToast("O seu navegador não suporta gravação de áudio.", "info");
+                    return;
+                }
+
                 const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-                mediaRecorder = new MediaRecorder(stream);
+                let mimeType = 'audio/webm';
+                if (MediaRecorder.isTypeSupported('audio/mp4')) {
+                    mimeType = 'audio/mp4';
+                } else if (MediaRecorder.isTypeSupported('audio/aac')) {
+                    mimeType = 'audio/aac';
+                }
+
+                mediaRecorder = new MediaRecorder(stream, { mimeType });
                 audioChunks = [];
 
                 mediaRecorder.ondataavailable = event => {
@@ -1650,15 +1687,26 @@
                 };
 
                 mediaRecorder.onstop = async () => {
-                    const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                    const audioBlob = new Blob(audioChunks, { type: mimeType });
+                    if (audioBlob.size < 50) {
+                        showToast("Áudio muito curto ou vazio.", "info");
+                        return;
+                    }
+
                     const reader = new FileReader();
                     reader.readAsDataURL(audioBlob);
                     reader.onloadend = async () => {
                         const base64Audio = reader.result;
                         if (activeChatId) {
                             await push(ref(db, `chats/${activeChatId}`), {
-                                senderUid: currentUser.uid, senderName: document.getElementById('profile-name').innerText,
-                                text: base64Audio, image: "", read: false, timestamp: Date.now()
+                                senderUid: currentUser.uid, 
+                                senderName: document.getElementById('profile-name').innerText,
+                                text: base64Audio, 
+                                image: "", 
+                                read: false, 
+                                playCount: 0,
+                                firstPlayedTime: 0,
+                                timestamp: Date.now()
                             });
                             showToast("Áudio enviado com sucesso!", "success");
                         }
@@ -1675,10 +1723,11 @@
                     recordingSeconds++;
                     const mins = Math.floor(recordingSeconds / 60);
                     const secs = recordingSeconds % 60;
-                    document.getElementById('recording-timer').innerText = `Gravando áudio (${mins}:${secs < 10 ? '0' : ''}${secs})...`;
+                    document.getElementById('recording-timer').innerText = `A gravar áudio (${mins}:${secs < 10 ? '0' : ''}${secs})...`;
                 }, 1000);
 
             } catch (err) {
+                console.error("Erro no microfone:", err);
                 showToast("Erro: Permissão de microfone negada ou indisponível.", "info");
             }
         }
