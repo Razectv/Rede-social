@@ -144,7 +144,7 @@
                 </div>
             </section>
 
-            <!-- ABA 2: VÍDEOS / REELS (NOVO) -->
+            <!-- ABA 2: VÍDEOS / REELS -->
             <section id="tab-reels" class="space-y-4 px-4 hidden">
                 <div class="flex items-center justify-between py-2">
                     <div>
@@ -276,7 +276,7 @@
             </div>
         </div>
 
-        <!-- BARRA DE NAVEGAÇÃO INFERIOR (ATUALIZADA COM VÍDEOS) -->
+        <!-- BARRA DE NAVEGAÇÃO INFERIOR -->
         <nav id="bottom-nav" class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-xl bg-[#0b0f19]/95 backdrop-blur-lg border-t border-slate-900 z-40 px-2 py-2 grid grid-cols-5 items-center text-xs">
             <button onclick="switchTab('feed')" id="nav-feed" class="flex flex-col items-center justify-center gap-1 text-violet-400 font-semibold cursor-pointer transition-all p-1">
                 <i data-lucide="home" class="w-5 h-5"></i>
@@ -789,7 +789,6 @@
                 return;
             }
 
-            // Extrai o ID do Shorts do YouTube para montar o embed limpo
             let embedUrl = "";
             if (rawLink.includes("shorts/")) {
                 const parts = rawLink.split("shorts/");
@@ -826,6 +825,8 @@
 
         function listenReels() {
             const container = document.getElementById('reels-feed');
+            if (!container) return;
+            
             onValue(ref(db, 'reels'), (snap) => {
                 container.innerHTML = "";
                 const data = snap.val() || {};
@@ -1321,9 +1322,17 @@
             showToast("Você saiu da conta com sucesso.", "info");
         }
 
+        // FUNÇÃO DE TROCA DE ABAS COM LIMPEZA IMEDIATA DOS VÍDEOS (CORTA O ÁUDIO)
         window.switchTab = function(tabId) {
             if (activeChatId) {
                 closeActiveChat();
+            }
+
+            const reelsFeed = document.getElementById('reels-feed');
+            if (tabId !== 'reels' && reelsFeed) {
+                reelsFeed.innerHTML = "";
+            } else if (tabId === 'reels') {
+                listenReels();
             }
 
             document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
