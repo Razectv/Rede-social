@@ -52,7 +52,6 @@
                     <input type="password" id="auth-password" placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-slate-100 focus:outline-none focus:border-violet-500 transition-all">
                 </div>
                 
-                <!-- BOTÃO DE ESQUECI MINHA SENHA -->
                 <div id="forgot-password-container" class="text-right">
                     <button onclick="handleForgotPassword()" class="text-xs text-violet-400 hover:underline font-medium cursor-pointer">Esqueceu sua senha?</button>
                 </div>
@@ -100,8 +99,8 @@
 
             <!-- ABA 1: INÍCIO / FEED -->
             <section id="tab-feed" class="space-y-4">
-                <div class="w-full overflow-x-auto hide-scrollbar px-4 py-3 flex gap-3.5 custom-scrollbar" id="stories-tray">
-                    <div class="flex flex-col items-center gap-1 flex-shrink-0 cursor-pointer" onclick="openMyStories()">
+                <div class="w-full overflow-x-auto hide-scrollbar px-4 py-3 flex gap-4 custom-scrollbar" id="stories-tray">
+                    <div class="flex flex-col items-center gap-1.5 flex-shrink-0 cursor-pointer" onclick="openMyStories()">
                         <div class="w-16 h-16 rounded-full p-[2.5px] bg-gradient-to-tr from-violet-600 to-fuchsia-600 relative shadow-lg">
                             <img id="story-my-avatar" src="" class="w-full h-full rounded-full object-cover border-2 border-[#0b0f19]">
                             <button onclick="event.stopPropagation(); triggerCreatePost();" class="absolute bottom-0 right-0 w-5 h-5 bg-violet-600 text-white rounded-full flex items-center justify-center border-2 border-[#0b0f19] text-xs font-bold shadow-md cursor-pointer">+</button>
@@ -240,8 +239,9 @@
         </div>
     </div>
 
-    <!-- MODAL DE VISUALIZAR STORY -->
+    <!-- MODAL DE VISUALIZAR STORY (COM NAVEGAÇÃO LATERAL ESTILO INSTAGRAM) -->
     <div id="story-viewer-modal" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col justify-between p-4">
+        <!-- BARRA DE PROGRESSO DO TEMPORIZADOR -->
         <div class="w-full bg-slate-800 h-1 rounded-full overflow-hidden absolute top-0 left-0">
             <div id="story-progress-bar-fill" class="h-full bg-white w-0"></div>
         </div>
@@ -256,7 +256,14 @@
             </div>
             <button onclick="closeStoryViewer()" class="text-white p-2 cursor-pointer"><i data-lucide="x" class="w-6 h-6"></i></button>
         </div>
-        <div class="flex-1 flex flex-col items-center justify-center p-2">
+
+        <!-- ÁREA CENTRAL DO STORY COM CLIQUES NAS LATERAIS PARA NAVEGAR -->
+        <div class="flex-1 flex flex-col items-center justify-center p-2 relative">
+            <!-- BOTÃO TOQUE ESQUERDO (VOLTAR STORY) -->
+            <div onclick="prevStoryIndex()" class="absolute left-0 top-0 w-1/3 h-full z-10 cursor-pointer"></div>
+            <!-- BOTÃO TOQUE DIREITO (AVANÇAR STORY) -->
+            <div onclick="nextStoryIndex()" class="absolute right-0 top-0 w-1/3 h-full z-10 cursor-pointer"></div>
+
             <div class="relative max-w-sm w-full h-[65vh] bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 flex items-center justify-center">
                 <img id="viewer-story-img" src="" class="w-full h-full object-cover">
                 <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-4">
@@ -264,6 +271,8 @@
                 </div>
             </div>
         </div>
+
+        <!-- PAINEL DE QUEM VIU (APARECE APENAS PARA O DONO DO STORY) -->
         <div id="story-views-panel" class="bg-slate-900 border border-slate-800 rounded-2xl p-3 max-w-sm mx-auto w-full flex items-center justify-between hidden">
             <button onclick="openStoryViewersList()" class="flex items-center gap-2 cursor-pointer hover:opacity-80">
                 <i data-lucide="eye" class="w-4 h-4 text-violet-400"></i>
@@ -359,6 +368,10 @@
         let typingTimeout = null, portalTimer = null, activeViewingStoryId = null;
         let storyTimer = null;
         let isSubmittingPost = false;
+
+        // Controle de múltiplos stories agrupados por autor
+        let currentAuthorStoriesList = [];
+        let currentStoryIndex = 0;
 
         window.escapeHtml = text => (text || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         window.showToast = function(msg, type = 'info') {
@@ -593,6 +606,9 @@
             }
         }
 
+        // ==========================
+        // STORIES AGRUPADOS POR USUÁRIO (ESTILO INSTAGRAM)
+        // ==========================
         function listenStories() {
             const tray = document.getElementById('stories-tray');
             onValue(ref(db, 'stories'), (snap) => {
@@ -602,8 +618,23 @@
                     onValue(ref(db, `storyViews/${currentUser.uid}`), (vSnap) => {
                         const viewedMap = vSnap.val() || {};
 
+                        // Agrupa os stories por autor (UID)
+                        let authorsMap = {};
+                        Object.keys(storiesData).forEach(sId => {
+                            const s = storiesData[sId];
+                            if (!authorsMap[s.uid]) {
+                                authorsMap[s.uid] = {
+                                    uid: s.uid,
+                                    author: s.author,
+                                    avatar: s.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+                                    items: []
+                                };
+                            }
+                            authorsMap[s.uid].items.push({ id: sId, ...s });
+                        });
+
                         let html = `
-                            <div class="flex flex-col items-center gap-1 flex-shrink-0 cursor-pointer" onclick="openMyStories()">
+                            <div class="flex flex-col items-center gap-1.5 flex-shrink-0 cursor-pointer" onclick="openMyStories()">
                                 <div class="w-16 h-16 rounded-full p-[2.5px] bg-gradient-to-tr from-violet-600 to-fuchsia-600 relative shadow-lg">
                                     <img id="story-my-avatar" src="${document.getElementById('profile-avatar-img')?.src || ''}" class="w-full h-full rounded-full object-cover border-2 border-[#0b0f19]">
                                     <button onclick="event.stopPropagation(); triggerCreatePost();" class="absolute bottom-0 right-0 w-5 h-5 bg-violet-600 text-white rounded-full flex items-center justify-center border-2 border-[#0b0f19] text-xs font-bold shadow-md cursor-pointer">+</button>
@@ -612,22 +643,26 @@
                             </div>
                         `;
 
-                        Object.keys(storiesData).forEach(sId => {
-                            const s = storiesData[sId];
-                            const isMyStory = s.uid === currentUser.uid;
-                            const isFriend = friends[s.uid];
+                        Object.keys(authorsMap).forEach(authorUid => {
+                            const authorObj = authorsMap[authorUid];
+                            const isMyStory = authorUid === currentUser.uid;
+                            const isFriend = friends[authorUid];
 
                             if (isMyStory || !isFriend) return;
 
-                            const isViewed = viewedMap[sId];
-                            const ringClass = isViewed ? 'p-[2.5px] bg-slate-700' : 'p-[2.5px] bg-gradient-to-tr from-fuchsia-500 via-violet-500 to-pink-500 animate-pulse';
+                            // Verifica se todos os stories deste autor já foram vistos
+                            const allViewed = authorObj.items.every(item => viewedMap[item.id]);
+                            const ringClass = allViewed ? 'p-[2.5px] bg-slate-700' : 'p-[2.5px] bg-gradient-to-tr from-fuchsia-500 via-violet-500 to-pink-500 animate-pulse';
+
+                            // Serializa os dados para abrir o visualizador com a lista completa do autor
+                            const serializedItems = encodeURIComponent(JSON.stringify(authorObj.items));
 
                             html += `
-                                <div class="flex flex-col items-center gap-1 flex-shrink-0 cursor-pointer" onclick="openStoryViewer('${sId}', '${s.uid}', '${escapeHtml(s.author)}', '${s.avatar}', '${s.image}', '${escapeHtml(s.title)}')">
+                                <div class="flex flex-col items-center gap-1.5 flex-shrink-0 cursor-pointer" onclick="openAuthorStories('${serializedItems}')">
                                     <div class="w-16 h-16 rounded-full ${ringClass}">
-                                        <img src="${s.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" class="w-full h-full rounded-full object-cover border-2 border-[#0b0f19]">
+                                        <img src="${authorObj.avatar}" class="w-full h-full rounded-full object-cover border-2 border-[#0b0f19]">
                                     </div>
-                                    <span class="text-[11px] text-slate-300 font-medium truncate w-16 text-center">${escapeHtml(s.author)}</span>
+                                    <span class="text-[11px] text-slate-300 font-medium truncate w-16 text-center">${escapeHtml(authorObj.author)}</span>
                                 </div>
                             `;
                         });
@@ -640,24 +675,45 @@
         window.openMyStories = function() {
             onValue(ref(db, 'stories'), (snap) => {
                 const storiesData = snap.val() || {};
-                const myStories = Object.keys(storiesData).filter(id => storiesData[id].uid === currentUser.uid);
+                let myStories = [];
+                Object.keys(storiesData).forEach(id => {
+                    if (storiesData[id].uid === currentUser.uid) {
+                        myStories.push({ id, ...storiesData[id] });
+                    }
+                });
+
                 if (myStories.length === 0) {
                     showToast("Você ainda não publicou nenhum story. Clique no + para criar!", "info");
                     return;
                 }
-                const latestId = myStories[myStories.length - 1];
-                const s = storiesData[latestId];
-                openStoryViewer(latestId, currentUser.uid, s.author, s.avatar, s.image, s.title);
+                
+                currentAuthorStoriesList = myStories;
+                currentStoryIndex = 0;
+                renderAndPlayStory();
             }, { onlyOnce: true });
         }
 
-        window.openStoryViewer = async function(storyId, authorUid, authorName, authorAvatar, storyImg, storyTitle) {
-            activeViewingStoryId = storyId;
-            document.getElementById('viewer-author-name').innerText = authorName;
-            document.getElementById('viewer-author-avatar').src = authorAvatar;
-            document.getElementById('viewer-story-img').src = storyImg;
-            document.getElementById('viewer-story-title').innerText = storyTitle;
+        window.openAuthorStories = function(encodedJson) {
+            try {
+                currentAuthorStoriesList = JSON.parse(decodeURIComponent(encodedJson));
+                currentStoryIndex = 0;
+                renderAndPlayStory();
+            } catch (err) {
+                console.error("Erro ao abrir stories:", err);
+            }
+        }
 
+        window.renderAndPlayStory = async function() {
+            if (!currentAuthorStoriesList || currentAuthorStoriesList.length === 0) return;
+            const s = currentAuthorStoriesList[currentStoryIndex];
+            activeViewingStoryId = s.id;
+
+            document.getElementById('viewer-author-name').innerText = s.author;
+            document.getElementById('viewer-author-avatar').src = s.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
+            document.getElementById('viewer-story-img').src = s.image;
+            document.getElementById('viewer-story-title').innerText = s.title || "";
+
+            // Reinicia a barra de progresso (5 segundos)
             const barFill = document.getElementById('story-progress-bar-fill');
             barFill.classList.remove('story-progress-bar');
             void barFill.offsetWidth;
@@ -665,28 +721,44 @@
 
             if (storyTimer) clearTimeout(storyTimer);
             storyTimer = setTimeout(() => {
-                closeStoryViewer();
+                nextStoryIndex();
             }, 5000);
 
-            await set(ref(db, `storyViews/${currentUser.uid}/${storyId}`), true);
+            await set(ref(db, `storyViews/${currentUser.uid}/${s.id}`), true);
 
             const viewsPanel = document.getElementById('story-views-panel');
-            if(authorUid === currentUser.uid) {
+            if(s.uid === currentUser.uid) {
                 viewsPanel.classList.remove('hidden');
-                onValue(ref(db, `storyInteractions/${storyId}`), (snap) => {
+                onValue(ref(db, `storyInteractions/${s.id}`), (snap) => {
                     const inter = snap.val() || {};
                     const viewsCount = inter.views ? Object.keys(inter.views).length : 0;
                     const likesCount = inter.likes ? Object.keys(inter.likes).length : 0;
                     document.getElementById('story-views-count').innerText = `${viewsCount} visualizações`;
                     document.getElementById('story-likes-count').innerText = `${likesCount} Curtir`;
                 }, { onlyOnce: true });
-                await set(ref(db, `storyInteractions/${storyId}/views/${currentUser.uid}`), true);
+                await set(ref(db, `storyInteractions/${s.id}/views/${currentUser.uid}`), true);
             } else {
                 viewsPanel.classList.add('hidden');
-                await set(ref(db, `storyInteractions/${storyId}/views/${currentUser.uid}`), true);
+                await set(ref(db, `storyInteractions/${s.id}/views/${currentUser.uid}`), true);
             }
 
             document.getElementById('story-viewer-modal').classList.remove('hidden');
+        }
+
+        window.nextStoryIndex = function() {
+            if (currentStoryIndex < currentAuthorStoriesList.length - 1) {
+                currentStoryIndex++;
+                renderAndPlayStory();
+            } else {
+                closeStoryViewer();
+            }
+        }
+
+        window.prevStoryIndex = function() {
+            if (currentStoryIndex > 0) {
+                currentStoryIndex--;
+                renderAndPlayStory();
+            }
         }
 
         window.closeStoryViewer = () => {
@@ -738,7 +810,6 @@
             document.getElementById('forgot-password-container').classList.toggle('hidden', isRegistering);
         }
 
-        // FUNÇÃO DE REDEFINIÇÃO DE SENHA POR E-MAIL
         window.handleForgotPassword = async function() {
             const email = document.getElementById('auth-email').value.trim();
             const errorBox = document.getElementById('auth-error');
