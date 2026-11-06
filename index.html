@@ -449,7 +449,7 @@
         </div>
     </div>
 
-    <!-- INPUT GLOBAL CORRIGIDO PARA PERMITIR ESCOLHER DA GALERIA OU CÂMERA -->
+    <!-- INPUT GLOBAL PARA GALERIA OU CÂMERA -->
     <input type="file" id="global-media-input" accept="image/*" class="hidden" onchange="handleNewMediaSelected(event)">
 
     <!-- MODAL DE CRIAR POST / STORY -->
@@ -523,11 +523,12 @@
         </div>
     </div>
 
-    <!-- LÓGICA E FIREBASE -->
+    <!-- LÓGICA E FIREBASE (COM SUPORTE A FCM BACKGROUND) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, push, set, onValue, update, remove, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+        import { getMessaging, getToken, onMessage } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-messaging.js";
 
         const firebaseConfig = {
           apiKey: "AIzaSyDtNh6DX5NZNzJdoTWN9Dklu97munmJf1w",
@@ -539,6 +540,7 @@
         const app = initializeApp(firebaseConfig);
         const auth = getAuth(app);
         const db = getDatabase(app);
+        const messaging = getMessaging(app);
 
         let isRegistering = false, currentUser = null, activeMediaBase64 = "", chatImageBase64 = "", activeChatId = null;
         let globalUsersCache = {}, globalFriendsCache = {}, globalGroupsCache = {}, openCommentSections = new Set();
@@ -559,6 +561,32 @@
             container.insertAdjacentHTML('beforeend', `<div id="${id}" class="toast-notification p-3.5 rounded-2xl border bg-slate-900 shadow-2xl text-xs font-semibold text-slate-100">${escapeHtml(msg)}</div>`);
             setTimeout(() => { const el = document.getElementById(id); if(el) el.remove(); }, 3000);
         }
+
+        // REGISTRAR TOKEN FCM PARA NOTIFICAÇÕES EM SEGUNDO PLANO
+        async function registerPushNotifications(userId) {
+            try {
+                const permission = await Notification.requestPermission();
+                if (permission === 'granted') {
+                    const currentToken = await getToken(messaging, { 
+                        vapidKey: "BE0bbnSi51rnyqOA3sxsNGWVqiGZinkozsgBfBIDPMjvrznmy1ijBOdV0f5tb3FJ2ijsvAMTD58sKo5tJju_jMg" // Substitua pela sua Chave VAPID gerada no Firebase
+                    });
+                    
+                    if (currentToken) {
+                        await set(ref(db, `fcmTokens/${userId}`), currentToken);
+                        console.log("Token FCM registrado com sucesso!");
+                    }
+                }
+            } catch (err) {
+                console.error("Erro ao registrar notificações:", err);
+            }
+        }
+
+        // Ouvir mensagens recebidas enquanto o app está aberto em primeiro plano
+        onMessage(messaging, (payload) => {
+            const title = payload.notification?.title || "Corse";
+            const body = payload.notification?.body || "Nova mensagem recebida";
+            showToast(`${title}: ${body}`, "success");
+        });
 
         async function enforceBotPostLimit(botUid) {
             try {
@@ -1308,6 +1336,9 @@
                 document.getElementById('auth-screen').classList.add('hidden');
                 document.getElementById('app-container').classList.remove('hidden');
                 set(ref(db, `users/${user.uid}/online`), true);
+                
+                // REGISTRA AS NOTIFICAÇÕES PUSH EM SEGUNDO PLANO AO LOGAR
+                registerPushNotifications(user.uid);
                 
                 loadProfile(); 
                 listenUnifiedChatsAndGroups(); 
