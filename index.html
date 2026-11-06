@@ -75,7 +75,7 @@
             <div class="text-center space-y-2 flex flex-col items-center">
                 <img src="logo-icon.png" alt="Logo Corse" class="w-24 h-24 mb-2 object-cover rounded-2xl shadow-xl border border-[#262626]" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150'">
                 <h1 class="text-3xl font-black tracking-wider bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Corse</h1>
-                <p id="auth-subtitle" class="text-xs text-slate-400">Conectando pessoas com estilo e tecnologia</p>
+                <p id="auth-subtitle" class="text-xs text-slate-400">Painel de Controle e Automação</p>
             </div>
             <div class="space-y-4">
                 <div id="name-field-container" class="hidden">
@@ -98,7 +98,7 @@
                 <div id="auth-error" class="text-xs text-red-400 font-medium p-3 bg-red-950/40 border border-red-900/50 rounded-2xl hidden"></div>
                 
                 <button type="button" id="auth-submit-btn" onclick="handleAuthSubmit()" class="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-90 text-white py-3.5 rounded-2xl font-bold shadow-lg shadow-violet-600/30 transition-all text-sm cursor-pointer">
-                    Entrar na Conta
+                    Entrar no Painel
                 </button>
             </div>
             <div class="text-center pt-2 border-t border-[#262626]">
@@ -107,18 +107,18 @@
         </div>
     </div>
 
-    <!-- APLICATIVO PRINCIPAL -->
+    <!-- APLICATIVO / PAINEL DE CONTROLE PRINCIPAL -->
     <div id="app-container" class="hidden w-full max-w-xl min-h-screen flex flex-col bg-black border-x border-[#1a1a1a] shadow-2xl relative pb-20">
         
-        <!-- CABEÇALHO DO APP -->
+        <!-- CABEÇALHO DO PAINEL -->
         <header id="main-header" class="sticky top-0 z-40 bg-black/95 backdrop-blur-md px-4 py-3 flex justify-between items-center border-b border-[#1a1a1a]">
             <div class="flex items-center gap-2">
                 <img src="logo-icon.png" class="w-9 h-9 rounded-xl object-cover border border-[#262626]" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150'">
-                <span class="text-2xl font-black tracking-tight text-white">Corse</span>
+                <span class="text-2xl font-black tracking-tight text-white">Corse <span class="text-xs text-violet-400 font-semibold px-2 py-0.5 bg-violet-950/50 rounded-lg">Painel</span></span>
             </div>
             <div class="flex items-center gap-2">
-                <button onclick="fetchAllPortalsNews()" title="Atualizar Portais" class="w-9 h-9 rounded-full bg-[#121212] border border-[#262626] flex items-center justify-center text-violet-400 hover:text-white transition-all cursor-pointer">
-                    <i data-lucide="globe" class="w-4 h-4"></i>
+                <button onclick="switchTab('bot')" title="Automação de Vídeos" class="relative w-9 h-9 rounded-full bg-violet-600/25 border border-violet-500/40 flex items-center justify-center text-violet-300 hover:text-white transition-all cursor-pointer">
+                    <i data-lucide="cpu" class="w-4 h-4"></i>
                 </button>
                 <button onclick="switchTab('notifications')" class="relative w-9 h-9 rounded-full bg-[#121212] border border-[#262626] flex items-center justify-center text-slate-300 hover:text-white transition-all cursor-pointer">
                     <i data-lucide="bell" class="w-4 h-4"></i>
@@ -154,7 +154,7 @@
                 </div>
             </section>
 
-            <!-- ABA 2: VÍDEOS / REELS INTELIGENTE -->
+            <!-- ABA 2: VÍDEOS / REELS -->
             <section id="tab-reels" class="space-y-2 px-4 hidden">
                 <div class="flex items-center justify-between py-1">
                     <div>
@@ -171,6 +171,55 @@
                 </div>
             </section>
 
+            <!-- ABA NOVA: PAINEL DE AUTOMAÇÃO DE VÍDEOS (BOT) -->
+            <section id="tab-bot" class="space-y-4 px-4 hidden">
+                <div class="bg-[#121212] border border-[#262626] rounded-3xl p-5 shadow-2xl space-y-4">
+                    <div class="flex items-center justify-between pb-3 border-b border-[#262626]">
+                        <div>
+                            <h2 class="text-base font-bold text-white flex items-center gap-2">
+                                <i data-lucide="cpu" class="w-5 h-5 text-violet-400"></i> Agendador Automático de Vídeos
+                            </h2>
+                            <p class="text-[11px] text-slate-400">Programe links do YouTube para postar sozinhos nos horários definidos.</p>
+                        </div>
+                        <span id="bot-status-badge" class="px-2.5 py-1 rounded-xl text-[10px] font-bold bg-emerald-950/60 text-emerald-400 border border-emerald-800">Bot Ativo</span>
+                    </div>
+
+                    <!-- Formulário de Agendamento -->
+                    <div class="space-y-3 bg-black p-4 rounded-2xl border border-[#262626]">
+                        <h3 class="font-bold text-xs text-violet-300">Novo Vídeo para a Fila</h3>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-300 mb-1">Link do YouTube Shorts</label>
+                            <input type="text" id="bot-link-input" placeholder="Ex: https://youtube.com/shorts/..." class="w-full bg-[#121212] border border-[#262626] rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-violet-500">
+                        </div>
+                        <div>
+                            <label class="block text-[11px] font-semibold text-slate-300 mb-1">Título / Legenda da Postagem</label>
+                            <input type="text" id="bot-title-input" placeholder="Ex: Conteúdo exclusivo programado 🔥" class="w-full bg-[#121212] border border-[#262626] rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-violet-500">
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-300 mb-1">Data da Publicação</label>
+                                <input type="date" id="bot-date-input" class="w-full bg-[#121212] border border-[#262626] rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-violet-500">
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-slate-300 mb-1">Horário (Ex: 14:30)</label>
+                                <input type="time" id="bot-time-input" class="w-full bg-[#121212] border border-[#262626] rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-violet-500">
+                            </div>
+                        </div>
+                        <button onclick="scheduleBotVideo()" class="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-90 text-white py-2.5 rounded-xl text-xs font-bold shadow-md cursor-pointer transition-all">
+                            Adicionar à Fila de Publicação
+                        </button>
+                    </div>
+
+                    <!-- Fila de Vídeos Agendados -->
+                    <div class="space-y-2">
+                        <h3 class="font-bold text-xs text-slate-200">Vídeos na Fila de Espera</h3>
+                        <div id="bot-scheduled-list" class="space-y-2 max-h-72 overflow-y-auto custom-scrollbar">
+                            <div class="text-center py-6 text-slate-500 text-xs">Nenhum vídeo agendado na fila.</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
             <!-- ABA 3: EXPLORAR -->
             <section id="tab-communities" class="space-y-4 px-4 hidden">
                 <div class="py-2">
@@ -182,7 +231,7 @@
                 </div>
             </section>
 
-            <!-- ABA 4: CHAT, AMIGOS, GRUPOS E COMUNIDADES -->
+            <!-- ABA 4: CHAT E GRUPOS -->
             <section id="tab-friends" class="flex-1 flex flex-col px-4 hidden">
                 <div id="chat-container-view" class="space-y-4 flex-1">
                     <div class="bg-[#121212] border border-[#262626] rounded-3xl p-4 shadow-xl space-y-3">
@@ -242,7 +291,6 @@
         <!-- TELA DE CONVERSA EM TELA CHEIA ESTILO INSTAGRAM -->
         <div id="active-chat-view" class="fixed inset-0 bg-black z-50 flex flex-col hidden p-3 sm:p-4">
             
-            <!-- CABEÇALHO DO CHAT ESTILO INSTAGRAM -->
             <div class="pb-3 mb-2 flex items-center justify-between flex-shrink-0 bg-black border-b border-[#1a1a1a]">
                 <div class="flex items-center gap-3">
                     <button onclick="closeActiveChat()" class="text-white p-1 hover:opacity-80 cursor-pointer">
@@ -283,7 +331,7 @@
                 </div>
             </div>
 
-            <!-- BARRA INFERIOR DE INPUT ESTILO INSTAGRAM -->
+            <!-- BARRA INFERIOR DE INPUT -->
             <div class="flex items-center gap-2 pt-2 pb-1 bg-black w-full flex-shrink-0">
                 <label class="cursor-pointer bg-[#262626] hover:bg-[#333] text-white p-2.5 rounded-full flex-shrink-0 flex items-center justify-center">
                     <i data-lucide="camera" class="w-5 h-5"></i>
@@ -338,7 +386,7 @@
         </nav>
     </div>
 
-    <!-- MODAL DE VISUALIZAR STORY EM TELA CHEIA -->
+    <!-- MODAL DE VISUALIZAR STORY -->
     <div id="story-viewer-modal" class="fixed inset-0 bg-black z-50 hidden flex flex-col justify-between">
         <div id="story-bars-container" class="w-full flex gap-1 p-2 absolute top-0 left-0 z-20 bg-gradient-to-b from-black/80 to-transparent"></div>
 
@@ -390,7 +438,7 @@
             </div>
             <div class="space-y-1">
                 <h3 class="font-bold text-slate-100 text-sm">Apagar Story</h3>
-                <p class="text-xs text-slate-400">Deseja realmente apagar esta publicação dos seus stories? Esta ação não poderá ser desfeita.</p>
+                <p class="text-xs text-slate-400">Deseja realmente apagar esta publicação dos seus stories?</p>
             </div>
             <div class="grid grid-cols-2 gap-2 pt-2">
                 <button onclick="closeConfirmModal()" class="bg-[#262626] hover:bg-[#333] text-white py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer">Cancelar</button>
@@ -399,7 +447,7 @@
         </div>
     </div>
 
-    <!-- MODAL DE POSTAR VÍDEO (REELS / SHORTS) -->
+    <!-- MODAL DE POSTAR VÍDEO (REELS) -->
     <div id="create-reel-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="bg-[#121212] border border-[#262626] rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-[#262626] pb-3">
@@ -410,7 +458,6 @@
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Link do YouTube Shorts</label>
                     <input type="text" id="reel-link-input" placeholder="Ex: https://youtube.com/shorts/..." class="w-full bg-black border border-[#262626] rounded-xl px-4 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-violet-500">
-                    <p class="text-[10px] text-slate-500 mt-1">Cole o link de um YouTube Shorts. O vídeo rodará direto na tela!</p>
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Legenda do Vídeo</label>
@@ -468,7 +515,7 @@
         </div>
     </div>
 
-    <!-- INPUT GLOBAL PARA GALERIA OU CÂMERA -->
+    <!-- INPUT GLOBAL PARA GALERIA -->
     <input type="file" id="global-media-input" accept="image/*" class="hidden" onchange="handleNewMediaSelected(event)">
 
     <!-- MODAL DE CRIAR POST / STORY -->
@@ -507,7 +554,7 @@
                     <label class="cursor-pointer bg-[#262626] text-slate-200 px-3 py-1.5 rounded-xl text-xs font-semibold">Alterar Foto de Perfil<input type="file" accept="image/*" class="hidden" onchange="handleProfileAvatarSelect(event)"></label>
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Link da Imagem de Banner (Fundo)</label>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Link da Imagem de Banner</label>
                     <input type="text" id="edit-banner-input" placeholder="URL da imagem de fundo" class="w-full bg-black border border-[#262626] rounded-xl px-4 py-2.5 text-xs text-slate-100">
                 </div>
                 <div>
@@ -542,7 +589,7 @@
         </div>
     </div>
 
-    <!-- LÓGICA E FIREBASE COM GESTÃO DE ÁUDIO DE VÍDEOS INTELIGENTE -->
+    <!-- LÓGICA DO PAINEL, FIREBASE E AGENDADOR AUTOMÁTICO DE VÍDEOS -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -561,7 +608,7 @@
 
         let isRegistering = false, currentUser = null, activeMediaBase64 = "", chatImageBase64 = "", activeChatId = null;
         let globalUsersCache = {}, globalFriendsCache = {}, globalGroupsCache = {}, openCommentSections = new Set();
-        let typingTimeout = null, portalTimer = null, activeViewingStoryId = null;
+        let typingTimeout = null, portalTimer = null, botSchedulerTimer = null, activeViewingStoryId = null;
         let storyTimer = null;
         let isSubmittingPost = false;
         let sharingPostData = null;
@@ -688,6 +735,125 @@
             portalTimer = setInterval(() => { if (currentUser) fetchAllPortalsNews(true); }, 3600000);
         }
 
+        // --- SISTEMA DE AGENDAMENTO AUTOMÁTICO DE VÍDEOS (BOT) ---
+        window.scheduleBotVideo = async function() {
+            const rawLink = document.getElementById('bot-link-input').value.trim();
+            const title = document.getElementById('bot-title-input').value.trim();
+            const dateStr = document.getElementById('bot-date-input').value;
+            const timeStr = document.getElementById('bot-time-input').value;
+
+            if(!rawLink || !dateStr || !timeStr) {
+                showToast("Preencha o link, a data e o horário para agendar.", "info");
+                return;
+            }
+
+            let videoId = "";
+            if (rawLink.includes("shorts/")) {
+                videoId = rawLink.split("shorts/")[1].split("?")[0];
+            } else if (rawLink.includes("youtu.be/")) {
+                videoId = rawLink.split("youtu.be/")[1].split("?")[0];
+            } else if (rawLink.includes("watch?v=")) {
+                videoId = new URLSearchParams(rawLink.split('?')[1]).get('v');
+            } else {
+                showToast("Link inválido. Insira um link do YouTube Shorts.", "info");
+                return;
+            }
+
+            const embedUrl = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1&mute=0&controls=1&loop=1&playlist=${videoId}`;
+            const targetTimestamp = new Date(`${dateStr}T${timeStr}:00`).getTime();
+
+            if (isNaN(targetTimestamp)) {
+                showToast("Data ou horário inválidos.", "info");
+                return;
+            }
+
+            try {
+                await push(ref(db, `scheduledReels/${currentUser.uid}`), {
+                    embedUrl,
+                    caption: title || "Vídeo automatizado",
+                    targetTime: targetTimestamp,
+                    author: document.getElementById('profile-name').innerText,
+                    avatar: document.getElementById('profile-avatar-img').src,
+                    createdAt: Date.now()
+                });
+
+                document.getElementById('bot-link-input').value = "";
+                document.getElementById('bot-title-input').value = "";
+                document.getElementById('bot-date-input').value = "";
+                document.getElementById('bot-time-input').value = "";
+                showToast("Vídeo agendado com sucesso na sua fila!", "success");
+            } catch(e) {
+                showToast("Erro ao agendar vídeo.", "info");
+            }
+        }
+
+        function listenScheduledReels() {
+            if(!currentUser) return;
+            onValue(ref(db, `scheduledReels/${currentUser.uid}`), (snap) => {
+                const container = document.getElementById('bot-scheduled-list');
+                if(!container) return;
+                container.innerHTML = "";
+                const data = snap.val() || {};
+                const keys = Object.keys(data);
+
+                if(keys.length === 0) {
+                    container.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs">Nenhum vídeo agendado na fila.</div>`;
+                    return;
+                }
+
+                keys.forEach(id => {
+                    const item = data[id];
+                    const dateFormatted = new Date(item.targetTime).toLocaleString('pt-BR');
+                    container.insertAdjacentHTML('beforeend', `
+                        <div class="flex items-center justify-between bg-black p-3 rounded-xl border border-[#262626]">
+                            <div class="space-y-0.5 max-w-[220px]">
+                                <h4 class="font-bold text-xs text-slate-100 truncate">${escapeHtml(item.caption)}</h4>
+                                <p class="text-[10px] text-violet-400 font-medium">📅 Publicação para: ${dateFormatted}</p>
+                            </div>
+                            <button onclick="cancelScheduledReel('${id}')" class="text-red-400 hover:text-red-300 p-1.5 cursor-pointer text-xs font-semibold bg-red-950/30 rounded-lg border border-red-900/50">Cancelar</button>
+                        </div>
+                    `);
+                });
+            });
+        }
+
+        window.cancelScheduledReel = async function(id) {
+            await remove(ref(db, `scheduledReels/${currentUser.uid}/${id}`));
+            showToast("Agendamento cancelado.", "info");
+        }
+
+        function startBotSchedulerWatcher() {
+            if (botSchedulerTimer) clearInterval(botSchedulerTimer);
+            // Verifica a cada 20 segundos se algum vídeo agendado atingiu o horário de disparo
+            botSchedulerTimer = setInterval(async () => {
+                if(!currentUser) return;
+                try {
+                    const snap = await get(ref(db, `scheduledReels/${currentUser.uid}`));
+                    if(!snap.exists()) return;
+                    const items = snap.val();
+                    const now = Date.now();
+
+                    Object.keys(items).forEach(async (id) => {
+                        const item = items[id];
+                        if (now >= item.targetTime) {
+                            // Horário atingido! Publica automaticamente no feed de reels principal
+                            await push(ref(db, 'reels'), {
+                                uid: currentUser.uid,
+                                author: item.author,
+                                avatar: item.avatar,
+                                embedUrl: item.embedUrl,
+                                caption: item.caption,
+                                timestamp: Date.now()
+                            });
+                            // Remove da fila de agendamento após postar
+                            await remove(ref(db, `scheduledReels/${currentUser.uid}/${id}`));
+                            showToast(`🤖 Vídeo "${item.caption.substring(0, 20)}..." postado automaticamente pelo bot!`, "success");
+                        }
+                    });
+                } catch(e) {}
+            }, 20000);
+        }
+
         function listenExploreGrid() {
             const grid = document.getElementById('explore-grid');
             onValue(ref(db, 'posts'), (snap) => {
@@ -798,7 +964,6 @@
                 showToast("Link inválido. Use um link do YouTube Shorts.", "info"); return;
             }
 
-            // Parâmetros otimizados do YouTube IFrame API para som inteligente e controles limpios
             const embedUrl = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1&mute=0&controls=1&loop=1&playlist=${videoId}`;
 
             try {
@@ -834,7 +999,6 @@
                 keys.forEach((reelId, index) => {
                     const r = data[reelId];
                     const likesObj = r.likes || {}, likesCount = Object.keys(likesObj).length, iLiked = !!likesObj[currentUser.uid];
-                    // O primeiro vídeo reproduz com som habilitado, os demais ficam pausados/mutados até o scroll
                     const isFirst = index === 0;
                     let currentEmbed = r.embedUrl;
                     if (!isFirst) {
@@ -869,7 +1033,6 @@
             });
         }
 
-        // Lógica inteligente de Scroll: Quando passa para outro vídeo, muta/para o anterior e ativa o atual
         window.handleReelsScroll = function() {
             const container = document.getElementById('reels-feed');
             if(!container) return;
@@ -882,7 +1045,6 @@
                 if(!iframe) return;
                 
                 const distance = Math.abs(containerTop - rect);
-                // Se o vídeo estiver visível na tela
                 if (distance < 200) {
                     if (iframe.src.includes('autoplay=0')) {
                         iframe.src = iframe.src.replace('autoplay=0', 'autoplay=1').replace('mute=1', 'mute=0');
@@ -1139,9 +1301,9 @@
 
         window.toggleAuthMode = function() {
             isRegistering = !isRegistering;
-            document.getElementById('auth-subtitle').innerText = isRegistering ? "Crie sua conta no Corse" : "Conectando pessoas com estilo e tecnologia";
+            document.getElementById('auth-subtitle').innerText = isRegistering ? "Crie sua conta no Corse" : "Painel de Controle e Automação";
             document.getElementById('name-field-container').classList.toggle('hidden');
-            document.getElementById('auth-submit-btn').innerText = isRegistering ? "Cadastrar Conta" : "Entrar na Conta";
+            document.getElementById('auth-submit-btn').innerText = isRegistering ? "Cadastrar Conta" : "Entrar no Painel";
             document.getElementById('auth-switch-text').innerText = isRegistering ? "Já tem uma conta?" : "Não tem uma conta?";
             document.getElementById('auth-switch-btn').innerText = isRegistering ? "Fazer login" : "Criar conta";
             document.getElementById('forgot-password-container').classList.toggle('hidden', isRegistering);
@@ -1195,7 +1357,7 @@
                     const cred = await createUserWithEmailAndPassword(auth, email, pass);
                     await set(ref(db, `users/${cred.user.uid}`), { 
                         name, email, avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150", 
-                        banner: "", online: true, bio: "Inovando no Corse." 
+                        banner: "", online: true, bio: "Painel de Automação Corse." 
                     });
                     showToast("Conta criada com sucesso!", "success");
                 } else {
@@ -1235,11 +1397,14 @@
                 listenNotifications(); 
                 listenStories();
                 listenReels();
+                listenScheduledReels();
+                startBotSchedulerWatcher();
                 startPortalsAutoUpdater();
             } else {
                 if(currentUser) set(ref(db, `users/${currentUser.uid}/online`), false);
                 currentUser = null;
                 if(portalTimer) clearInterval(portalTimer);
+                if(botSchedulerTimer) clearInterval(botSchedulerTimer);
                 document.getElementById('app-container').classList.add('hidden');
                 document.getElementById('auth-screen').classList.remove('hidden');
             }
@@ -1278,7 +1443,7 @@
                 const name = d.name || "Usuário", av = d.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150";
                 document.getElementById('profile-name').innerText = name;
                 document.getElementById('profile-email').innerText = d.email || currentUser.email;
-                document.getElementById('profile-bio-text').innerText = d.bio || "Biografia...";
+                document.getElementById('profile-bio-text').innerText = d.bio || "Painel de Automação Corse.";
                 if(document.getElementById('story-my-avatar')) document.getElementById('story-my-avatar').src = av;
                 document.getElementById('profile-avatar-img').src = av;
                 document.getElementById('header-user-avatar').src = av;
@@ -1527,16 +1692,15 @@
         function listenNotifications() {
             const container = document.getElementById('friend-requests-list');
             const notifBadge = document.getElementById('notif-badge');
-            const navNotifDot = document.getElementById('nav-notif-dot');
 
             onValue(ref(db, `friendRequests/${currentUser.uid}`), (snap) => {
                 const reqs = snap.val();
                 if(!reqs) {
                     container.innerHTML = `<div class="text-xs text-slate-500 text-center py-4">Nenhuma notificação nova.</div>`;
-                    notifBadge.classList.add('hidden'); navNotifDot.classList.add('hidden');
+                    notifBadge.classList.add('hidden');
                     return;
                 }
-                container.innerHTML = ""; notifBadge.classList.remove('hidden'); navNotifDot.classList.remove('hidden');
+                container.innerHTML = ""; notifBadge.classList.remove('hidden');
 
                 Object.keys(reqs).forEach(uid => {
                     const r = reqs[uid];
@@ -1663,16 +1827,12 @@
         window.handleAudioPlay = async function(chatId, msgKey, currentCount, currentFirstPlayed) {
             const newCount = currentCount + 1;
             let updates = { playCount: newCount };
-            if (currentFirstPlayed === 0) {
-                updates.firstPlayedTime = Date.now();
-            }
+            if (currentFirstPlayed === 0) updates.firstPlayedTime = Date.now();
             await update(ref(db, `chats/${chatId}/${msgKey}`), updates);
             
             if (newCount >= 2) {
                 showToast("Este áudio foi ouvido 2 vezes e vai ser apagado.", "info");
-                setTimeout(async () => {
-                    await remove(ref(db, `chats/${chatId}/${msgKey}`));
-                }, 3000);
+                setTimeout(async () => { await remove(ref(db, `chats/${chatId}/${msgKey}`)); }, 3000);
             }
         }
 
@@ -1701,25 +1861,21 @@
                     return;
                 }
 
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
                 let mimeType = 'audio/webm';
-                if (MediaRecorder.isTypeSupported('audio/mp4')) {
-                    mimeType = 'audio/mp4';
-                } else if (MediaRecorder.isTypeSupported('audio/aac')) {
-                    mimeType = 'audio/aac';
-                }
+                if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) mimeType = 'audio/webm;codecs=opus';
+                else if (MediaRecorder.isTypeSupported('audio/mp4')) mimeType = 'audio/mp4';
 
-                mediaRecorder = new MediaRecorder(stream, { mimeType });
+                mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
                 audioChunks = [];
 
-                mediaRecorder.ondataavailable = event => {
-                    if (event.data.size > 0) audioChunks.push(event.data);
-                };
+                mediaRecorder.ondataavailable = event => { if (event.data && event.data.size > 0) audioChunks.push(event.data); };
 
                 mediaRecorder.onstop = async () => {
-                    const audioBlob = new Blob(audioChunks, { type: mimeType });
-                    if (audioBlob.size < 50) {
+                    const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
+                    if (audioBlob.size < 100) {
                         showToast("Áudio muito curto ou vazio.", "info");
+                        stream.getTracks().forEach(track => track.stop());
                         return;
                     }
 
@@ -1729,14 +1885,8 @@
                         const base64Audio = reader.result;
                         if (activeChatId) {
                             await push(ref(db, `chats/${activeChatId}`), {
-                                senderUid: currentUser.uid, 
-                                senderName: document.getElementById('profile-name').innerText,
-                                text: base64Audio, 
-                                image: "", 
-                                read: false, 
-                                playCount: 0,
-                                firstPlayedTime: 0,
-                                timestamp: Date.now()
+                                senderUid: currentUser.uid, senderName: document.getElementById('profile-name').innerText,
+                                text: base64Audio, image: "", read: false, playCount: 0, firstPlayedTime: 0, timestamp: Date.now()
                             });
                             showToast("Áudio enviado com sucesso!", "success");
                         }
@@ -1744,7 +1894,7 @@
                     stream.getTracks().forEach(track => track.stop());
                 };
 
-                mediaRecorder.start();
+                mediaRecorder.start(250);
                 recordingSeconds = 0;
                 document.getElementById('audio-recording-bar').classList.remove('hidden');
                 document.getElementById('chat-action-buttons').classList.add('hidden');
@@ -1753,19 +1903,15 @@
                     recordingSeconds++;
                     const mins = Math.floor(recordingSeconds / 60);
                     const secs = recordingSeconds % 60;
-                    document.getElementById('recording-timer').innerText = `A gravar áudio (${mins}:${secs < 10 ? '0' : ''}${secs})...`;
+                    document.getElementById('recording-timer').innerText = `Gravando áudio (${mins}:${secs < 10 ? '0' : ''}${secs})...`;
                 }, 1000);
-
             } catch (err) {
-                console.error("Erro no microfone:", err);
-                showToast("Erro: Permissão de microfone negada ou indisponível.", "info");
+                showToast("Erro: Permissão de microfone negada.", "info");
             }
         }
 
         window.stopAndSendAudioRecording = function() {
-            if (mediaRecorder && mediaRecorder.state !== "inactive") {
-                mediaRecorder.stop();
-            }
+            if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
             clearInterval(recordingTimerInterval);
             document.getElementById('audio-recording-bar').classList.add('hidden');
             document.getElementById('chat-action-buttons').classList.remove('hidden');
