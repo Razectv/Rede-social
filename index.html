@@ -62,6 +62,13 @@
             scroll-snap-align: start;
             scroll-snap-stop: always;
         }
+
+        .draggable-sticker {
+            position: absolute;
+            cursor: move;
+            user-select: none;
+            touch-action: none;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start relative pb-24 bg-black">
@@ -354,11 +361,13 @@
             </div>
         </div>
 
-        <div class="flex-1 relative flex items-center justify-center w-full h-full">
+        <div class="flex-1 relative flex items-center justify-center w-full h-full bg-black overflow-hidden">
             <div onclick="prevStoryIndex()" class="absolute left-0 top-0 w-1/3 h-full z-10 cursor-pointer"></div>
             <div onclick="nextStoryIndex()" class="absolute right-0 top-0 w-2/3 h-full z-10 cursor-pointer"></div>
 
             <img id="viewer-story-img" src="" class="w-full h-full object-cover">
+            <div id="viewer-stickers-container" class="absolute inset-0 pointer-events-none"></div>
+            <div id="viewer-music-player-container" class="absolute bottom-20 left-4 z-20 hidden"></div>
             
             <div class="absolute bottom-16 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 z-10">
                 <p id="viewer-story-title" class="text-sm text-white font-medium text-center"></p>
@@ -466,24 +475,99 @@
     <!-- INPUT GLOBAL PARA GALERIA -->
     <input type="file" id="global-media-input" accept="image/*" class="hidden" onchange="handleNewMediaSelected(event)">
 
-    <!-- MODAL DE CRIAR POST / STORY -->
-    <div id="create-post-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-[#121212] border border-[#262626] rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4">
-            <div class="flex justify-between items-center border-b border-[#262626] pb-3">
-                <h3 class="font-bold text-slate-100 text-sm">Nova Publicação</h3>
-                <button onclick="closeCreatePostModal()" class="text-slate-400 cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div class="space-y-3">
-                <div class="relative rounded-2xl overflow-hidden h-48 bg-black border border-[#262626]">
-                    <img id="new-post-image-preview" src="" class="w-full h-full object-cover">
-                </div>
-                <textarea id="new-post-title-input" rows="2" placeholder="Adicione um título ou legenda..." class="w-full bg-black border border-[#262626] rounded-xl px-4 py-2.5 text-xs text-slate-100 resize-none focus:outline-none focus:border-violet-500"></textarea>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Onde deseja publicar?</label>
-                    <div class="grid grid-cols-2 gap-2">
-                        <button id="btn-submit-feed" onclick="submitNewPost('feed')" class="bg-violet-600 hover:bg-violet-500 text-white py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer">Publicar no Feed</button>
-                        <button id="btn-submit-story" onclick="submitNewPost('story')" class="bg-fuchsia-600 hover:bg-fuchsia-500 text-white py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer">Publicar nos Stories</button>
+    <!-- MODAL DE CRIAR POST / STORY (ESTILO INSTAGRAM STORIES) -->
+    <div id="create-post-modal" class="fixed inset-0 bg-black z-50 hidden flex flex-col justify-between p-4">
+        <div class="flex justify-between items-center py-2 z-25 bg-black/60 backdrop-blur-md rounded-2xl px-4">
+            <button onclick="closeCreatePostModal()" class="text-white p-2 cursor-pointer"><i data-lucide="x" class="w-6 h-6"></i></button>
+            <h3 class="font-bold text-white text-sm">Novo Story com Estilo</h3>
+            <button onclick="submitNewStory()" class="bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white px-4 py-2 rounded-full text-xs font-bold cursor-pointer shadow-lg">Publicar</button>
+        </div>
+
+        <!-- TELA CHEIA DA FOTO DO STORY -->
+        <div class="absolute inset-0 z-10 flex items-center justify-center bg-black overflow-hidden">
+            <img id="new-post-image-preview" src="" class="w-full h-full object-cover">
+            
+            <!-- ÁREA DOS EMOJIS E STICKERS ARRASTÁVEIS -->
+            <div id="story-stickers-canvas" class="absolute inset-0 pointer-events-none"></div>
+
+            <!-- PLAYER DE MÚSICA SELECIONADA NA PRÉVIA -->
+            <div id="story-selected-music-preview" class="absolute bottom-28 left-4 right-4 z-20 hidden">
+                <div class="bg-black/70 backdrop-blur-md border border-white/20 p-3 rounded-2xl flex items-center justify-between shadow-2xl">
+                    <div class="flex items-center gap-3">
+                        <img id="preview-music-img" src="" class="w-10 h-10 rounded-xl object-cover">
+                        <div>
+                            <h4 id="preview-music-title" class="text-xs font-bold text-white">Música</h4>
+                            <span id="preview-music-artist" class="text-[10px] text-slate-300">Artista</span>
+                        </div>
                     </div>
+                    <button onclick="removeStoryMusic()" class="text-red-400 text-xs font-bold px-2 py-1 cursor-pointer">Remover</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- MENU LATERAL DIREITO COM FERRAMENTAS DO INSTAGRAM -->
+        <div class="absolute right-4 top-24 z-30 flex flex-col gap-3">
+            <button onclick="openEmojiPicker()" class="w-12 h-12 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-lg hover:scale-105 transition-all cursor-pointer" title="Adicionar Emoji">
+                <i data-lucide="smile" class="w-6 h-6 text-fuchsia-400"></i>
+            </button>
+            <button onclick="openMusicPickerModal()" class="w-12 h-12 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-lg hover:scale-105 transition-all cursor-pointer" title="Adicionar Música">
+                <i data-lucide="music" class="w-6 h-6 text-violet-400"></i>
+            </button>
+        </div>
+
+        <div class="absolute bottom-6 inset-x-4 z-30 flex gap-2">
+            <input type="text" id="new-post-title-input" placeholder="Adicione uma legenda opcional..." class="w-full bg-black/70 backdrop-blur-md border border-white/20 rounded-full px-5 py-3 text-xs text-slate-100 focus:outline-none shadow-2xl">
+        </div>
+    </div>
+
+    <!-- MODAL DE SELEÇÃO DE EMOJIS -->
+    <div id="emoji-picker-modal" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-[60] hidden flex items-end sm:items-center justify-center p-4">
+        <div class="bg-[#121212] border border-[#262626] rounded-3xl w-full max-w-sm p-5 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-[#262626] pb-3">
+                <h3 class="font-bold text-slate-100 text-sm">Escolha um Emoji</h3>
+                <button onclick="closeEmojiPicker()" class="text-slate-400 cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="grid grid-cols-6 gap-3 text-2xl text-center py-2">
+                <button onclick="addEmojiSticker('❤️')" class="hover:scale-125 transition-transform cursor-pointer p-2">❤️</button>
+                <button onclick="addEmojiSticker('🔥')" class="hover:scale-125 transition-transform cursor-pointer p-2">🔥</button>
+                <button onclick="addEmojiSticker('🤠')" class="hover:scale-125 transition-transform cursor-pointer p-2">🤠</button>
+                <button onclick="addEmojiSticker('🚜')" class="hover:scale-125 transition-transform cursor-pointer p-2">🚜</button>
+                <button onclick="addEmojiSticker('🍺')" class="hover:scale-125 transition-transform cursor-pointer p-2">🍺</button>
+                <button onclick="addEmojiSticker('🌿')" class="hover:scale-125 transition-transform cursor-pointer p-2">🌿</button>
+                <button onclick="addEmojiSticker('⭐')" class="hover:scale-125 transition-transform cursor-pointer p-2">⭐</button>
+                <button onclick="addEmojiSticker('😎')" class="hover:scale-125 transition-transform cursor-pointer p-2">😎</button>
+                <button onclick="addEmojiSticker('🎶')" class="hover:scale-125 transition-transform cursor-pointer p-2">🎶</button>
+                <button onclick="addEmojiSticker('🐂')" class="hover:scale-125 transition-transform cursor-pointer p-2">🐂</button>
+                <button onclick="addEmojiSticker('🌾')" class="hover:scale-125 transition-transform cursor-pointer p-2">🌾</button>
+                <button onclick="addEmojiSticker('✨')" class="hover:scale-125 transition-transform cursor-pointer p-2">✨</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE SELEÇÃO DE MÚSICA (DEEZER API + MAIS USADAS) -->
+    <div id="music-picker-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[60] hidden flex flex-col justify-end sm:items-center sm:justify-center p-0 sm:p-4">
+        <div class="bg-[#121212] border border-[#262626] rounded-t-3xl sm:rounded-3xl w-full max-w-md h-[80vh] sm:h-[550px] flex flex-col shadow-2xl overflow-hidden">
+            
+            <div class="p-4 border-b border-[#262626] flex justify-between items-center bg-black">
+                <h3 class="font-bold text-slate-100 text-sm flex items-center gap-2">
+                    <i data-lucide="music" class="w-4 h-4 text-violet-400"></i> Adicionar Música
+                </h3>
+                <button onclick="closeMusicPickerModal()" class="text-slate-400 cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+
+            <!-- BARRA DE PESQUISA (DEEZER API) -->
+            <div class="p-4 bg-black/40 border-b border-[#262626]">
+                <div class="relative flex items-center">
+                    <i data-lucide="search" class="absolute left-3 w-4 h-4 text-slate-400"></i>
+                    <input type="text" id="music-search-input" placeholder="Pesquisar música ou artista (ex: Sertanejo)..." oninput="searchDeezerMusic(this.value)" class="w-full bg-[#1a1a1a] border border-[#262626] rounded-2xl pl-10 pr-4 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-violet-500">
+                </div>
+            </div>
+
+            <!-- ABAS: MAIS USADAS / RESULTADOS -->
+            <div class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3" id="music-results-container">
+                <div class="text-xs font-bold text-violet-400 mb-2">🔥 Mais Usadas & Sugestões Agro/Sertanejo</div>
+                <div id="default-agro-music-list" class="space-y-2">
+                    <!-- Preenchido via código com sugestões iniciais -->
                 </div>
             </div>
         </div>
@@ -572,6 +656,11 @@
         let currentStoryIndex = 0;
         let activeChatUnsubscribe = null;
 
+        // ESTADOS DO NOVO STORY (ESTILO INSTAGRAM)
+        let storyStickersList = []; // Emojis adicionados
+        let storySelectedMusic = null; // Música selecionada da Deezer
+        let activeAudioPreviewElement = null;
+
         window.escapeHtml = text => (text || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         window.showToast = function(msg, type = 'info') {
             const container = document.getElementById('toast-container');
@@ -623,9 +712,11 @@
                     activeMediaBase64 = ev.target.result;
                     document.getElementById('new-post-image-preview').src = activeMediaBase64;
                     document.getElementById('new-post-title-input').value = "";
+                    storyStickersList = [];
+                    storySelectedMusic = null;
+                    document.getElementById('story-stickers-canvas').innerHTML = "";
+                    document.getElementById('story-selected-music-preview').classList.add('hidden');
                     isSubmittingPost = false;
-                    document.getElementById('btn-submit-feed').innerText = "Publicar no Feed";
-                    document.getElementById('btn-submit-story').innerText = "Publicar nos Stories";
                     document.getElementById('create-post-modal').classList.remove('hidden');
                 }
                 r.readAsDataURL(e.target.files[0]);
@@ -633,37 +724,186 @@
         }
         window.closeCreatePostModal = () => document.getElementById('create-post-modal').classList.add('hidden');
 
-        window.submitNewPost = async function(destination) {
+        // FUNÇÕES DE EMOJIS NO STORY
+        window.openEmojiPicker = () => document.getElementById('emoji-picker-modal').classList.remove('hidden');
+        window.closeEmojiPicker = () => document.getElementById('emoji-picker-modal').classList.add('hidden');
+
+        window.addEmojiSticker = function(emoji) {
+            closeEmojiPicker();
+            const id = 'sticker-' + Date.now();
+            const stickerObj = { id, text: emoji, x: 100, y: 200, scale: 1 };
+            storyStickersList.push(stickerObj);
+            renderStoryStickers();
+            showToast("Emoji adicionado! Arraste para posicionar.", "success");
+        }
+
+        window.renderStoryStickers = function() {
+            const canvas = document.getElementById('story-stickers-canvas');
+            canvas.innerHTML = "";
+            storyStickersList.forEach(s => {
+                canvas.insertAdjacentHTML('beforeend', `
+                    <div id="${s.id}" class="draggable-sticker text-4xl select-none" style="left: ${s.x}px; top: ${s.y}px;" onmousedown="startDragSticker(event, '${s.id}')" ontouchstart="startDragSticker(event, '${s.id}')">
+                        ${s.text}
+                    </div>
+                `);
+            });
+        }
+
+        // LÓGICA DE ARRASTAR STICKERS
+        let activeDraggingId = null, startX = 0, startY = 0;
+        window.startDragSticker = function(e, id) {
+            e.preventDefault();
+            activeDraggingId = id;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const el = document.getElementById(id);
+            startX = clientX - el.offsetLeft;
+            startY = clientY - el.offsetTop;
+
+            document.addEventListener('mousemove', onDragSticker);
+            document.addEventListener('mouseup', stopDragSticker);
+            document.addEventListener('touchmove', onDragSticker);
+            document.addEventListener('touchend', stopDragSticker);
+        }
+
+        function onDragSticker(e) {
+            if(!activeDraggingId) return;
+            const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+            const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+            const el = document.getElementById(activeDraggingId);
+            if(el) {
+                el.style.left = (clientX - startX) + 'px';
+                el.style.top = (clientY - startY) + 'px';
+                const st = storyStickersList.find(s => s.id === activeDraggingId);
+                if(st) { st.x = clientX - startX; st.y = clientY - startY; }
+            }
+        }
+
+        function stopDragSticker() {
+            activeDraggingId = null;
+            document.removeEventListener('mousemove', onDragSticker);
+            document.removeEventListener('mouseup', stopDragSticker);
+            document.removeEventListener('touchmove', onDragSticker);
+            document.removeEventListener('touchend', stopDragSticker);
+        }
+
+        // INTEGRAÇÃO COM DEEZER API PARA MÚSICAS DOS STORIES
+        window.openMusicPickerModal = function() {
+            document.getElementById('music-picker-modal').classList.remove('hidden');
+            loadDefaultAgroMusic();
+        }
+        window.closeMusicPickerModal = () => document.getElementById('music-picker-modal').classList.add('hidden');
+
+        window.loadDefaultAgroMusic = async function() {
+            const container = document.getElementById('default-agro-music-list');
+            container.innerHTML = `<div class="text-xs text-slate-500 text-center py-4">Carregando sugestões de sertanejo e agro...</div>`;
+            try {
+                // Buscando sucessos de sertanejo via API pública da Deezer
+                const res = await fetch('https://api.deezer.com/search/track?q=sertanejo+agro');
+                const data = await res.json();
+                renderMusicList(data.data || []);
+            } catch(e) {
+                container.innerHTML = `<div class="text-xs text-red-400 text-center py-4">Erro ao carregar músicas. Verifique a conexão.</div>`;
+            }
+        }
+
+        window.searchDeezerMusic = async function(query) {
+            if(!query || query.length < 2) { loadDefaultAgroMusic(); return; }
+            const container = document.getElementById('default-agro-music-list');
+            container.innerHTML = `<div class="text-xs text-slate-500 text-center py-4">Pesquisando na Deezer...</div>`;
+            try {
+                const res = await fetch(`https://api.deezer.com/search/track?q=${encodeURIComponent(query)}`);
+                const data = await res.json();
+                renderMusicList(data.data || []);
+            } catch(e) {
+                container.innerHTML = `<div class="text-xs text-red-400 text-center py-4">Erro na busca.</div>`;
+            }
+        }
+
+        function renderMusicList(tracks) {
+            const container = document.getElementById('default-agro-music-list');
+            container.innerHTML = "";
+            if(tracks.length === 0) {
+                container.innerHTML = `<div class="text-xs text-slate-500 text-center py-4">Nenhuma música encontrada.</div>`;
+                return;
+            }
+
+            tracks.forEach(track => {
+                const title = escapeHtml(track.title);
+                const artist = escapeHtml(track.artist.name);
+                const cover = track.album.cover_medium || track.artist.picture_medium;
+                const previewUrl = track.preview; // Trecho de 30s da Deezer
+
+                container.insertAdjacentHTML('beforeend', `
+                    <div class="flex items-center justify-between bg-black p-3 rounded-2xl border border-[#262626] hover:border-violet-500 transition-all">
+                        <div class="flex items-center gap-3 cursor-pointer flex-1" onclick="previewDeezerTrack('${previewUrl}')">
+                            <div class="relative w-12 h-12 rounded-xl overflow-hidden flex-shrink-0">
+                                <img src="${cover}" class="w-full h-full object-cover">
+                                <div class="absolute inset-0 bg-black/40 flex items-center justify-center"><i data-lucide="play" class="w-5 h-5 text-white"></i></div>
+                            </div>
+                            <div class="truncate">
+                                <h4 class="font-bold text-xs text-slate-100 truncate">${title}</h4>
+                                <p class="text-[11px] text-slate-400 truncate">${artist}</p>
+                            </div>
+                        </div>
+                        <button onclick="selectStoryMusic('${title}', '${artist}', '${cover}', '${previewUrl}')" class="bg-violet-600 hover:bg-violet-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer flex-shrink-0 ml-2">Usar</button>
+                    </div>
+                `);
+            });
+            try { lucide.createIcons(); } catch(e){}
+        }
+
+        window.previewDeezerTrack = function(url) {
+            if(activeAudioPreviewElement) {
+                activeAudioPreviewElement.pause();
+                activeAudioPreviewElement = null;
+            }
+            if(url) {
+                const audio = new Audio(url);
+                audio.play();
+                activeAudioPreviewElement = audio;
+                showToast("Reproduzindo prévia de 30 segundos...", "info");
+            }
+        }
+
+        window.selectStoryMusic = function(title, artist, cover, previewUrl) {
+            if(activeAudioPreviewElement) { activeAudioPreviewElement.pause(); activeAudioPreviewElement = null; }
+            storySelectedMusic = { title, artist, cover, previewUrl };
+            
+            document.getElementById('preview-music-img').src = cover;
+            document.getElementById('preview-music-title').innerText = title;
+            document.getElementById('preview-music-artist').innerText = artist;
+            document.getElementById('story-selected-music-preview').classList.remove('hidden');
+
+            closeMusicPickerModal();
+            showToast("Música adicionada ao Story! 🎶", "success");
+        }
+
+        window.removeStoryMusic = function() {
+            storySelectedMusic = null;
+            document.getElementById('story-selected-music-preview').classList.add('hidden');
+            showToast("Música removida", "info");
+        }
+
+        window.submitNewStory = async function() {
             if (isSubmittingPost) return;
             const title = document.getElementById('new-post-title-input').value.trim();
             if(!activeMediaBase64) return;
             isSubmittingPost = true;
-            const btnFeed = document.getElementById('btn-submit-feed');
-            const btnStory = document.getElementById('btn-submit-story');
-            btnFeed.innerText = "Publicando..."; btnStory.innerText = "Publicando...";
 
             try {
-                if(destination === 'feed') {
-                    await push(ref(db, 'posts'), {
-                        uid: currentUser.uid, author: document.getElementById('profile-name').innerText,
-                        avatar: document.getElementById('profile-avatar-img').src, content: title || "Nova publicação",
-                        image: activeMediaBase64, timestamp: Date.now()
-                    });
-                    showToast("Publicado no Feed com sucesso!", "success");
-                } else {
-                    await push(ref(db, 'stories'), {
-                        uid: currentUser.uid, author: document.getElementById('profile-name').innerText,
-                        avatar: document.getElementById('profile-avatar-img').src, title: title || "Meu Story",
-                        image: activeMediaBase64, timestamp: Date.now()
-                    });
-                    showToast("Publicado nos Stories!", "success");
-                }
+                await push(ref(db, 'stories'), {
+                    uid: currentUser.uid, author: document.getElementById('profile-name').innerText,
+                    avatar: document.getElementById('profile-avatar-img').src, title: title || "Meu Story",
+                    image: activeMediaBase64, stickers: storyStickersList, music: storySelectedMusic || null,
+                    timestamp: Date.now()
+                });
                 closeCreatePostModal();
+                showToast("Story publicado com sucesso!", "success");
             } catch (err) {
-                showToast("Erro ao publicar. Tente novamente.", "info");
+                showToast("Erro ao publicar story. Tente novamente.", "info");
             } finally {
                 isSubmittingPost = false;
-                btnFeed.innerText = "Publicar no Feed"; btnStory.innerText = "Publicar nos Stories";
             }
         }
 
@@ -910,6 +1150,7 @@
             currentAuthorIndex = authorIdx; currentStoryIndex = 0; renderAndPlayStory();
         }
 
+        let storyAudioPlayer = null;
         window.renderAndPlayStory = async function() {
             if (!globalAllStoriesAuthors[currentAuthorIndex] || !globalAllStoriesAuthors[currentAuthorIndex].items[currentStoryIndex]) {
                 closeStoryViewer(); return;
@@ -918,10 +1159,42 @@
             const s = currentAuthor.items[currentStoryIndex];
             activeViewingStoryId = s.id;
 
+            if(storyAudioPlayer) { storyAudioPlayer.pause(); storyAudioPlayer = null; }
+
             document.getElementById('viewer-author-name').innerText = currentAuthor.author;
             document.getElementById('viewer-author-avatar').src = currentAuthor.avatar;
             document.getElementById('viewer-story-img').src = s.image;
             document.getElementById('viewer-story-title').innerText = s.title || "";
+
+            // Renderizar Emojis / Stickers salvos no Story
+            const stickersContainer = document.getElementById('viewer-stickers-container');
+            stickersContainer.innerHTML = "";
+            if(s.stickers && Array.isArray(s.stickers)) {
+                s.stickers.forEach(st => {
+                    stickersContainer.insertAdjacentHTML('beforeend', `
+                        <div class="absolute text-4xl select-none" style="left: ${st.x}px; top: ${st.y}px;">${st.text}</div>
+                    `);
+                });
+            }
+
+            // Renderizar Música do Story se houver
+            const musicPlayerContainer = document.getElementById('viewer-music-player-container');
+            if(s.music && s.music.previewUrl) {
+                musicPlayerContainer.innerHTML = `
+                    <div class="bg-black/80 backdrop-blur-md border border-white/20 p-3 rounded-2xl flex items-center gap-3 shadow-2xl">
+                        <img src="${s.music.cover}" class="w-10 h-10 rounded-xl object-cover animate-spin" style="animation-duration: 4s;">
+                        <div>
+                            <h4 class="text-xs font-bold text-white truncate max-w-[180px]">${escapeHtml(s.music.title)}</h4>
+                            <span class="text-[10px] text-violet-300 truncate max-w-[180px] block">${escapeHtml(s.music.artist)}</span>
+                        </div>
+                    </div>
+                `;
+                musicPlayerContainer.classList.remove('hidden');
+                storyAudioPlayer = new Audio(s.music.previewUrl);
+                storyAudioPlayer.play().catch(e => console.log("Áudio bloqueado pelo navegador"));
+            } else {
+                musicPlayerContainer.classList.add('hidden');
+            }
 
             const barsContainer = document.getElementById('story-bars-container');
             let barsHtml = '';
@@ -975,6 +1248,7 @@
 
         window.nextStoryIndex = function() {
             if (storyTimer) clearTimeout(storyTimer);
+            if(storyAudioPlayer) { storyAudioPlayer.pause(); storyAudioPlayer = null; }
             const currentAuthor = globalAllStoriesAuthors[currentAuthorIndex];
             if (currentStoryIndex < currentAuthor.items.length - 1) {
                 currentStoryIndex++; renderAndPlayStory();
@@ -987,6 +1261,7 @@
 
         window.prevStoryIndex = function() {
             if (storyTimer) clearTimeout(storyTimer);
+            if(storyAudioPlayer) { storyAudioPlayer.pause(); storyAudioPlayer = null; }
             if (currentStoryIndex > 0) {
                 currentStoryIndex--; renderAndPlayStory();
             } else if (currentAuthorIndex > 0) {
@@ -998,6 +1273,7 @@
 
         window.closeStoryViewer = () => {
             if (storyTimer) clearTimeout(storyTimer);
+            if(storyAudioPlayer) { storyAudioPlayer.pause(); storyAudioPlayer = null; }
             document.getElementById('story-viewer-modal').classList.add('hidden');
         }
 
@@ -1626,7 +1902,6 @@
                     stream.getTracks().forEach(track => track.stop());
                 };
 
-                // Coleta dados a cada 100ms para evitar corte no início e garantir o áudio inteiro
                 mediaRecorder.start(100);
                 recordingSeconds = 0;
                 document.getElementById('audio-recording-bar').classList.remove('hidden');
