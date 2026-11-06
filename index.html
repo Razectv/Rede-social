@@ -21,6 +21,8 @@
         .toast-notification { animation: slideDown 0.3s ease-out forwards; }
         @keyframes progressAnimation { from { width: 0%; } to { width: 100%; } }
         .story-progress-bar { animation: progressAnimation 5s linear forwards; }
+        @keyframes pulseGlow { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: 0.8; } }
+        .unread-glow { animation: pulseGlow 2s infinite ease-in-out; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start relative pb-28 md:pb-12">
@@ -125,30 +127,48 @@
                 </div>
             </section>
 
-            <!-- ABA 3: CHAT & AMIGOS -->
+            <!-- ABA 3: CHAT, AMIGOS, GRUPOS E COMUNIDADES -->
             <section id="tab-friends" class="space-y-4 px-4 hidden">
-                <div class="grid grid-cols-1 gap-4">
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
-                        <h3 class="font-bold text-xs text-slate-200 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><span>Meus Amigos e Membros</span></h3>
-                        <div id="online-users-list" class="space-y-2 max-h-36 overflow-y-auto custom-scrollbar"></div>
+                <div id="chat-container-view" class="space-y-4">
+                    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 shadow-xl space-y-3">
+                        <div class="flex items-center justify-between pb-2 border-b border-slate-800">
+                            <h3 class="font-bold text-sm text-white flex items-center gap-2">
+                                <i data-lucide="message-square" class="w-4 h-4 text-violet-400"></i> Mensagens e Comunidades
+                            </h3>
+                            <button onclick="openCreateGroupModal()" class="bg-violet-600/25 hover:bg-violet-600/40 text-violet-300 text-xs font-bold px-3 py-1.5 rounded-xl border border-violet-500/30 transition-all cursor-pointer">
+                                + Novo Grupo
+                            </button>
+                        </div>
+                        <div id="unified-chats-list" class="space-y-2 max-h-[75vh] overflow-y-auto custom-scrollbar">
+                            <div class="text-center py-6 text-slate-500 text-xs">Carregando conversas...</div>
+                        </div>
                     </div>
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 shadow-xl flex flex-col h-[400px]">
-                        <div class="border-b border-slate-800 pb-2 mb-2 flex items-center justify-between">
-                            <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 rounded-full bg-violet-500"></div><h3 id="chat-title" class="font-bold text-xs text-slate-100">Selecione uma conversa</h3></div>
-                            <span id="chat-typing-indicator" class="text-[10px] text-violet-400 italic hidden">digitando...</span>
+                </div>
+
+                <!-- TELA DA CONVERSA ABERTA -->
+                <div id="active-chat-view" class="bg-slate-900 border border-slate-800 rounded-2xl p-3 shadow-xl flex flex-col h-[75vh] hidden">
+                    <div class="border-b border-slate-800 pb-2 mb-2 flex items-center justify-between">
+                        <div class="flex items-center gap-2.5">
+                            <button onclick="closeActiveChat()" class="text-slate-400 hover:text-white"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+                            <img id="active-chat-avatar" src="" class="w-8 h-8 rounded-full object-cover">
+                            <div>
+                                <h3 id="chat-title" class="font-bold text-xs text-slate-100">Conversa</h3>
+                                <span id="chat-subtitle-status" class="text-[9px] text-emerald-400">Online</span>
+                            </div>
                         </div>
-                        <div id="chat-messages" class="flex-1 overflow-y-auto custom-scrollbar space-y-2.5 pr-1 mb-2"></div>
-                        <div id="chat-image-preview-bar" class="hidden relative mb-2 p-2 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between">
-                            <span class="text-[10px] text-violet-400 truncate">Imagem pronta para envio</span>
-                            <button onclick="clearChatImage()" class="text-red-400 text-xs font-bold">Remover</button>
-                        </div>
-                        <div class="flex items-center gap-1.5 pt-2 border-t border-slate-800 bg-slate-900 w-full">
-                            <label class="cursor-pointer text-slate-400 hover:text-violet-400 p-1 flex-shrink-0"><i data-lucide="image" class="w-5 h-5"></i><input type="file" accept="image/*" class="hidden" onchange="handleChatImageSelect(event)"></label>
-                            <input type="text" id="chat-input" placeholder="Digite sua mensagem..." disabled oninput="notifyTyping()" class="flex-1 min-w-0 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-violet-500 disabled:opacity-50">
-                            <button onclick="insertChatEmoji('😊')" class="text-sm p-1 flex-shrink-0">😊</button>
-                            <button onclick="insertChatEmoji('👍')" class="text-sm p-1 flex-shrink-0">👍</button>
-                            <button id="chat-send-btn" onclick="sendChatMessage()" disabled class="bg-violet-600 hover:bg-violet-500 text-white px-3 py-2 rounded-xl text-xs font-bold cursor-pointer disabled:opacity-50 flex-shrink-0">Enviar</button>
-                        </div>
+                        <span id="chat-typing-indicator" class="text-[10px] text-violet-400 italic hidden">digitando...</span>
+                    </div>
+                    <div id="chat-messages" class="flex-1 overflow-y-auto custom-scrollbar space-y-2.5 pr-1 mb-2"></div>
+                    <div id="chat-image-preview-bar" class="hidden relative mb-2 p-2 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between">
+                        <span class="text-[10px] text-violet-400 truncate">Imagem pronta para envio</span>
+                        <button onclick="clearChatImage()" class="text-red-400 text-xs font-bold">Remover</button>
+                    </div>
+                    <div class="flex items-center gap-1.5 pt-2 border-t border-slate-800 bg-slate-900 w-full">
+                        <label class="cursor-pointer text-slate-400 hover:text-violet-400 p-1 flex-shrink-0"><i data-lucide="image" class="w-5 h-5"></i><input type="file" accept="image/*" class="hidden" onchange="handleChatImageSelect(event)"></label>
+                        <input type="text" id="chat-input" placeholder="Digite sua mensagem..." oninput="notifyTyping()" class="flex-1 min-w-0 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-violet-500">
+                        <button onclick="insertChatEmoji('😊')" class="text-sm p-1 flex-shrink-0">😊</button>
+                        <button onclick="insertChatEmoji('👍')" class="text-sm p-1 flex-shrink-0">👍</button>
+                        <button id="chat-send-btn" onclick="sendChatMessage()" class="bg-violet-600 hover:bg-violet-500 text-white px-3 py-2 rounded-xl text-xs font-bold cursor-pointer flex-shrink-0">Enviar</button>
                     </div>
                 </div>
             </section>
@@ -163,7 +183,7 @@
                 </div>
             </section>
 
-            <!-- ABA 5: PERFIL -->
+            <!-- ABA 5: PERFIL (COM BOTÃO DE SAIR DA CONTA) -->
             <section id="tab-profile" class="space-y-4 px-4 hidden">
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
                     <div id="profile-banner-container" class="h-36 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-indigo-600 relative bg-cover bg-center">
@@ -175,7 +195,10 @@
                             <p id="profile-email" class="text-xs text-violet-400 font-medium">email@exemplo.com</p>
                             <p id="profile-bio-text" class="text-xs text-slate-300 mt-2">Biografia...</p>
                         </div>
-                        <button onclick="openEditProfileModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-white py-2 rounded-xl text-xs font-bold border border-slate-700 flex items-center justify-center gap-1.5 cursor-pointer"><i data-lucide="edit-3" class="w-4 h-4"></i><span>Editar Perfil, Foto & Banner</span></button>
+                        <div class="grid grid-cols-2 gap-2 pt-1">
+                            <button onclick="openEditProfileModal()" class="bg-slate-800 hover:bg-slate-700 text-white py-2 rounded-xl text-xs font-bold border border-slate-700 flex items-center justify-center gap-1.5 cursor-pointer"><i data-lucide="edit-3" class="w-4 h-4"></i><span>Editar Perfil</span></button>
+                            <button onclick="logoutUser()" class="bg-red-600/20 hover:bg-red-600/30 text-red-400 py-2 rounded-xl text-xs font-bold border border-red-500/30 flex items-center justify-center gap-1.5 cursor-pointer"><i data-lucide="log-out" class="w-4 h-4"></i><span>Sair da Conta</span></button>
+                        </div>
                     </div>
                 </div>
 
@@ -206,14 +229,62 @@
                 <span id="nav-notif-dot" class="absolute -top-0.5 right-2 w-2 h-2 rounded-full bg-fuchsia-500 hidden"></span>
                 <span class="text-[10px]">Notificações</span>
             </button>
-            <button onclick="switchTab('profile')" id="nav-profile" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-all">
-                <i data-lucide="user" class="w-5 h-5"></i>
-                <span class="text-[10px]">Perfil</span>
+            <button onclick="switchTab('friends')" id="nav-friends" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-all relative">
+                <i data-lucide="message-circle" class="w-5 h-5"></i>
+                <span id="nav-chat-dot" class="absolute -top-0.5 right-2 w-2 h-2 rounded-full bg-fuchsia-500 hidden"></span>
+                <span class="text-[10px]">Mensagens</span>
             </button>
         </nav>
     </div>
 
-    <!-- INPUT INVISÍVEL PARA CAPTURAR CÂMERA/GALERIA -->
+    <!-- MODAL DE COMPARTILHAMENTO -->
+    <div id="share-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-slate-100 text-sm">Compartilhar Publicação</h3>
+                <button onclick="closeShareModal()" class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="space-y-3">
+                <button onclick="shareToFeed()" class="w-full bg-violet-600 hover:bg-violet-500 text-white py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer">
+                    <i data-lucide="share-2" class="w-4 h-4"></i> Publicar no Meu Feed
+                </button>
+                <button onclick="shareToStory()" class="w-full bg-fuchsia-600 hover:bg-fuchsia-500 text-white py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer">
+                    <i data-lucide="zap" class="w-4 h-4"></i> Publicar nos Meus Stories
+                </button>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-2">Ou enviar para um chat/grupo:</label>
+                    <div id="share-chats-list" class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar"></div>
+                </div>
+            </div>
+            <button onclick="closeShareModal()" class="w-full bg-slate-800 text-white py-2 rounded-xl text-xs font-bold cursor-pointer">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE CRIAR GRUPO -->
+    <div id="create-group-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-slate-100 text-sm">Criar Novo Grupo / Comunidade</h3>
+                <button onclick="closeCreateGroupModal()" class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Nome do Grupo ou Canal</label>
+                    <input type="text" id="group-name-input" placeholder="Ex: Canal VIP / Turma" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-violet-500">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Link da Imagem / Ícone (Opcional)</label>
+                    <input type="text" id="group-avatar-input" placeholder="URL da foto do grupo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-violet-500">
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeCreateGroupModal()" class="text-slate-400 text-xs">Cancelar</button>
+                <button onclick="submitCreateGroup()" class="bg-violet-600 text-white px-4 py-2 rounded-xl text-xs font-bold">Criar Grupo</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- INPUT INVISÍVEL -->
     <input type="file" id="global-media-input" accept="image/*" capture="environment" class="hidden" onchange="handleNewMediaSelected(event)">
 
     <!-- MODAL DE CRIAR POST / STORY -->
@@ -239,9 +310,8 @@
         </div>
     </div>
 
-    <!-- MODAL DE VISUALIZAR STORY (COM NAVEGAÇÃO LATERAL ESTILO INSTAGRAM) -->
+    <!-- MODAL DE VISUALIZAR STORY -->
     <div id="story-viewer-modal" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col justify-between p-4">
-        <!-- BARRA DE PROGRESSO DO TEMPORIZADOR -->
         <div class="w-full bg-slate-800 h-1 rounded-full overflow-hidden absolute top-0 left-0">
             <div id="story-progress-bar-fill" class="h-full bg-white w-0"></div>
         </div>
@@ -257,11 +327,8 @@
             <button onclick="closeStoryViewer()" class="text-white p-2 cursor-pointer"><i data-lucide="x" class="w-6 h-6"></i></button>
         </div>
 
-        <!-- ÁREA CENTRAL DO STORY COM CLIQUES NAS LATERAIS PARA NAVEGAR -->
         <div class="flex-1 flex flex-col items-center justify-center p-2 relative">
-            <!-- BOTÃO TOQUE ESQUERDO (VOLTAR STORY) -->
             <div onclick="prevStoryIndex()" class="absolute left-0 top-0 w-1/3 h-full z-10 cursor-pointer"></div>
-            <!-- BOTÃO TOQUE DIREITO (AVANÇAR STORY) -->
             <div onclick="nextStoryIndex()" class="absolute right-0 top-0 w-1/3 h-full z-10 cursor-pointer"></div>
 
             <div class="relative max-w-sm w-full h-[65vh] bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 flex items-center justify-center">
@@ -272,7 +339,6 @@
             </div>
         </div>
 
-        <!-- PAINEL DE QUEM VIU (APARECE APENAS PARA O DONO DO STORY) -->
         <div id="story-views-panel" class="bg-slate-900 border border-slate-800 rounded-2xl p-3 max-w-sm mx-auto w-full flex items-center justify-between hidden">
             <button onclick="openStoryViewersList()" class="flex items-center gap-2 cursor-pointer hover:opacity-80">
                 <i data-lucide="eye" class="w-4 h-4 text-violet-400"></i>
@@ -363,13 +429,13 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        let isRegistering = false, currentUser = null, activeMediaBase64 = "", chatImageBase64 = "", activeChatFriendUid = null;
-        let globalUsersCache = {}, globalFriendsCache = {}, openCommentSections = new Set();
+        let isRegistering = false, currentUser = null, activeMediaBase64 = "", chatImageBase64 = "", activeChatId = null, activeChatName = "";
+        let globalUsersCache = {}, globalFriendsCache = {}, globalGroupsCache = {}, openCommentSections = new Set();
         let typingTimeout = null, portalTimer = null, activeViewingStoryId = null;
         let storyTimer = null;
         let isSubmittingPost = false;
+        let sharingPostData = null; // Armazena dados do post sendo compartilhado
 
-        // Controle de múltiplos stories agrupados por autor
         let currentAuthorStoriesList = [];
         let currentStoryIndex = 0;
 
@@ -501,7 +567,6 @@
 
         function startPortalsAutoUpdater() {
             if (portalTimer) clearInterval(portalTimer);
-            fetchAllPortalsNews(true);
             portalTimer = setInterval(() => { if (currentUser) fetchAllPortalsNews(true); }, 3600000);
         }
 
@@ -523,7 +588,7 @@
 
                     grid.insertAdjacentHTML('beforeend', `
                         <div class="relative bg-slate-900 rounded-2xl overflow-hidden h-44 border border-slate-800 shadow-md group cursor-pointer" onclick="openExplorePost('${postId}')">
-                            <img src="${p.image}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
+                            <img src="${p.image}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">
                             <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-2.5">
                                 <span class="text-[10px] font-bold text-violet-400 block truncate">${escapeHtml(p.author)}</span>
                                 <p class="text-[11px] text-slate-100 truncate">${escapeHtml(p.content)}</p>
@@ -607,7 +672,96 @@
         }
 
         // ==========================
-        // STORIES AGRUPADOS POR USUÁRIO (ESTILO INSTAGRAM)
+        // COMPARTILHAMENTO DE POSTS E NOTÍCIAS
+        // ==========================
+        window.openShareModal = function(content, image, author) {
+            sharingPostData = { content, image, author };
+            const list = document.getElementById('share-chats-list');
+            list.innerHTML = "";
+
+            // Lista grupos e amigos para compartilhar
+            let itemsHtml = "";
+            Object.keys(globalGroupsCache).forEach(gId => {
+                const g = globalGroupsCache[gId];
+                itemsHtml += `
+                    <div onclick="sendShareToChat('group_${gId}', '${escapeHtml(g.name)}')" class="flex items-center justify-between bg-slate-950 p-2.5 rounded-xl border border-slate-800 hover:border-violet-500 cursor-pointer">
+                        <div class="flex items-center gap-2">
+                            <img src="${g.avatar || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150'}" class="w-7 h-7 rounded-full object-cover">
+                            <span class="font-bold text-xs text-slate-100">👥 ${escapeHtml(g.name)}</span>
+                        </div>
+                        <span class="text-[10px] text-violet-400 font-bold">Enviar</span>
+                    </div>
+                `;
+            });
+
+            Object.keys(globalUsersCache).forEach(uid => {
+                if(uid === currentUser.uid) return;
+                const u = globalUsersCache[uid];
+                const rId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
+                itemsHtml += `
+                    <div onclick="sendShareToChat('${rId}', '${escapeHtml(u.name)}')" class="flex items-center justify-between bg-slate-950 p-2.5 rounded-xl border border-slate-800 hover:border-violet-500 cursor-pointer">
+                        <div class="flex items-center gap-2">
+                            <img src="${u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" class="w-7 h-7 rounded-full object-cover">
+                            <span class="font-bold text-xs text-slate-100">${escapeHtml(u.name)}</span>
+                        </div>
+                        <span class="text-[10px] text-violet-400 font-bold">Enviar</span>
+                    </div>
+                `;
+            });
+
+            list.innerHTML = itemsHtml || `<div class="text-xs text-slate-500 text-center py-2">Nenhum chat disponível.</div>`;
+            document.getElementById('share-modal').classList.remove('hidden');
+        }
+
+        window.closeShareModal = () => document.getElementById('share-modal').classList.add('hidden');
+
+        window.sendShareToChat = async function(rId, chatName) {
+            if(!sharingPostData) return;
+            const textToShare = `🔗 *Compartilhado de ${sharingPostData.author}:*\n\n${sharingPostData.content}`;
+            
+            await push(ref(db, `chats/${rId}`), {
+                senderUid: currentUser.uid,
+                senderName: document.getElementById('profile-name').innerText,
+                text: textToShare,
+                image: sharingPostData.image || "",
+                read: false,
+                timestamp: Date.now()
+            });
+
+            closeShareModal();
+            showToast(`Compartilhado com ${chatName} com sucesso!`, "success");
+        }
+
+        window.shareToFeed = async function() {
+            if(!sharingPostData) return;
+            await push(ref(db, 'posts'), {
+                uid: currentUser.uid,
+                author: document.getElementById('profile-name').innerText,
+                avatar: document.getElementById('profile-avatar-img').src,
+                content: `🔁 Compartilhado de ${sharingPostData.author}:\n\n${sharingPostData.content}`,
+                image: sharingPostData.image || "",
+                timestamp: Date.now()
+            });
+            closeShareModal();
+            showToast("Publicado no seu Feed!", "success");
+        }
+
+        window.shareToStory = async function() {
+            if(!sharingPostData) return;
+            await push(ref(db, 'stories'), {
+                uid: currentUser.uid,
+                author: document.getElementById('profile-name').innerText,
+                avatar: document.getElementById('profile-avatar-img').src,
+                title: `Compartilhado: ${sharingPostData.author}`,
+                image: sharingPostData.image || "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600",
+                timestamp: Date.now()
+            });
+            closeShareModal();
+            showToast("Adicionado aos seus Stories!", "success");
+        }
+
+        // ==========================
+        // STORIES
         // ==========================
         function listenStories() {
             const tray = document.getElementById('stories-tray');
@@ -618,7 +772,6 @@
                     onValue(ref(db, `storyViews/${currentUser.uid}`), (vSnap) => {
                         const viewedMap = vSnap.val() || {};
 
-                        // Agrupa os stories por autor (UID)
                         let authorsMap = {};
                         Object.keys(storiesData).forEach(sId => {
                             const s = storiesData[sId];
@@ -650,17 +803,14 @@
 
                             if (isMyStory || !isFriend) return;
 
-                            // Verifica se todos os stories deste autor já foram vistos
                             const allViewed = authorObj.items.every(item => viewedMap[item.id]);
                             const ringClass = allViewed ? 'p-[2.5px] bg-slate-700' : 'p-[2.5px] bg-gradient-to-tr from-fuchsia-500 via-violet-500 to-pink-500 animate-pulse';
-
-                            // Serializa os dados para abrir o visualizador com a lista completa do autor
                             const serializedItems = encodeURIComponent(JSON.stringify(authorObj.items));
 
                             html += `
                                 <div class="flex flex-col items-center gap-1.5 flex-shrink-0 cursor-pointer" onclick="openAuthorStories('${serializedItems}')">
                                     <div class="w-16 h-16 rounded-full ${ringClass}">
-                                        <img src="${authorObj.avatar}" class="w-full h-full rounded-full object-cover border-2 border-[#0b0f19]">
+                                        <img src="${authorObj.avatar}" class="w-full h-full rounded-full object-cover border-2 border-[#0b0f19]" loading="lazy">
                                     </div>
                                     <span class="text-[11px] text-slate-300 font-medium truncate w-16 text-center">${escapeHtml(authorObj.author)}</span>
                                 </div>
@@ -713,7 +863,6 @@
             document.getElementById('viewer-story-img').src = s.image;
             document.getElementById('viewer-story-title').innerText = s.title || "";
 
-            // Reinicia a barra de progresso (5 segundos)
             const barFill = document.getElementById('story-progress-bar-fill');
             barFill.classList.remove('story-progress-bar');
             void barFill.offsetWidth;
@@ -883,7 +1032,13 @@
                 document.getElementById('auth-screen').classList.add('hidden');
                 document.getElementById('app-container').classList.remove('hidden');
                 set(ref(db, `users/${user.uid}/online`), true);
-                loadProfile(); listenUsersAndFriends(); listenPosts(); listenExploreGrid(); listenNotifications(); listenStories();
+                
+                loadProfile(); 
+                listenUnifiedChatsAndGroups(); 
+                listenPosts(); 
+                listenExploreGrid(); 
+                listenNotifications(); 
+                listenStories();
                 startPortalsAutoUpdater();
             } else {
                 if(currentUser) set(ref(db, `users/${currentUser.uid}/online`), false);
@@ -895,7 +1050,14 @@
             lucide.createIcons();
         });
 
-        window.logoutUser = async function() { if(currentUser) await set(ref(db, `users/${currentUser.uid}/online`), false); await signOut(auth); }
+        // FUNÇÃO DE SAIR DA CONTA (LOGOUT)
+        window.logoutUser = async function() { 
+            if(currentUser) {
+                await set(ref(db, `users/${currentUser.uid}/online`), false);
+            }
+            await signOut(auth);
+            showToast("Você saiu da conta com sucesso.", "info");
+        }
 
         window.switchTab = function(tabId) {
             document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
@@ -915,7 +1077,7 @@
                 if(document.getElementById('story-my-avatar')) document.getElementById('story-my-avatar').src = av;
                 document.getElementById('profile-avatar-img').src = av;
                 if(d.banner) document.getElementById('profile-banner-container').style.backgroundImage = `url('${d.banner}')`;
-            });
+            }, { onlyOnce: true });
         }
 
         window.openEditProfileModal = () => {
@@ -974,13 +1136,17 @@
                         commentsHtml += `<div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-xs"><span class="font-semibold text-violet-400 cursor-pointer" onclick="openUserProfile('${c.uid}')">${escapeHtml(c.author)}</span><p class="text-slate-300 mt-0.5">${escapeHtml(c.text)}</p></div>`;
                     });
                     const isOpen = openCommentSections.has(postId) ? '' : 'hidden';
-                    const img = p.image ? `<div class="mt-3 rounded-2xl overflow-hidden border border-slate-800"><img src="${p.image}" class="w-full object-cover max-h-96"></div>` : "";
+                    const img = p.image ? `<div class="mt-3 rounded-2xl overflow-hidden border border-slate-800"><img src="${p.image}" class="w-full object-cover max-h-96" loading="lazy"></div>` : "";
+
+                    const escapedContent = encodeURIComponent(p.content || "");
+                    const escapedImage = encodeURIComponent(p.image || "");
+                    const escapedAuthor = encodeURIComponent(p.author || "Usuário");
 
                     const postCardHtml = `
                         <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-4 shadow-xl space-y-3">
                             <div class="flex items-center justify-between">
                                 <div class="flex items-center gap-3 cursor-pointer" onclick="openUserProfile('${p.uid}')">
-                                    <img src="${p.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" class="w-10 h-10 rounded-full object-cover border border-slate-700">
+                                    <img src="${p.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" class="w-10 h-10 rounded-full object-cover border border-slate-700" loading="lazy">
                                     <div>
                                         <div class="flex items-center gap-1">
                                             <h3 class="font-bold text-slate-100 text-xs hover:text-violet-400">${escapeHtml(p.author)}</h3>
@@ -989,6 +1155,9 @@
                                         <span class="text-[10px] text-slate-500">Publicado no Corse</span>
                                     </div>
                                 </div>
+                                <button onclick="openShareModal(decodeURIComponent('${escapedContent}'), decodeURIComponent('${escapedImage}'), decodeURIComponent('${escapedAuthor}'))" class="text-slate-400 hover:text-violet-400 p-1.5 rounded-full hover:bg-slate-800 transition-all cursor-pointer" title="Compartilhar">
+                                    <i data-lucide="share-2" class="w-4 h-4"></i>
+                                </button>
                             </div>
                             <p class="text-xs text-slate-200 leading-relaxed whitespace-pre-line">${escapeHtml(p.content)}</p>
                             ${img}
@@ -1028,36 +1197,143 @@
             document.getElementById(`comment-input-${postId}`).value = ""; showToast("Comentário enviado!", "success");
         }
 
-        function listenUsersAndFriends() {
-            onValue(ref(db, `friends/${currentUser.uid}`), (snap) => {
-                globalFriendsCache = snap.val() || {};
+        function listenUnifiedChatsAndGroups() {
+            onValue(ref(db, `friends/${currentUser.uid}`), (fSnap) => {
+                globalFriendsCache = fSnap.val() || {};
                 onValue(ref(db, 'users'), (uSnap) => {
                     globalUsersCache = uSnap.val() || {};
-                    renderUsersList();
+                    onValue(ref(db, 'groups'), (gSnap) => {
+                        globalGroupsCache = gSnap.val() || {};
+                        onValue(ref(db, 'chats'), (cSnap) => {
+                            renderUnifiedChatsList(cSnap.val() || {});
+                        });
+                    });
                 });
             });
         }
 
-        function renderUsersList() {
-            const list = document.getElementById('online-users-list'); list.innerHTML = "";
+        function renderUnifiedChatsList(allChatsData) {
+            const list = document.getElementById('unified-chats-list');
+            list.innerHTML = "";
+
+            let totalUnreadChats = 0;
+            let itemsHtml = "";
+
+            Object.keys(globalGroupsCache).forEach(gId => {
+                const g = globalGroupsCache[gId];
+                const rId = `group_${gId}`;
+                const chatMsgs = allChatsData[rId] || {};
+                
+                let lastMsgText = "Toque para abrir o grupo";
+                let hasUnread = false;
+                
+                const msgKeys = Object.keys(chatMsgs);
+                if(msgKeys.length > 0) {
+                    const lastM = chatMsgs[msgKeys[msgKeys.length - 1]];
+                    lastMsgText = `${lastM.senderName || 'Membro'}: ${lastM.text}`;
+                    if(!lastM.read && lastM.senderUid !== currentUser.uid) {
+                        hasUnread = true;
+                        totalUnreadChats++;
+                    }
+                }
+
+                const glowClass = hasUnread ? 'ring-2 ring-fuchsia-500 unread-glow' : 'border border-slate-800';
+
+                itemsHtml += `
+                    <div onclick="openChat('${rId}', '${escapeHtml(g.name)}')" class="flex items-center justify-between bg-slate-950 p-3 rounded-2xl border border-slate-800 hover:border-violet-500 transition-all cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <div class="relative">
+                                <img src="${g.avatar || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150'}" class="w-12 h-12 rounded-full object-cover ${glowClass}">
+                                ${hasUnread ? '<span class="absolute top-0 right-0 w-3.5 h-3.5 bg-fuchsia-500 rounded-full border-2 border-slate-950"></span>' : ''}
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-xs text-slate-100 flex items-center gap-1.5">
+                                    <span>👥 ${escapeHtml(g.name)}</span>
+                                </h4>
+                                <p class="text-[11px] text-slate-400 truncate max-w-[200px] mt-0.5">${escapeHtml(lastMsgText)}</p>
+                            </div>
+                        </div>
+                        <span class="text-[10px] text-violet-400 font-semibold px-2 py-1 bg-violet-950/40 rounded-xl">Grupo</span>
+                    </div>
+                `;
+            });
+
             Object.keys(globalUsersCache).forEach(uid => {
                 if(uid === currentUser.uid) return;
                 const u = globalUsersCache[uid];
                 const isFriend = !!globalFriendsCache[uid];
+                
+                const rId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
+                const chatMsgs = allChatsData[rId] || {};
 
-                list.insertAdjacentHTML('beforeend', `
-                    <div class="flex items-center justify-between bg-slate-950 p-2 rounded-xl border border-slate-800">
-                        <div class="flex items-center gap-2 cursor-pointer" onclick="openUserProfile('${uid}')">
-                            <img src="${u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" class="w-7 h-7 rounded-full object-cover">
+                let lastMsgText = u.online ? "Online agora" : "Toque para conversar";
+                let hasUnread = false;
+
+                const msgKeys = Object.keys(chatMsgs);
+                if(msgKeys.length > 0) {
+                    const lastM = chatMsgs[msgKeys[msgKeys.length - 1]];
+                    lastMsgText = lastM.text;
+                    if(!lastM.read && lastM.senderUid !== currentUser.uid) {
+                        hasUnread = true;
+                        totalUnreadChats++;
+                    }
+                }
+
+                const glowClass = hasUnread ? 'ring-2 ring-fuchsia-500 unread-glow' : 'border border-slate-800';
+
+                itemsHtml += `
+                    <div onclick="openChat('${rId}', '${escapeHtml(u.name)}')" class="flex items-center justify-between bg-slate-950 p-3 rounded-2xl border border-slate-800 hover:border-violet-500 transition-all cursor-pointer">
+                        <div class="flex items-center gap-3">
+                            <div class="relative">
+                                <img src="${u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" class="w-12 h-12 rounded-full object-cover ${glowClass}">
+                                ${hasUnread ? '<span class="absolute top-0 right-0 w-3.5 h-3.5 bg-fuchsia-500 rounded-full border-2 border-slate-950"></span>' : ''}
+                            </div>
                             <div>
-                                <h4 class="font-semibold text-xs text-slate-100">${escapeHtml(u.name)}</h4>
-                                <p class="text-[9px] ${u.online ? 'text-emerald-400' : 'text-slate-500'}">${u.online ? 'Online' : 'Offline'}</p>
+                                <h4 class="font-bold text-xs text-slate-100">${escapeHtml(u.name)}</h4>
+                                <p class="text-[11px] text-slate-400 truncate max-w-[200px] mt-0.5">${escapeHtml(lastMsgText)}</p>
                             </div>
                         </div>
-                        ${isFriend ? `<button onclick="openChat('${uid}', '${escapeHtml(u.name)}')" class="bg-violet-600 text-white px-2.5 py-1 rounded-lg text-[10px] font-bold">Conversar</button>` : `<button onclick="sendFriendRequest('${uid}', '${escapeHtml(u.name)}')" class="bg-emerald-600/20 text-emerald-400 px-2.5 py-1 rounded-lg text-[10px] font-bold border border-emerald-500/30">Adicionar</button>`}
+                        ${isFriend ? '<span class="text-[10px] text-emerald-400 font-medium">Amigo</span>' : `<button onclick="event.stopPropagation(); sendFriendRequest('${uid}', '${escapeHtml(u.name)}')"; class="bg-emerald-600/20 text-emerald-400 px-2.5 py-1 rounded-lg text-[10px] font-bold border border-emerald-500/30">Adicionar</button>`}
                     </div>
-                `);
+                `;
             });
+
+            list.innerHTML = itemsHtml || `<div class="text-center py-8 text-slate-500 text-xs">Nenhuma conversa encontrada.</div>`;
+
+            const chatBadge = document.getElementById('unread-chat-badge');
+            const navChatDot = document.getElementById('nav-chat-dot');
+            if(totalUnreadChats > 0) {
+                chatBadge.innerText = totalUnreadChats;
+                chatBadge.classList.remove('hidden');
+                navChatDot.classList.remove('hidden');
+            } else {
+                chatBadge.classList.add('hidden');
+                navChatDot.classList.add('hidden');
+            }
+        }
+
+        window.openCreateGroupModal = () => document.getElementById('create-group-modal').classList.remove('hidden');
+        window.closeCreateGroupModal = () => document.getElementById('create-group-modal').classList.add('hidden');
+
+        window.submitCreateGroup = async function() {
+            const name = document.getElementById('group-name-input').value.trim();
+            const avatar = document.getElementById('group-avatar-input').value.trim();
+            if(!name) {
+                showToast("Digite o nome do grupo ou canal.", "info");
+                return;
+            }
+
+            await push(ref(db, 'groups'), {
+                name,
+                avatar: avatar || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150",
+                creatorUid: currentUser.uid,
+                timestamp: Date.now()
+            });
+
+            closeCreateGroupModal();
+            showToast("Grupo ou canal criado com sucesso!", "success");
+            document.getElementById('group-name-input').value = "";
+            document.getElementById('group-avatar-input').value = "";
         }
 
         window.sendFriendRequest = async function(targetUid, targetName) {
@@ -1089,7 +1365,7 @@
                     container.insertAdjacentHTML('beforeend', `
                         <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800">
                             <div class="flex items-center gap-3">
-                                <img src="${r.fromAvatar}" class="w-9 h-9 rounded-full object-cover">
+                                <img src="${r.fromAvatar}" class="w-9 h-9 rounded-full object-cover" loading="lazy">
                                 <div>
                                     <h4 class="font-semibold text-xs text-slate-100">${escapeHtml(r.fromName)}</h4>
                                     <p class="text-[10px] text-slate-400">Quer se conectar com você</p>
@@ -1115,18 +1391,22 @@
             await remove(ref(db, `friendRequests/${currentUser.uid}/${uid}`));
         }
 
-        window.openChat = function(fUid, fName) {
-            activeChatFriendUid = fUid;
-            document.getElementById('chat-title').innerText = `Conversando com ${fName}`;
-            document.getElementById('chat-input').removeAttribute('disabled');
-            document.getElementById('chat-send-btn').removeAttribute('disabled');
+        window.openChat = function(rId, chatName) {
+            activeChatId = rId;
+            activeChatName = chatName;
             
-            const rId = currentUser.uid < fUid ? `${currentUser.uid}_${fUid}` : `${fUid}_${currentUser.uid}`;
+            document.getElementById('chat-title').innerText = chatName;
+            document.getElementById('chat-container-view').classList.add('hidden');
+            document.getElementById('active-chat-view').classList.remove('hidden');
             
-            onValue(ref(db, `typing/${rId}/${fUid}`), (snap) => {
-                const isTyping = snap.val();
+            onValue(ref(db, `typing/${rId}`), (snap) => {
+                const typingObj = snap.val() || {};
+                let someoneTyping = false;
+                Object.keys(typingObj).forEach(u => {
+                    if (u !== currentUser.uid && typingObj[u]) someoneTyping = true;
+                });
                 const indicator = document.getElementById('chat-typing-indicator');
-                if (isTyping) indicator.classList.remove('hidden');
+                if (someoneTyping) indicator.classList.remove('hidden');
                 else indicator.classList.add('hidden');
             });
 
@@ -1139,11 +1419,13 @@
                     }
 
                     let checkmarks = isMe ? (m.read ? '<span class="text-[10px] text-emerald-400">✓✓</span>' : '<span class="text-[10px] text-slate-400">✓</span>') : '';
-                    let imgHtml = m.image ? `<img src="${m.image}" class="mt-2 rounded-xl max-w-full h-32 object-cover">` : '';
+                    let imgHtml = m.image ? `<img src="${m.image}" class="mt-2 rounded-xl max-w-full h-32 object-cover" loading="lazy">` : '';
+                    let senderLabel = !isMe && rId.startsWith('group_') ? `<span class="text-[10px] font-bold text-violet-400 block mb-0.5">${escapeHtml(m.senderName || 'Membro')}</span>` : '';
 
                     box.insertAdjacentHTML('beforeend', `
                         <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
                             <div class="px-3 py-2 rounded-xl text-xs max-w-[80%] ${isMe ? 'bg-violet-600 text-white' : 'bg-slate-800 text-slate-200'}">
+                                ${senderLabel}
                                 ${escapeHtml(m.text)}
                                 ${imgHtml}
                                 <div class="flex justify-end gap-1 mt-1">${checkmarks}</div>
@@ -1155,13 +1437,18 @@
             });
         }
 
+        window.closeActiveChat = function() {
+            activeChatId = null;
+            document.getElementById('active-chat-view').classList.add('hidden');
+            document.getElementById('chat-container-view').classList.remove('hidden');
+        }
+
         window.notifyTyping = function() {
-            if(!activeChatFriendUid) return;
-            const rId = currentUser.uid < activeChatFriendUid ? `${currentUser.uid}_${activeChatFriendUid}` : `${activeChatFriendUid}_${currentUser.uid}`;
-            set(ref(db, `typing/${rId}/${currentUser.uid}`), true);
+            if(!activeChatId) return;
+            set(ref(db, `typing/${activeChatId}/${currentUser.uid}`), true);
             if(typingTimeout) clearTimeout(typingTimeout);
             typingTimeout = setTimeout(() => {
-                set(ref(db, `typing/${rId}/${currentUser.uid}`), false);
+                set(ref(db, `typing/${activeChatId}/${currentUser.uid}`), false);
             }, 2000);
         }
 
@@ -1178,11 +1465,11 @@
         window.sendChatMessage = async function() {
             const text = document.getElementById('chat-input').value.trim();
             if(!text && !chatImageBase64) return;
-            if(!activeChatFriendUid) return;
+            if(!activeChatId) return;
 
-            const rId = currentUser.uid < activeChatFriendUid ? `${currentUser.uid}_${activeChatFriendUid}` : `${activeChatFriendUid}_${currentUser.uid}`;
-            await push(ref(db, `chats/${rId}`), {
+            await push(ref(db, `chats/${activeChatId}`), {
                 senderUid: currentUser.uid,
+                senderName: document.getElementById('profile-name').innerText,
                 text: text || "📷 Imagem",
                 image: chatImageBase64 || "",
                 read: false,
@@ -1203,7 +1490,7 @@
             else {
                 actions.classList.remove('hidden');
                 document.getElementById('modal-btn-add').onclick = () => { sendFriendRequest(uid, u.name); closeUserProfile(); };
-                document.getElementById('modal-btn-chat').onclick = () => { closeUserProfile(); openChat(uid, u.name); switchTab('friends'); };
+                document.getElementById('modal-btn-chat').onclick = () => { closeUserProfile(); openChat(currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`, u.name); switchTab('friends'); };
             }
             document.getElementById('user-profile-modal').classList.remove('hidden');
         }
