@@ -5,10 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Corse - Conecte-se com estilo</title>
     
-    <!-- SCRIPT DINÂMICO PARA PWA -->
+    <!-- RASTREADOR DE ERROS DE SISTEMA -->
+    <script>
+        window.addEventListener('error', function(e) {
+            if (e.message && e.message.toLowerCase().includes('module')) {
+                alert("Aviso: O seu navegador bloqueou o sistema. Tente abrir em uma aba anônima ou limpar o cache.");
+            }
+        });
+    </script>
+
+    <!-- SCRIPT DINÂMICO PARA PWA E LOGO -->
     <script>
         const MEU_LOGO = "logo-icon.png"; 
-        
         const path = window.location.pathname;
         const manifest = {
             name: "Corse",
@@ -44,24 +52,12 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
         @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .toast-notification { animation: slideDown 0.3s ease-out forwards; }
-        
-        /* DURAÇÃO DE 4 SEGUNDOS PARA OS STORIES */
         @keyframes progressAnimation { from { width: 0%; } to { width: 100%; } }
         .story-progress-bar { animation: progressAnimation 4s linear forwards; }
-        
         @keyframes pulseGlow { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: 0.8; } }
         .unread-glow { animation: pulseGlow 2s infinite ease-in-out; }
-
-        /* SNAP SCROLL PARA OS REELS */
-        .reels-container-snap {
-            scroll-snap-type: y mandatory;
-            overflow-y: scroll;
-            height: calc(100vh - 140px);
-        }
-        .reel-item-snap {
-            scroll-snap-align: start;
-            scroll-snap-stop: always;
-        }
+        .reels-container-snap { scroll-snap-type: y mandatory; overflow-y: scroll; height: calc(100vh - 140px); }
+        .reel-item-snap { scroll-snap-align: start; scroll-snap-stop: always; }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start relative pb-24">
@@ -73,9 +69,8 @@
     <div id="auth-screen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-6 sm:p-8 shadow-2xl space-y-6">
             <div class="text-center space-y-2 flex flex-col items-center">
-                <div class="inline-flex bg-gradient-to-tr from-violet-600 to-fuchsia-600 p-3.5 rounded-2xl shadow-xl shadow-violet-500/30 mb-2">
-                    <i data-lucide="zap" class="w-8 h-8 text-white"></i>
-                </div>
+                <!-- SUA LOGO RESTAURADA AQUI -->
+                <img src="logo-icon.png" alt="Logo Corse" class="w-24 h-24 mb-2 object-cover rounded-2xl shadow-xl border border-slate-800" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150'">
                 <h1 class="text-3xl font-black tracking-wider bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Corse</h1>
                 <p id="auth-subtitle" class="text-xs text-slate-400">Conectando pessoas com estilo e tecnologia</p>
             </div>
@@ -94,17 +89,17 @@
                 </div>
                 
                 <div id="forgot-password-container" class="text-right">
-                    <button onclick="handleForgotPassword()" class="text-xs text-violet-400 hover:underline font-medium cursor-pointer">Esqueceu sua senha?</button>
+                    <button type="button" onclick="handleForgotPassword()" class="text-xs text-violet-400 hover:underline font-medium cursor-pointer">Esqueceu sua senha?</button>
                 </div>
 
                 <div id="auth-error" class="text-xs text-red-400 font-medium p-3 bg-red-950/40 border border-red-900/50 rounded-2xl hidden"></div>
                 
-                <button id="auth-submit-btn" onclick="handleAuthSubmit()" class="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-90 text-white py-3.5 rounded-2xl font-bold shadow-lg shadow-violet-600/30 transition-all text-sm cursor-pointer">
+                <button type="button" id="auth-submit-btn" onclick="handleAuthSubmit()" class="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-90 text-white py-3.5 rounded-2xl font-bold shadow-lg shadow-violet-600/30 transition-all text-sm cursor-pointer">
                     Entrar na Conta
                 </button>
             </div>
             <div class="text-center pt-2 border-t border-slate-800">
-                <p class="text-xs text-slate-400"><span id="auth-switch-text">Não tem uma conta?</span> <button onclick="toggleAuthMode()" id="auth-switch-btn" class="text-violet-400 font-semibold hover:underline ml-1">Criar conta</button></p>
+                <p class="text-xs text-slate-400"><span id="auth-switch-text">Não tem uma conta?</span> <button type="button" onclick="toggleAuthMode()" id="auth-switch-btn" class="text-violet-400 font-semibold hover:underline ml-1">Criar conta</button></p>
             </div>
         </div>
     </div>
@@ -115,9 +110,8 @@
         <!-- CABEÇALHO DO APP -->
         <header id="main-header" class="sticky top-0 z-40 bg-[#0b0f19]/95 backdrop-blur-md px-4 py-3 flex justify-between items-center border-b border-slate-900/60">
             <div class="flex items-center gap-2">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-600 to-fuchsia-600 flex items-center justify-center shadow-md shadow-violet-600/30">
-                    <i data-lucide="zap" class="w-5 h-5 text-white"></i>
-                </div>
+                <!-- SUA LOGO RESTAURADA NO HEADER -->
+                <img src="logo-icon.png" class="w-9 h-9 rounded-xl object-cover border border-slate-800" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150'">
                 <span class="text-2xl font-black tracking-tight text-white">Corse</span>
             </div>
             <div class="flex items-center gap-2">
@@ -170,7 +164,6 @@
                     </button>
                 </div>
                 
-                <!-- FEED DE VÍDEOS COM SNAP SCROLL -->
                 <div id="reels-feed" class="reels-container-snap space-y-6 custom-scrollbar pr-1">
                     <div class="text-center py-12 text-slate-500 text-xs">Carregando vídeos...</div>
                 </div>
@@ -523,7 +516,7 @@
         </div>
     </div>
 
-    <!-- LÓGICA E FIREBASE (COM ALERTA DE TESTE DE CLIQUE) -->
+    <!-- LÓGICA E FIREBASE (COM BOTÕES BLINDADOS E DEBUG VISUAL) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -564,19 +557,18 @@
 
         async function registerPushNotifications(userId) {
             try {
+                if (!('Notification' in window)) return;
                 const permission = await Notification.requestPermission();
                 if (permission === 'granted') {
                     const currentToken = await getToken(messaging, { 
                         vapidKey: "BOM8aX6Q54sN51eR7VlU0yU_W9M9X1yX2z3A4B5C6D7E8F9G0H1I2J3K4L5M6N7O8P9Q0R1S2T3U4V5W6X7Y8Z9" 
                     });
-                    
                     if (currentToken) {
                         await set(ref(db, `fcmTokens/${userId}`), currentToken);
-                        console.log("Token FCM registrado com sucesso!");
                     }
                 }
             } catch (err) {
-                console.error("Erro ao registrar notificações:", err);
+                console.error("Erro FCM:", err);
             }
         }
 
@@ -591,30 +583,23 @@
                 const postsRef = ref(db, 'posts');
                 const snapshot = await get(postsRef);
                 const posts = snapshot.val() || {};
-                
                 let botPosts = [];
                 Object.keys(posts).forEach(id => {
-                    if (posts[id].uid === botUid) {
-                        botPosts.push({ id, timestamp: posts[id].timestamp || 0 });
-                    }
+                    if (posts[id].uid === botUid) botPosts.push({ id, timestamp: posts[id].timestamp || 0 });
                 });
-
                 botPosts.sort((a, b) => a.timestamp - b.timestamp);
-
                 while (botPosts.length >= 4) {
                     const oldest = botPosts.shift();
                     await remove(ref(db, `posts/${oldest.id}`));
                 }
-            } catch (err) { console.error("Erro ao limitar posts:", err); }
+            } catch (err) {}
         }
 
         window.fetchCorseNews = async function(isAutomatic = false) {
             try {
                 await enforceBotPostLimit("corse_noticia_bot");
-
                 const response = await fetch("https://api.apitube.io/v1/news/everything?language.code=pt&per_page=3", {
-                    method: "GET",
-                    headers: { "X-API-Key": "api_live_xpjJ039TjmQobLLMo4oolzkVgJqpQ9jH4dXOc9Fm6BNajkcmNdugeWhw4ZI" }
+                    method: "GET", headers: { "X-API-Key": "api_live_xpjJ039TjmQobLLMo4oolzkVgJqpQ9jH4dXOc9Fm6BNajkcmNdugeWhw4ZI" }
                 });
                 if (!response.ok) return;
                 const data = await response.json();
@@ -628,50 +613,41 @@
 
                 let count = 0;
                 for (let art of articles) {
-                    const title = art.title || "Notícia do Corse Notícia";
+                    const title = art.title || "Notícia";
                     if (existingTitles.some(t => t.includes(title.substring(0, 15)))) continue;
-
-                    const desc = art.description || art.snippet || "Acompanhe as principais atualizações no portal Corse Notícia.";
+                    const desc = art.description || art.snippet || "Acompanhe as atualizações.";
                     const img = art.image_url || art.urlToImage || art.image || "";
 
                     await push(postsRef, {
-                        uid: "corse_noticia_bot",
-                        author: "Corse Notícia 📰",
+                        uid: "corse_noticia_bot", author: "Corse Notícia 📰",
                         avatar: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=150",
-                        content: `📢 **${title}**\n\n${desc}`,
-                        image: img,
-                        timestamp: Date.now()
+                        content: `📢 **${title}**\n\n${desc}`, image: img, timestamp: Date.now()
                     });
                     count++;
                     if (count >= 1) break;
                 }
                 if (!isAutomatic && count > 0) showToast("Nova notícia no Corse Notícia!", "success");
-            } catch (err) { console.error(err); }
+            } catch (err) {}
         }
 
         window.fetchFofocalizaNews = async function(isAutomatic = false) {
             try {
                 await enforceBotPostLimit("fofocaliza_bot");
-
                 let stockPriceVal = null;
                 try {
                     const response = await fetch("https://api.api-ninjas.com/v1/stockprice?ticker=AAPL", {
-                        method: "GET",
-                        headers: { "X-Api-Key": "TI22ELUkGQozawR0PeJMnQJcMzoFcQtSIlmbHS6U" }
+                        method: "GET", headers: { "X-Api-Key": "TI22ELUkGQozawR0PeJMnQJcMzoFcQtSIlmbHS6U" }
                     });
                     if (response.ok) {
                         const stock = await response.json();
                         stockPriceVal = stock.price;
                     }
-                } catch (apiErr) {
-                    console.warn("API-Ninjas indisponível, usando fallback de fofocas.");
-                }
+                } catch (apiErr) {}
 
                 const fofocasPool = [
-                    { title: "Bafão nos bastidores da TV! 🌟", desc: "Fontes exclusivas revelam novos segredos de celebridades que estão dando o que falar nas redes sociais!", image: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=600" },
-                    { title: "Flagra exclusivo das estrelas ✨", desc: "Artistas são vistos em evento vip badalado. Todo mundo comentando os looks da noite!", image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600" },
-                    { title: "O mundo dos famosos e negócios 📈", desc: stockPriceVal ? `Cotação e investimentos das estrelas: Apple (AAPL) em US$ ${stockPriceVal}.` : "Astros fecham contratos milionários para campanhas exclusivas.", image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600" },
-                    { title: "Segredos revelados! 🤫", desc: "Cantor famoso deixa escapar detalhes sobre o seu novo álbum que promete agitar o mundo da música.", image: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=600" }
+                    { title: "Bafão nos bastidores da TV! 🌟", desc: "Fontes exclusivas revelam novos segredos!", image: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=600" },
+                    { title: "Flagra exclusivo das estrelas ✨", desc: "Artistas são vistos em evento vip badalado.", image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600" },
+                    { title: "O mundo dos famosos e negócios 📈", desc: stockPriceVal ? `Apple (AAPL) em US$ ${stockPriceVal}.` : "Astros fecham contratos milionários.", image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600" }
                 ];
 
                 const postsRef = ref(db, 'posts');
@@ -682,20 +658,16 @@
                 let count = 0;
                 for (let item of fofocasPool) {
                     if (existingTitles.some(t => t.includes(item.title.substring(0, 15)))) continue;
-
                     await push(postsRef, {
-                        uid: "fofocaliza_bot",
-                        author: "Fofocaliza 🌟",
+                        uid: "fofocaliza_bot", author: "Fofocaliza 🌟",
                         avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
-                        content: `🔥 **${item.title}**\n\n${item.desc}`,
-                        image: item.image,
-                        timestamp: Date.now()
+                        content: `🔥 **${item.title}**\n\n${item.desc}`, image: item.image, timestamp: Date.now()
                     });
                     count++;
                     if (count >= 1) break;
                 }
                 if (!isAutomatic && count > 0) showToast("Nova fofoca no Fofocaliza!", "success");
-            } catch (err) { console.error("Erro no Fofocaliza:", err); }
+            } catch (err) {}
         }
 
         window.fetchAllPortalsNews = function(isAuto = false) {
@@ -720,11 +692,9 @@
                     grid.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs col-span-2">Nenhum conteúdo no Explorar ainda.</div>`;
                     return;
                 }
-
                 keys.forEach(postId => {
                     const p = data[postId];
                     if(!p.image) return;
-
                     grid.insertAdjacentHTML('beforeend', `
                         <div class="relative bg-slate-900 rounded-2xl overflow-hidden h-44 border border-slate-800 shadow-md group cursor-pointer" onclick="openExplorePost('${postId}')">
                             <img src="${p.image}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" loading="lazy">
@@ -746,10 +716,7 @@
             }, 200);
         }
 
-        window.triggerCreatePost = () => {
-            document.getElementById('global-media-input').click();
-        }
-
+        window.triggerCreatePost = () => document.getElementById('global-media-input').click();
         window.handleNewMediaSelected = e => {
             if(e.target.files[0]) {
                 const r = new FileReader();
@@ -771,32 +738,24 @@
             if (isSubmittingPost) return;
             const title = document.getElementById('new-post-title-input').value.trim();
             if(!activeMediaBase64) return;
-
             isSubmittingPost = true;
             const btnFeed = document.getElementById('btn-submit-feed');
             const btnStory = document.getElementById('btn-submit-story');
-            btnFeed.innerText = "Publicando...";
-            btnStory.innerText = "Publicando...";
+            btnFeed.innerText = "Publicando..."; btnStory.innerText = "Publicando...";
 
             try {
                 if(destination === 'feed') {
                     await push(ref(db, 'posts'), {
-                        uid: currentUser.uid,
-                        author: document.getElementById('profile-name').innerText,
-                        avatar: document.getElementById('profile-avatar-img').src,
-                        content: title || "Nova publicação",
-                        image: activeMediaBase64,
-                        timestamp: Date.now()
+                        uid: currentUser.uid, author: document.getElementById('profile-name').innerText,
+                        avatar: document.getElementById('profile-avatar-img').src, content: title || "Nova publicação",
+                        image: activeMediaBase64, timestamp: Date.now()
                     });
                     showToast("Publicado no Feed com sucesso!", "success");
                 } else {
                     await push(ref(db, 'stories'), {
-                        uid: currentUser.uid,
-                        author: document.getElementById('profile-name').innerText,
-                        avatar: document.getElementById('profile-avatar-img').src,
-                        title: title || "Meu Story",
-                        image: activeMediaBase64,
-                        timestamp: Date.now()
+                        uid: currentUser.uid, author: document.getElementById('profile-name').innerText,
+                        avatar: document.getElementById('profile-avatar-img').src, title: title || "Meu Story",
+                        image: activeMediaBase64, timestamp: Date.now()
                     });
                     showToast("Publicado nos Stories!", "success");
                 }
@@ -805,8 +764,7 @@
                 showToast("Erro ao publicar. Tente novamente.", "info");
             } finally {
                 isSubmittingPost = false;
-                btnFeed.innerText = "Publicar no Feed";
-                btnStory.innerText = "Publicar nos Stories";
+                btnFeed.innerText = "Publicar no Feed"; btnStory.innerText = "Publicar nos Stories";
             }
         }
 
@@ -820,55 +778,40 @@
         window.submitNewReel = async function() {
             const rawLink = document.getElementById('reel-link-input').value.trim();
             const caption = document.getElementById('reel-caption-input').value.trim();
-            
-            if(!rawLink) {
-                showToast("Cole o link de um YouTube Shorts.", "info");
-                return;
-            }
+            if(!rawLink) { showToast("Cole o link de um YouTube Shorts.", "info"); return; }
 
             let embedUrl = "";
             if (rawLink.includes("shorts/")) {
-                const parts = rawLink.split("shorts/");
-                const videoId = parts[1].split("?")[0];
+                const videoId = rawLink.split("shorts/")[1].split("?")[0];
                 embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&loop=1&playlist=${videoId}`;
             } else if (rawLink.includes("youtu.be/")) {
-                const parts = rawLink.split("youtu.be/");
-                const videoId = parts[1].split("?")[0];
+                const videoId = rawLink.split("youtu.be/")[1].split("?")[0];
                 embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&loop=1&playlist=${videoId}`;
             } else if (rawLink.includes("watch?v=")) {
-                const urlParams = new URLSearchParams(rawLink.split('?')[1]);
-                const videoId = urlParams.get('v');
+                const videoId = new URLSearchParams(rawLink.split('?')[1]).get('v');
                 embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&loop=1&playlist=${videoId}`;
             } else {
-                showToast("Link inválido. Use um link do YouTube Shorts.", "info");
-                return;
+                showToast("Link inválido. Use um link do YouTube Shorts.", "info"); return;
             }
 
             try {
                 await push(ref(db, 'reels'), {
-                    uid: currentUser.uid,
-                    author: document.getElementById('profile-name').innerText,
-                    avatar: document.getElementById('profile-avatar-img').src,
-                    embedUrl: embedUrl,
-                    caption: caption || "Novo vídeo",
-                    timestamp: Date.now()
+                    uid: currentUser.uid, author: document.getElementById('profile-name').innerText,
+                    avatar: document.getElementById('profile-avatar-img').src, embedUrl: embedUrl,
+                    caption: caption || "Novo vídeo", timestamp: Date.now()
                 });
                 closeCreateReelModal();
                 showToast("Vídeo publicado com sucesso!", "success");
-            } catch(e) {
-                showToast("Erro ao publicar vídeo.", "info");
-            }
+            } catch(e) { showToast("Erro ao publicar vídeo.", "info"); }
         }
 
         function listenReels() {
             const container = document.getElementById('reels-feed');
             if (!container) return;
-            
             onValue(ref(db, 'reels'), (snap) => {
                 container.innerHTML = "";
                 const data = snap.val() || {};
                 const keys = Object.keys(data).reverse();
-
                 if(keys.length === 0) {
                     container.innerHTML = `
                         <div class="text-center py-16 bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-3">
@@ -878,15 +821,13 @@
                             <button onclick="openCreateReelModal()" class="bg-violet-600 text-white px-4 py-2 rounded-xl text-xs font-bold cursor-pointer inline-block">Postar Vídeo Agora</button>
                         </div>
                     `;
-                    lucide.createIcons();
+                    try { lucide.createIcons(); } catch(e){}
                     return;
                 }
-
                 keys.forEach((reelId, index) => {
                     const r = data[reelId];
                     const likesObj = r.likes || {}, likesCount = Object.keys(likesObj).length, iLiked = !!likesObj[currentUser.uid];
                     const finalEmbedUrl = index === 0 ? r.embedUrl : r.embedUrl.replace('autoplay=1', 'autoplay=0');
-
                     container.insertAdjacentHTML('beforeend', `
                         <div class="reel-item-snap bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl relative flex flex-col h-[75vh]">
                             <div class="relative w-full flex-1 bg-black">
@@ -911,7 +852,7 @@
                         </div>
                     `);
                 });
-                lucide.createIcons();
+                try { lucide.createIcons(); } catch(e){}
             });
         }
 
@@ -923,37 +864,25 @@
         window.openShareModal = function(content, image, author) {
             sharingPostData = { content, image, author };
             const list = document.getElementById('share-chats-list');
-            list.innerHTML = "";
-
             let itemsHtml = "";
             Object.keys(globalGroupsCache).forEach(gId => {
                 const g = globalGroupsCache[gId];
                 itemsHtml += `
                     <div onclick="sendShareToChat('group_${gId}', '${escapeHtml(g.name)}')" class="flex items-center justify-between bg-slate-950 p-2.5 rounded-xl border border-slate-800 hover:border-violet-500 cursor-pointer">
-                        <div class="flex items-center gap-2">
-                            <img src="${g.avatar || 'https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150'}" class="w-7 h-7 rounded-full object-cover">
-                            <span class="font-bold text-xs text-slate-100">👥 ${escapeHtml(g.name)}</span>
-                        </div>
+                        <div class="flex items-center gap-2"><img src="${g.avatar}" class="w-7 h-7 rounded-full object-cover"><span class="font-bold text-xs text-slate-100">👥 ${escapeHtml(g.name)}</span></div>
                         <span class="text-[10px] text-violet-400 font-bold">Enviar</span>
-                    </div>
-                `;
+                    </div>`;
             });
-
             Object.keys(globalUsersCache).forEach(uid => {
                 if(uid === currentUser.uid) return;
                 const u = globalUsersCache[uid];
                 const rId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
                 itemsHtml += `
                     <div onclick="sendShareToChat('${rId}', '${escapeHtml(u.name)}')" class="flex items-center justify-between bg-slate-950 p-2.5 rounded-xl border border-slate-800 hover:border-violet-500 cursor-pointer">
-                        <div class="flex items-center gap-2">
-                            <img src="${u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" class="w-7 h-7 rounded-full object-cover">
-                            <span class="font-bold text-xs text-slate-100">${escapeHtml(u.name)}</span>
-                        </div>
+                        <div class="flex items-center gap-2"><img src="${u.avatar}" class="w-7 h-7 rounded-full object-cover"><span class="font-bold text-xs text-slate-100">${escapeHtml(u.name)}</span></div>
                         <span class="text-[10px] text-violet-400 font-bold">Enviar</span>
-                    </div>
-                `;
+                    </div>`;
             });
-
             list.innerHTML = itemsHtml || `<div class="text-xs text-slate-500 text-center py-2">Nenhum chat disponível.</div>`;
             document.getElementById('share-modal').classList.remove('hidden');
         }
@@ -963,46 +892,32 @@
         window.sendShareToChat = async function(rId, chatName) {
             if(!sharingPostData) return;
             const textToShare = `🔗 *Compartilhado de ${sharingPostData.author}:*\n\n${sharingPostData.content}`;
-            
             await push(ref(db, `chats/${rId}`), {
-                senderUid: currentUser.uid,
-                senderName: document.getElementById('profile-name').innerText,
-                text: textToShare,
-                image: sharingPostData.image || "",
-                read: false,
-                timestamp: Date.now()
+                senderUid: currentUser.uid, senderName: document.getElementById('profile-name').innerText,
+                text: textToShare, image: sharingPostData.image || "", read: false, timestamp: Date.now()
             });
-
-            closeShareModal();
-            showToast(`Compartilhado com ${chatName} com sucesso!`, "success");
+            closeShareModal(); showToast(`Compartilhado com ${chatName} com sucesso!`, "success");
         }
 
         window.shareToFeed = async function() {
             if(!sharingPostData) return;
             await push(ref(db, 'posts'), {
-                uid: currentUser.uid,
-                author: document.getElementById('profile-name').innerText,
+                uid: currentUser.uid, author: document.getElementById('profile-name').innerText,
                 avatar: document.getElementById('profile-avatar-img').src,
                 content: `🔁 Compartilhado de ${sharingPostData.author}:\n\n${sharingPostData.content}`,
-                image: sharingPostData.image || "",
-                timestamp: Date.now()
+                image: sharingPostData.image || "", timestamp: Date.now()
             });
-            closeShareModal();
-            showToast("Publicado no seu Feed!", "success");
+            closeShareModal(); showToast("Publicado no seu Feed!", "success");
         }
 
         window.shareToStory = async function() {
             if(!sharingPostData) return;
             await push(ref(db, 'stories'), {
-                uid: currentUser.uid,
-                author: document.getElementById('profile-name').innerText,
-                avatar: document.getElementById('profile-avatar-img').src,
-                title: `Compartilhado: ${sharingPostData.author}`,
-                image: sharingPostData.image || "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600",
-                timestamp: Date.now()
+                uid: currentUser.uid, author: document.getElementById('profile-name').innerText,
+                avatar: document.getElementById('profile-avatar-img').src, title: `Compartilhado: ${sharingPostData.author}`,
+                image: sharingPostData.image || "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600", timestamp: Date.now()
             });
-            closeShareModal();
-            showToast("Adicionado aos seus Stories!", "success");
+            closeShareModal(); showToast("Adicionado aos seus Stories!", "success");
         }
 
         function listenStories() {
@@ -1015,33 +930,20 @@
                         const viewedMap = vSnap.val() || {};
                         const now = Date.now();
                         const twentyFourHours = 24 * 60 * 60 * 1000;
-
                         let authorsMap = {};
                         Object.keys(storiesData).forEach(sId => {
                             const s = storiesData[sId];
                             if (s.timestamp && (now - s.timestamp < twentyFourHours)) {
-                                if (!authorsMap[s.uid]) {
-                                    authorsMap[s.uid] = {
-                                        uid: s.uid,
-                                        author: s.author,
-                                        avatar: s.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-                                        items: []
-                                    };
-                                }
+                                if (!authorsMap[s.uid]) authorsMap[s.uid] = { uid: s.uid, author: s.author, avatar: s.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150', items: [] };
                                 authorsMap[s.uid].items.push({ id: sId, ...s });
                             }
                         });
 
                         globalAllStoriesAuthors = [];
                         let myUid = currentUser.uid;
-                        if (authorsMap[myUid]) {
-                            globalAllStoriesAuthors.push(authorsMap[myUid]);
-                        }
-
+                        if (authorsMap[myUid]) globalAllStoriesAuthors.push(authorsMap[myUid]);
                         Object.keys(authorsMap).forEach(authorUid => {
-                            if (authorUid !== myUid && friends[authorUid]) {
-                                globalAllStoriesAuthors.push(authorsMap[authorUid]);
-                            }
+                            if (authorUid !== myUid && friends[authorUid]) globalAllStoriesAuthors.push(authorsMap[authorUid]);
                         });
 
                         let html = `
@@ -1056,15 +958,11 @@
 
                         globalAllStoriesAuthors.forEach((authorObj, index) => {
                             if (authorObj.uid === myUid) return;
-
                             const allViewed = authorObj.items.every(item => viewedMap[item.id]);
                             const ringClass = allViewed ? 'p-[2.5px] bg-slate-700' : 'p-[2.5px] bg-gradient-to-tr from-fuchsia-500 via-violet-500 to-pink-500 animate-pulse';
-
                             html += `
                                 <div class="flex flex-col items-center gap-1.5 flex-shrink-0 cursor-pointer" onclick="openAuthorStoriesByIndex(${index})">
-                                    <div class="w-16 h-16 rounded-full ${ringClass}">
-                                        <img src="${authorObj.avatar}" class="w-full h-full rounded-full object-cover border-2 border-[#0b0f19]" loading="lazy">
-                                    </div>
+                                    <div class="w-16 h-16 rounded-full ${ringClass}"><img src="${authorObj.avatar}" class="w-full h-full rounded-full object-cover border-2 border-[#0b0f19]" loading="lazy"></div>
                                     <span class="text-[11px] text-slate-300 font-medium truncate w-16 text-center">${escapeHtml(authorObj.author)}</span>
                                 </div>
                             `;
@@ -1077,31 +975,19 @@
 
         window.openMyStories = function() {
             let myIndex = globalAllStoriesAuthors.findIndex(a => a.uid === currentUser.uid);
-            if(myIndex !== -1 && globalAllStoriesAuthors[myIndex].items.length > 0) {
-                openAuthorStoriesByIndex(myIndex);
-            } else {
-                showToast("Você não tem stories ativos (24h). Clique no + para publicar!", "info");
-            }
+            if(myIndex !== -1 && globalAllStoriesAuthors[myIndex].items.length > 0) openAuthorStoriesByIndex(myIndex);
+            else showToast("Você não tem stories ativos (24h). Clique no + para publicar!", "info");
         }
 
         window.openAuthorStoriesByIndex = function(authorIdx) {
-            currentAuthorIndex = authorIdx;
-            currentStoryIndex = 0;
-            renderAndPlayStory();
+            currentAuthorIndex = authorIdx; currentStoryIndex = 0; renderAndPlayStory();
         }
 
         window.renderAndPlayStory = async function() {
-            if (!globalAllStoriesAuthors[currentAuthorIndex]) {
-                closeStoryViewer();
-                return;
+            if (!globalAllStoriesAuthors[currentAuthorIndex] || !globalAllStoriesAuthors[currentAuthorIndex].items[currentStoryIndex]) {
+                closeStoryViewer(); return;
             }
-
             const currentAuthor = globalAllStoriesAuthors[currentAuthorIndex];
-            if (!currentAuthor.items[currentStoryIndex]) {
-                closeStoryViewer();
-                return;
-            }
-
             const s = currentAuthor.items[currentStoryIndex];
             activeViewingStoryId = s.id;
 
@@ -1113,35 +999,23 @@
             const barsContainer = document.getElementById('story-bars-container');
             let barsHtml = '';
             currentAuthor.items.forEach((item, idx) => {
-                let barStyle = 'bg-white/30';
-                if (idx < currentStoryIndex) barStyle = 'bg-white';
-                else if (idx === currentStoryIndex) barStyle = 'bg-white story-progress-bar';
-
+                let barStyle = idx < currentStoryIndex ? 'bg-white' : (idx === currentStoryIndex ? 'bg-white story-progress-bar' : 'bg-white/30');
                 barsHtml += `<div class="h-1 flex-1 rounded-full bg-slate-700/80 overflow-hidden"><div class="${barStyle} h-full w-full"></div></div>`;
             });
             barsContainer.innerHTML = barsHtml;
 
             const deleteBtn = document.getElementById('story-delete-btn');
-            if (s.uid === currentUser.uid) {
-                deleteBtn.classList.remove('hidden');
-            } else {
-                deleteBtn.classList.add('hidden');
-            }
+            if (s.uid === currentUser.uid) deleteBtn.classList.remove('hidden');
+            else deleteBtn.classList.add('hidden');
 
             onValue(ref(db, `storyInteractions/${s.id}/likes/${currentUser.uid}`), (snap) => {
-                const liked = snap.exists();
                 const likeBtn = document.getElementById('story-like-btn');
-                if (liked) {
-                    likeBtn.className = "p-2.5 rounded-full bg-fuchsia-950/60 border border-fuchsia-800 text-fuchsia-400 cursor-pointer flex-shrink-0";
-                } else {
-                    likeBtn.className = "p-2.5 rounded-full bg-slate-900 border border-slate-800 text-slate-300 hover:text-fuchsia-400 cursor-pointer flex-shrink-0";
-                }
+                if (snap.exists()) likeBtn.className = "p-2.5 rounded-full bg-fuchsia-950/60 border border-fuchsia-800 text-fuchsia-400 cursor-pointer flex-shrink-0";
+                else likeBtn.className = "p-2.5 rounded-full bg-slate-900 border border-slate-800 text-slate-300 hover:text-fuchsia-400 cursor-pointer flex-shrink-0";
             }, { onlyOnce: true });
 
             if (storyTimer) clearTimeout(storyTimer);
-            storyTimer = setTimeout(() => {
-                nextStoryIndex();
-            }, 4000);
+            storyTimer = setTimeout(() => nextStoryIndex(), 4000);
 
             await set(ref(db, `storyViews/${currentUser.uid}/${s.id}`), true);
             document.getElementById('story-viewer-modal').classList.remove('hidden');
@@ -1153,14 +1027,12 @@
         }
 
         window.closeConfirmModal = function() {
-            document.getElementById('confirm-modal').classList.add('hidden');
-            renderAndPlayStory();
+            document.getElementById('confirm-modal').classList.add('hidden'); renderAndPlayStory();
         }
 
         window.executeDeleteStory = async function() {
             if (!activeViewingStoryId) return;
             document.getElementById('confirm-modal').classList.add('hidden');
-            
             await remove(ref(db, `stories/${activeViewingStoryId}`));
             await remove(ref(db, `storyInteractions/${activeViewingStoryId}`));
             showToast("Story apagado com sucesso!", "success");
@@ -1169,43 +1041,31 @@
             currentAuthor.items.splice(currentStoryIndex, 1);
             
             if (currentAuthor.items.length > 0) {
-                if (currentStoryIndex >= currentAuthor.items.length) {
-                    currentStoryIndex = currentAuthor.items.length - 1;
-                }
+                if (currentStoryIndex >= currentAuthor.items.length) currentStoryIndex = currentAuthor.items.length - 1;
                 renderAndPlayStory();
-            } else {
-                closeStoryViewer();
-            }
+            } else { closeStoryViewer(); }
         }
 
         window.nextStoryIndex = function() {
             if (storyTimer) clearTimeout(storyTimer);
             const currentAuthor = globalAllStoriesAuthors[currentAuthorIndex];
-
             if (currentStoryIndex < currentAuthor.items.length - 1) {
-                currentStoryIndex++;
-                renderAndPlayStory();
+                currentStoryIndex++; renderAndPlayStory();
             } else {
                 if (currentAuthorIndex < globalAllStoriesAuthors.length - 1) {
-                    currentAuthorIndex++;
-                    currentStoryIndex = 0;
-                    renderAndPlayStory();
-                } else {
-                    closeStoryViewer();
-                }
+                    currentAuthorIndex++; currentStoryIndex = 0; renderAndPlayStory();
+                } else { closeStoryViewer(); }
             }
         }
 
         window.prevStoryIndex = function() {
             if (storyTimer) clearTimeout(storyTimer);
             if (currentStoryIndex > 0) {
-                currentStoryIndex--;
-                renderAndPlayStory();
+                currentStoryIndex--; renderAndPlayStory();
             } else if (currentAuthorIndex > 0) {
                 currentAuthorIndex--;
                 const prevAuthor = globalAllStoriesAuthors[currentAuthorIndex];
-                currentStoryIndex = prevAuthor.items.length - 1;
-                renderAndPlayStory();
+                currentStoryIndex = prevAuthor.items.length - 1; renderAndPlayStory();
             }
         }
 
@@ -1218,13 +1078,8 @@
             if(!activeViewingStoryId) return;
             const likeRef = ref(db, `storyInteractions/${activeViewingStoryId}/likes/${currentUser.uid}`);
             onValue(likeRef, async (snap) => {
-                if(snap.exists()) {
-                    await remove(likeRef);
-                    showToast("Curtida removida", "info");
-                } else {
-                    await set(likeRef, true);
-                    showToast("Você curtiu este story! ❤️", "success");
-                }
+                if(snap.exists()) { await remove(likeRef); showToast("Curtida removida", "info"); }
+                else { await set(likeRef, true); showToast("Você curtiu este story! ❤️", "success"); }
             }, { onlyOnce: true });
         }
 
@@ -1232,23 +1087,15 @@
             const input = document.getElementById('story-comment-input');
             const txt = input.value.trim();
             if(!txt || !activeViewingStoryId) return;
-
             const currentAuthor = globalAllStoriesAuthors[currentAuthorIndex];
             if(!currentAuthor) return;
-
             const targetUid = currentAuthor.uid;
             const rId = currentUser.uid < targetUid ? `${currentUser.uid}_${targetUid}` : `${targetUid}_${currentUser.uid}`;
-
             await push(ref(db, `chats/${rId}`), {
-                senderUid: currentUser.uid,
-                senderName: document.getElementById('profile-name').innerText,
-                text: `💬 Respondeu ao seu story: "${txt}"`,
-                read: false,
-                timestamp: Date.now()
+                senderUid: currentUser.uid, senderName: document.getElementById('profile-name').innerText,
+                text: `💬 Respondeu ao seu story: "${txt}"`, read: false, timestamp: Date.now()
             });
-
-            input.value = "";
-            showToast("Resposta enviada por mensagem!", "success");
+            input.value = ""; showToast("Resposta enviada por mensagem!", "success");
         }
 
         window.toggleAuthMode = function() {
@@ -1265,71 +1112,76 @@
             const email = document.getElementById('auth-email').value.trim();
             const errorBox = document.getElementById('auth-error');
             errorBox.classList.add('hidden');
-
             if (!email) {
-                errorBox.innerText = "Digite seu e-mail no campo acima para recuperar a senha.";
-                errorBox.classList.remove('hidden');
-                return;
+                errorBox.innerText = "Erro: Digite seu e-mail no campo acima primeiro.";
+                errorBox.classList.remove('hidden'); return;
             }
-
             try {
                 await sendPasswordResetEmail(auth, email);
-                showToast("E-mail de redefinição enviado! Verifique sua caixa de entrada.", "success");
+                showToast("E-mail de redefinição enviado!", "success");
             } catch (e) {
                 let msg = e.message;
-                if (e.code === 'auth/user-not-found') {
-                    msg = "Não há nenhuma conta cadastrada com este e-mail.";
-                } else if (e.code === 'auth/invalid-email') {
-                    msg = "E-mail inválido.";
-                }
-                errorBox.innerText = "Erro: " + msg;
-                errorBox.classList.remove('hidden');
+                if (e.code === 'auth/user-not-found') msg = "Nenhuma conta encontrada com este e-mail.";
+                else if (e.code === 'auth/invalid-email') msg = "E-mail inválido.";
+                errorBox.innerText = "Erro: " + msg; errorBox.classList.remove('hidden');
             }
         }
 
-        // FUNÇÃO DE LOGIN COM ALERTA DE TESTE NA TELA
+        // ==========================================
+        // LÓGICA DO BOTÃO TOTALMENTE BLINDADA
+        // ==========================================
         window.handleAuthSubmit = async function() {
-            alert("O botão foi clicado!"); // Alerta para testar se o toque está funcionando
-
-            const email = document.getElementById('auth-email').value.trim();
-            const pass = document.getElementById('auth-password').value.trim();
-            const name = document.getElementById('auth-name').value.trim();
-            const errorBox = document.getElementById('auth-error');
-            errorBox.classList.add('hidden');
-
+            const btn = document.getElementById('auth-submit-btn');
+            const btnOriginalText = btn.innerText;
+            btn.innerText = "Processando..."; // Feedback visual de que o clique funcionou
+            
             try {
+                const email = document.getElementById('auth-email').value.trim();
+                const pass = document.getElementById('auth-password').value.trim();
+                const name = document.getElementById('auth-name').value.trim();
+                const errorBox = document.getElementById('auth-error');
+                errorBox.classList.add('hidden');
+
+                if (!email || !pass) {
+                    errorBox.innerText = "Erro: Preencha o e-mail e a senha.";
+                    errorBox.classList.remove('hidden');
+                    btn.innerText = btnOriginalText;
+                    return;
+                }
+
                 if(isRegistering) {
                     if(!name) {
-                        errorBox.innerText = "Por favor, digite seu nome ou apelido.";
+                        errorBox.innerText = "Erro: Por favor, digite seu nome ou apelido.";
                         errorBox.classList.remove('hidden');
+                        btn.innerText = btnOriginalText;
                         return;
                     }
                     const cred = await createUserWithEmailAndPassword(auth, email, pass);
                     await set(ref(db, `users/${cred.user.uid}`), { 
-                        name, 
-                        email, 
-                        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150", 
-                        banner: "", 
-                        online: true, 
-                        bio: "Inovando no Corse." 
+                        name, email, avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150", 
+                        banner: "", online: true, bio: "Inovando no Corse." 
                     });
                     showToast("Conta criada com sucesso!", "success");
                 } else {
                     await signInWithEmailAndPassword(auth, email, pass);
                 }
             } catch(e) {
-                console.error("Erro de Auth do Firebase:", e);
-                alert("Erro do Firebase: " + e.message); // Exibe o erro exato na tela do celular
+                console.error("Erro capturado do Firebase:", e);
+                const errorBox = document.getElementById('auth-error');
                 let msg = e.message;
-                if(e.code === 'auth/invalid-credential' || e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password') {
+                if(e.code === 'auth/invalid-credential' || e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password' || e.code === 'auth/invalid-email') {
                     msg = "E-mail não cadastrado ou senha incorreta.";
                 } else if(e.code === 'auth/email-already-in-use') {
                     msg = "Este e-mail já está em uso por outra conta.";
                 } else if(e.code === 'auth/weak-password') {
                     msg = "A senha deve ter pelo menos 6 caracteres.";
+                } else {
+                    msg = "Erro desconhecido (" + e.code + "). Tente novamente.";
                 }
                 errorBox.innerText = "Erro: " + msg;
                 errorBox.classList.remove('hidden');
+            } finally {
+                btn.innerText = btnOriginalText; // Volta o botão ao normal
             }
         }
 
@@ -1357,28 +1209,20 @@
                 document.getElementById('app-container').classList.add('hidden');
                 document.getElementById('auth-screen').classList.remove('hidden');
             }
-            lucide.createIcons();
+            try { lucide.createIcons(); } catch(e){}
         });
 
         window.logoutUser = async function() { 
-            if(currentUser) {
-                await set(ref(db, `users/${currentUser.uid}/online`), false);
-            }
+            if(currentUser) await set(ref(db, `users/${currentUser.uid}/online`), false);
             await signOut(auth);
-            showToast("Você saiu da conta com sucesso.", "info");
+            showToast("Você saiu da conta.", "info");
         }
 
         window.switchTab = function(tabId) {
-            if (activeChatId) {
-                closeActiveChat();
-            }
-
+            if (activeChatId) closeActiveChat();
             const reelsFeed = document.getElementById('reels-feed');
-            if (tabId !== 'reels' && reelsFeed) {
-                reelsFeed.innerHTML = "";
-            } else if (tabId === 'reels') {
-                listenReels();
-            }
+            if (tabId !== 'reels' && reelsFeed) reelsFeed.innerHTML = "";
+            else if (tabId === 'reels') listenReels();
 
             document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
@@ -1506,7 +1350,7 @@
                     feed.insertAdjacentHTML('beforeend', postCardHtml);
                     if(isMyPost) myFeed.insertAdjacentHTML('beforeend', postCardHtml);
                 });
-                lucide.createIcons();
+                try { lucide.createIcons(); } catch(e){}
             });
         }
 
@@ -1551,20 +1395,14 @@
                 const g = globalGroupsCache[gId];
                 const rId = `group_${gId}`;
                 const chatMsgs = allChatsData[rId] || {};
-                
                 let lastMsgText = "Toque para abrir o grupo";
                 let hasUnread = false;
-                
                 const msgKeys = Object.keys(chatMsgs);
                 if(msgKeys.length > 0) {
                     const lastM = chatMsgs[msgKeys[msgKeys.length - 1]];
                     lastMsgText = `${lastM.senderName || 'Membro'}: ${lastM.text}`;
-                    if(!lastM.read && lastM.senderUid !== currentUser.uid) {
-                        hasUnread = true;
-                        totalUnreadChats++;
-                    }
+                    if(!lastM.read && lastM.senderUid !== currentUser.uid) { hasUnread = true; totalUnreadChats++; }
                 }
-
                 const glowClass = hasUnread ? 'ring-2 ring-fuchsia-500 unread-glow' : 'border border-slate-800';
 
                 itemsHtml += `
@@ -1575,9 +1413,7 @@
                                 ${hasUnread ? '<span class="absolute top-0 right-0 w-3.5 h-3.5 bg-fuchsia-500 rounded-full border-2 border-slate-950"></span>' : ''}
                             </div>
                             <div>
-                                <h4 class="font-bold text-xs text-slate-100 flex items-center gap-1.5">
-                                    <span>👥 ${escapeHtml(g.name)}</span>
-                                </h4>
+                                <h4 class="font-bold text-xs text-slate-100 flex items-center gap-1.5"><span>👥 ${escapeHtml(g.name)}</span></h4>
                                 <p class="text-[11px] text-slate-400 truncate max-w-[200px] mt-0.5">${escapeHtml(lastMsgText)}</p>
                             </div>
                         </div>
@@ -1590,23 +1426,17 @@
                 if(uid === currentUser.uid) return;
                 const u = globalUsersCache[uid];
                 const isFriend = !!globalFriendsCache[uid];
-                
                 const rId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
                 const chatMsgs = allChatsData[rId] || {};
 
                 let lastMsgText = u.online ? "Online agora" : "Toque para conversar";
                 let hasUnread = false;
-
                 const msgKeys = Object.keys(chatMsgs);
                 if(msgKeys.length > 0) {
                     const lastM = chatMsgs[msgKeys[msgKeys.length - 1]];
                     lastMsgText = lastM.text;
-                    if(!lastM.read && lastM.senderUid !== currentUser.uid) {
-                        hasUnread = true;
-                        totalUnreadChats++;
-                    }
+                    if(!lastM.read && lastM.senderUid !== currentUser.uid) { hasUnread = true; totalUnreadChats++; }
                 }
-
                 const glowClass = hasUnread ? 'ring-2 ring-fuchsia-500 unread-glow' : 'border border-slate-800';
 
                 itemsHtml += `
@@ -1627,16 +1457,12 @@
             });
 
             list.innerHTML = itemsHtml || `<div class="text-center py-8 text-slate-500 text-xs">Nenhuma conversa encontrada.</div>`;
-
             const chatBadge = document.getElementById('unread-chat-badge');
             const navChatDot = document.getElementById('nav-chat-dot');
             if(totalUnreadChats > 0) {
-                chatBadge.innerText = totalUnreadChats;
-                chatBadge.classList.remove('hidden');
-                navChatDot.classList.remove('hidden');
+                chatBadge.innerText = totalUnreadChats; chatBadge.classList.remove('hidden'); navChatDot.classList.remove('hidden');
             } else {
-                chatBadge.classList.add('hidden');
-                navChatDot.classList.add('hidden');
+                chatBadge.classList.add('hidden'); navChatDot.classList.add('hidden');
             }
         }
 
@@ -1646,28 +1472,18 @@
         window.submitCreateGroup = async function() {
             const name = document.getElementById('group-name-input').value.trim();
             const avatar = document.getElementById('group-avatar-input').value.trim();
-            if(!name) {
-                showToast("Digite o nome do grupo ou canal.", "info");
-                return;
-            }
-
+            if(!name) { showToast("Digite o nome do grupo ou canal.", "info"); return; }
             await push(ref(db, 'groups'), {
-                name,
-                avatar: avatar || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150",
-                creatorUid: currentUser.uid,
-                timestamp: Date.now()
+                name, avatar: avatar || "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150",
+                creatorUid: currentUser.uid, timestamp: Date.now()
             });
-
-            closeCreateGroupModal();
-            showToast("Grupo ou canal criado com sucesso!", "success");
-            document.getElementById('group-name-input').value = "";
-            document.getElementById('group-avatar-input').value = "";
+            closeCreateGroupModal(); showToast("Grupo ou canal criado com sucesso!", "success");
+            document.getElementById('group-name-input').value = ""; document.getElementById('group-avatar-input').value = "";
         }
 
         window.sendFriendRequest = async function(targetUid, targetName) {
             await set(ref(db, `friendRequests/${targetUid}/${currentUser.uid}`), {
-                fromUid: currentUser.uid,
-                fromName: document.getElementById('profile-name').innerText,
+                fromUid: currentUser.uid, fromName: document.getElementById('profile-name').innerText,
                 fromAvatar: document.getElementById('profile-avatar-img').src
             });
             showToast(`Solicitação enviada para ${targetName}!`, "success");
@@ -1685,20 +1501,13 @@
                     notifBadge.classList.add('hidden'); navNotifDot.classList.add('hidden');
                     return;
                 }
-                container.innerHTML = "";
-                notifBadge.classList.remove('hidden'); navNotifDot.classList.remove('hidden');
+                container.innerHTML = ""; notifBadge.classList.remove('hidden'); navNotifDot.classList.remove('hidden');
 
                 Object.keys(reqs).forEach(uid => {
                     const r = reqs[uid];
                     container.insertAdjacentHTML('beforeend', `
                         <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800">
-                            <div class="flex items-center gap-3">
-                                <img src="${r.fromAvatar}" class="w-9 h-9 rounded-full object-cover" loading="lazy">
-                                <div>
-                                    <h4 class="font-semibold text-xs text-slate-100">${escapeHtml(r.fromName)}</h4>
-                                    <p class="text-[10px] text-slate-400">Quer se conectar com você</p>
-                                </div>
-                            </div>
+                            <div class="flex items-center gap-3"><img src="${r.fromAvatar}" class="w-9 h-9 rounded-full object-cover" loading="lazy"><div><h4 class="font-semibold text-xs text-slate-100">${escapeHtml(r.fromName)}</h4><p class="text-[10px] text-slate-400">Quer se conectar com você</p></div></div>
                             <div class="flex gap-2">
                                 <button onclick="acceptFriend('${r.fromUid}', '${escapeHtml(r.fromName)}')" class="bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer">Aceitar</button>
                                 <button onclick="rejectFriend('${r.fromUid}')" class="bg-slate-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer">Recusar</button>
@@ -1727,30 +1536,20 @@
             onValue(ref(db, `typing/${rId}`), (snap) => {
                 const typingObj = snap.val() || {};
                 let someoneTyping = false;
-                Object.keys(typingObj).forEach(u => {
-                    if (u !== currentUser.uid && typingObj[u]) someoneTyping = true;
-                });
+                Object.keys(typingObj).forEach(u => { if (u !== currentUser.uid && typingObj[u]) someoneTyping = true; });
                 const indicator = document.getElementById('chat-typing-indicator');
-                if (someoneTyping) indicator.classList.remove('hidden');
-                else indicator.classList.add('hidden');
+                if (someoneTyping) indicator.classList.remove('hidden'); else indicator.classList.add('hidden');
             });
 
-            if (activeChatUnsubscribe) {
-                activeChatUnsubscribe();
-            }
+            if (activeChatUnsubscribe) activeChatUnsubscribe();
 
             activeChatUnsubscribe = onValue(ref(db, `chats/${rId}`), (snap) => {
-                const box = document.getElementById('chat-messages'); 
-                box.innerHTML = ""; 
-                const msgs = snap.val() || {};
-                let unreadUpdates = {};
+                const box = document.getElementById('chat-messages'); box.innerHTML = ""; 
+                const msgs = snap.val() || {}; let unreadUpdates = {};
 
                 Object.keys(msgs).forEach(k => {
                     const m = msgs[k], isMe = m.senderUid === currentUser.uid;
-                    
-                    if (!isMe && !m.read) {
-                        unreadUpdates[`${k}/read`] = true;
-                    }
+                    if (!isMe && !m.read) unreadUpdates[`${k}/read`] = true;
 
                     let checkmarks = isMe ? (m.read ? '<span class="text-[10px] text-emerald-400">✓✓</span>' : '<span class="text-[10px] text-slate-400">✓</span>') : '';
                     let imgHtml = m.image ? `<img src="${m.image}" class="mt-2 rounded-xl max-w-full h-32 object-cover" loading="lazy">` : '';
@@ -1759,33 +1558,20 @@
                     box.insertAdjacentHTML('beforeend', `
                         <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
                             <div class="px-3.5 py-2.5 rounded-2xl text-xs max-w-[80%] ${isMe ? 'bg-violet-600 text-white' : 'bg-slate-800 text-slate-200'}">
-                                ${senderLabel}
-                                ${escapeHtml(m.text)}
-                                ${imgHtml}
+                                ${senderLabel}${escapeHtml(m.text)}${imgHtml}
                                 <div class="flex justify-end gap-1 mt-1">${checkmarks}</div>
                             </div>
                         </div>
                     `);
                 });
-
-                setTimeout(() => {
-                    box.scrollTop = box.scrollHeight;
-                }, 50);
-
-                if (Object.keys(unreadUpdates).length > 0) {
-                    setTimeout(() => {
-                        update(ref(db, `chats/${rId}`), unreadUpdates);
-                    }, 100);
-                }
+                setTimeout(() => { box.scrollTop = box.scrollHeight; }, 50);
+                if (Object.keys(unreadUpdates).length > 0) setTimeout(() => { update(ref(db, `chats/${rId}`), unreadUpdates); }, 100);
             });
         }
 
         window.closeActiveChat = function() {
             activeChatId = null;
-            if(activeChatUnsubscribe) {
-                activeChatUnsubscribe();
-                activeChatUnsubscribe = null;
-            }
+            if(activeChatUnsubscribe) { activeChatUnsubscribe(); activeChatUnsubscribe = null; }
             document.getElementById('active-chat-view').classList.add('hidden');
         }
 
@@ -1793,9 +1579,7 @@
             if(!activeChatId) return;
             set(ref(db, `typing/${activeChatId}/${currentUser.uid}`), true);
             if(typingTimeout) clearTimeout(typingTimeout);
-            typingTimeout = setTimeout(() => {
-                set(ref(db, `typing/${activeChatId}/${currentUser.uid}`), false);
-            }, 2000);
+            typingTimeout = setTimeout(() => { set(ref(db, `typing/${activeChatId}/${currentUser.uid}`), false); }, 2000);
         }
 
         window.handleChatTypingInput = function(inputEl) {
@@ -1803,14 +1587,8 @@
             const val = inputEl.value.trim();
             const actionButtons = document.getElementById('chat-action-buttons');
             const sendContainer = document.getElementById('chat-send-container');
-
-            if (val.length > 0) {
-                actionButtons.classList.add('hidden');
-                sendContainer.classList.remove('hidden');
-            } else {
-                actionButtons.classList.remove('hidden');
-                sendContainer.classList.add('hidden');
-            }
+            if (val.length > 0) { actionButtons.classList.add('hidden'); sendContainer.classList.remove('hidden'); } 
+            else { actionButtons.classList.remove('hidden'); sendContainer.classList.add('hidden'); }
         }
 
         window.handleChatImageSelect = e => {
@@ -1821,31 +1599,16 @@
             }
         }
         window.clearChatImage = () => { chatImageBase64 = ""; document.getElementById('chat-image-preview-bar').classList.add('hidden'); }
-        window.insertChatEmoji = emoji => { 
-            const inp = document.getElementById('chat-input'); 
-            inp.value += emoji; 
-            inp.focus(); 
-            handleChatTypingInput(inp);
-        }
+        window.insertChatEmoji = emoji => { const inp = document.getElementById('chat-input'); inp.value += emoji; inp.focus(); handleChatTypingInput(inp); }
 
         window.sendChatMessage = async function() {
-            const inputEl = document.getElementById('chat-input');
-            const text = inputEl.value.trim();
-            if(!text && !chatImageBase64) return;
-            if(!activeChatId) return;
-
+            const inputEl = document.getElementById('chat-input'); const text = inputEl.value.trim();
+            if(!text && !chatImageBase64) return; if(!activeChatId) return;
             await push(ref(db, `chats/${activeChatId}`), {
-                senderUid: currentUser.uid,
-                senderName: document.getElementById('profile-name').innerText,
-                text: text || "📷 Imagem",
-                image: chatImageBase64 || "",
-                read: false,
-                timestamp: Date.now()
+                senderUid: currentUser.uid, senderName: document.getElementById('profile-name').innerText,
+                text: text || "📷 Imagem", image: chatImageBase64 || "", read: false, timestamp: Date.now()
             });
-
-            inputEl.value = "";
-            clearChatImage();
-            handleChatTypingInput(inputEl);
+            inputEl.value = ""; clearChatImage(); handleChatTypingInput(inputEl);
         }
 
         window.openUserProfile = function(uid) {
@@ -1864,7 +1627,7 @@
         }
         window.closeUserProfile = () => document.getElementById('user-profile-modal').classList.add('hidden');
 
-        lucide.createIcons();
+        try { lucide.createIcons(); } catch(e){}
     </script>
 </body>
 </html>
