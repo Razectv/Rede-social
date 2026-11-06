@@ -166,7 +166,7 @@
                     </button>
                 </div>
                 
-                <div id="reels-feed" class="reels-container-snap space-y-6 custom-scrollbar pr-1">
+                <div id="reels-feed" class="reels-container-snap space-y-6 custom-scrollbar pr-1" onscroll="handleReelsScroll()">
                     <div class="text-center py-12 text-slate-500 text-xs">Carregando vídeos...</div>
                 </div>
             </section>
@@ -542,7 +542,7 @@
         </div>
     </div>
 
-    <!-- LÓGICA E FIREBASE COMPLETA COM AUTODESTRUIÇÃO DE ÁUDIOS -->
+    <!-- LÓGICA E FIREBASE COM GESTÃO DE ÁUDIO DE VÍDEOS INTELIGENTE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -566,7 +566,6 @@
         let isSubmittingPost = false;
         let sharingPostData = null;
 
-        // Variáveis para gravação de áudio
         let mediaRecorder = null;
         let audioChunks = [];
         let recordingTimerInterval = null;
@@ -788,19 +787,19 @@
             const caption = document.getElementById('reel-caption-input').value.trim();
             if(!rawLink) { showToast("Cole o link de um YouTube Shorts.", "info"); return; }
 
-            let embedUrl = "";
+            let videoId = "";
             if (rawLink.includes("shorts/")) {
-                const videoId = rawLink.split("shorts/")[1].split("?")[0];
-                embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&loop=1&playlist=${videoId}`;
+                videoId = rawLink.split("shorts/")[1].split("?")[0];
             } else if (rawLink.includes("youtu.be/")) {
-                const videoId = rawLink.split("youtu.be/")[1].split("?")[0];
-                embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&loop=1&playlist=${videoId}`;
+                videoId = rawLink.split("youtu.be/")[1].split("?")[0];
             } else if (rawLink.includes("watch?v=")) {
-                const videoId = new URLSearchParams(rawLink.split('?')[1]).get('v');
-                embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&loop=1&playlist=${videoId}`;
+                videoId = new URLSearchParams(rawLink.split('?')[1]).get('v');
             } else {
                 showToast("Link inválido. Use um link do YouTube Shorts.", "info"); return;
             }
+
+            // Parâmetros otimizados do YouTube IFrame API para som inteligente e controles limpios
+            const embedUrl = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1&mute=0&controls=1&loop=1&playlist=${videoId}`;
 
             try {
                 await push(ref(db, 'reels'), {
@@ -835,11 +834,17 @@
                 keys.forEach((reelId, index) => {
                     const r = data[reelId];
                     const likesObj = r.likes || {}, likesCount = Object.keys(likesObj).length, iLiked = !!likesObj[currentUser.uid];
-                    const finalEmbedUrl = index === 0 ? r.embedUrl : r.embedUrl.replace('autoplay=1', 'autoplay=0');
+                    // O primeiro vídeo reproduz com som habilitado, os demais ficam pausados/mutados até o scroll
+                    const isFirst = index === 0;
+                    let currentEmbed = r.embedUrl;
+                    if (!isFirst) {
+                        currentEmbed = currentEmbed.replace('autoplay=1', 'autoplay=0').replace('mute=0', 'mute=1');
+                    }
+
                     container.insertAdjacentHTML('beforeend', `
-                        <div class="reel-item-snap bg-[#121212] border border-[#262626] rounded-3xl overflow-hidden shadow-xl relative flex flex-col h-[75vh]">
+                        <div class="reel-item-snap bg-[#121212] border border-[#262626] rounded-3xl overflow-hidden shadow-xl relative flex flex-col h-[75vh]" data-reel-id="${reelId}">
                             <div class="relative w-full flex-1 bg-black">
-                                <iframe src="${finalEmbedUrl}" class="w-full h-full border-0 pointer-events-auto" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                                <iframe id="iframe-${reelId}" src="${currentEmbed}" class="w-full h-full border-0 pointer-events-auto" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                             </div>
                             <div class="p-4 space-y-2 bg-[#121212]/90 backdrop-blur-md flex-shrink-0">
                                 <div class="flex items-center justify-between">
@@ -861,6 +866,32 @@
                     `);
                 });
                 try { lucide.createIcons(); } catch(e){}
+            });
+        }
+
+        // Lógica inteligente de Scroll: Quando passa para outro vídeo, muta/para o anterior e ativa o atual
+        window.handleReelsScroll = function() {
+            const container = document.getElementById('reels-feed');
+            if(!container) return;
+            const items = container.querySelectorAll('.reel-item-snap');
+            const containerTop = container.scrollTop;
+
+            items.forEach((item, idx) => {
+                const rect = item.offsetTop;
+                const iframe = item.querySelector('iframe');
+                if(!iframe) return;
+                
+                const distance = Math.abs(containerTop - rect);
+                // Se o vídeo estiver visível na tela
+                if (distance < 200) {
+                    if (iframe.src.includes('autoplay=0')) {
+                        iframe.src = iframe.src.replace('autoplay=0', 'autoplay=1').replace('mute=1', 'mute=0');
+                    }
+                } else {
+                    if (iframe.src.includes('autoplay=1')) {
+                        iframe.src = iframe.src.replace('autoplay=1', 'autoplay=0').replace('mute=0', 'mute=1');
+                    }
+                }
             });
         }
 
@@ -1570,7 +1601,6 @@
                     const m = msgs[k], isMe = m.senderUid === currentUser.uid;
                     if (!isMe && !m.read) unreadUpdates[`${k}/read`] = true;
 
-                    // Regra de autodestruição de áudio (mais de 5 min após o 1º play)
                     if (m.text && m.text.startsWith('data:audio')) {
                         let firstPlayed = m.firstPlayedTime || 0;
                         let now = Date.now();
