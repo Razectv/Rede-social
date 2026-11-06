@@ -5,8 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Corse - Conecte-se com estilo</title>
     
-    <link rel="icon" type="image/png" sizes="192x192" href="logo-icon.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="logo-icon.png">
+    <!-- CONFIGURAÇÕES DE PWA E ÍCONES PARA IOS E ANDROID -->
+    <link rel="icon" type="image/png" sizes="192x192" href="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=192">
+    <link rel="apple-touch-icon" sizes="180x180" href="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=180">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Corse">
+    <meta name="theme-color" content="#0b0f19">
+
+    <!-- MANIFEST DINÂMICO PWA PARA INSTALAÇÃO -->
+    <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiQ29yc2UiLCJzaG9ydF9uYW1lIjoiQ29yc2UiLCJzdGFydF91cmwiOiIvIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzBiMGYxOSIsInRoZW1lX2NvbG9yIjoiIzBiMGYxOSIsImljb25zIjpbeyJzcmMiOiJodHRwczovL2ltYWdlcy51bnNwbGFzaC5jb20vcGhvdG8tMTYxODAwNTE4MjM4NC1hODNhOGJkNTdmYmU/dz0xOTIiLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiaW1hZ2UvcG5nIn0seyJzcmMiOiJodHRwczovL2ltYWdlcy51bnNwbGFzaC5jb20vcGhvdG8tMTYxODAwNTE4MjM4NC1hODNhOGJkNTdmYmU/dz01MTIiLCJzaXplcyI6IjUxMng1MTIiLCJ0eXBlIjoiaW1hZ2UvcG5nIn1dfQ==">
 
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
@@ -130,7 +138,7 @@
                 </div>
             </section>
 
-            <!-- ABA 3: CHAT, AMIGOS, GRUPOS E COMUNIDADES (OTIMIZADO MOBILE) -->
+            <!-- ABA 3: CHAT, AMIGOS, GRUPOS E COMUNIDADES -->
             <section id="tab-friends" class="space-y-4 px-4 hidden">
                 <div id="chat-container-view" class="space-y-4">
                     <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 shadow-xl space-y-3">
@@ -148,7 +156,7 @@
                     </div>
                 </div>
 
-                <!-- TELA DA CONVERSA ABERTA (FIXADA COM ROLAGEM PERFEITA) -->
+                <!-- TELA DA CONVERSA ABERTA -->
                 <div id="active-chat-view" class="bg-slate-900 border border-slate-800 rounded-2xl p-3 shadow-xl flex flex-col h-[75vh] hidden">
                     <div class="border-b border-slate-800 pb-2 mb-2 flex items-center justify-between flex-shrink-0">
                         <div class="flex items-center gap-2.5">
@@ -162,16 +170,13 @@
                         <span id="chat-typing-indicator" class="text-[10px] text-violet-400 italic hidden">digitando...</span>
                     </div>
 
-                    <!-- CAIXA DE MENSAGENS COM ROLAGEM AUTOMÁTICA -->
                     <div id="chat-messages" class="flex-1 overflow-y-auto custom-scrollbar space-y-2.5 pr-1 mb-2"></div>
 
-                    <!-- BARRA DE PREVIEW DE IMAGEM -->
                     <div id="chat-image-preview-bar" class="hidden relative mb-2 p-2 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between flex-shrink-0">
                         <span class="text-[10px] text-violet-400 truncate">Imagem pronta para envio</span>
                         <button onclick="clearChatImage()" class="text-red-400 text-xs font-bold cursor-pointer">Remover</button>
                     </div>
 
-                    <!-- CAMPO DE DIGITAÇÃO FIXO NA PARTE INFERIOR -->
                     <div class="flex items-center gap-1.5 pt-2 border-t border-slate-800 bg-slate-900 w-full flex-shrink-0">
                         <label class="cursor-pointer text-slate-400 hover:text-violet-400 p-1 flex-shrink-0"><i data-lucide="image" class="w-5 h-5"></i><input type="file" accept="image/*" class="hidden" onchange="handleChatImageSelect(event)"></label>
                         <input type="text" id="chat-input" placeholder="Digite sua mensagem..." oninput="notifyTyping()" class="flex-1 min-w-0 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-violet-500">
@@ -192,7 +197,7 @@
                 </div>
             </section>
 
-            <!-- ABA 5: PERFIL (COM BOTÃO DE SAIR DA CONTA) -->
+            <!-- ABA 5: PERFIL -->
             <section id="tab-profile" class="space-y-4 px-4 hidden">
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
                     <div id="profile-banner-container" class="h-36 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-indigo-600 relative bg-cover bg-center">
@@ -220,30 +225,32 @@
             </section>
         </main>
 
-        <!-- BARRA DE NAVEGAÇÃO INFERIOR (BOTÃO '+' PERFEITAMENTE NO CENTRO) -->
-        <nav class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-xl bg-[#0b0f19]/95 backdrop-blur-lg border-t border-slate-900 z-40 px-4 py-2 flex justify-around items-center text-xs">
-            <button onclick="switchTab('feed')" id="nav-feed" class="flex flex-col items-center gap-1 text-violet-400 font-semibold cursor-pointer transition-all p-1">
+        <!-- BARRA DE NAVEGAÇÃO INFERIOR (GRID DE 5 COLUNAS SIMÉTRICAS) -->
+        <nav class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-xl bg-[#0b0f19]/95 backdrop-blur-lg border-t border-slate-900 z-40 px-2 py-2 grid grid-cols-5 items-center text-xs">
+            <button onclick="switchTab('feed')" id="nav-feed" class="flex flex-col items-center justify-center gap-1 text-violet-400 font-semibold cursor-pointer transition-all p-1">
                 <i data-lucide="home" class="w-5 h-5"></i>
                 <span class="text-[10px]">Início</span>
             </button>
-            <button onclick="switchTab('communities')" id="nav-communities" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-all p-1">
+            <button onclick="switchTab('communities')" id="nav-communities" class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-all p-1">
                 <i data-lucide="compass" class="w-5 h-5"></i>
                 <span class="text-[10px]">Explorar</span>
             </button>
             
-            <!-- BOTÃO DE CRIAR POST EXATAMENTE NO CENTRO -->
-            <button onclick="triggerCreatePost()" class="w-12 h-12 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 text-white flex items-center justify-center shadow-lg shadow-violet-600/40 hover:scale-105 transition-all cursor-pointer">
-                <i data-lucide="plus" class="w-6 h-6"></i>
-            </button>
+            <!-- BOTÃO DE CRIAR POST EXATAMENTE NO CENTRO GEOMÉTRICO (COLUNA 3 DE 5) -->
+            <div class="flex items-center justify-center">
+                <button onclick="triggerCreatePost()" class="w-12 h-12 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 text-white flex items-center justify-center shadow-lg shadow-violet-600/40 hover:scale-105 transition-all cursor-pointer">
+                    <i data-lucide="plus" class="w-6 h-6"></i>
+                </button>
+            </div>
 
-            <button onclick="switchTab('notifications')" id="nav-notifications" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-all relative p-1">
+            <button onclick="switchTab('notifications')" id="nav-notifications" class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-all relative p-1">
                 <i data-lucide="bell" class="w-5 h-5"></i>
-                <span id="nav-notif-dot" class="absolute top-1 right-2 w-2 h-2 rounded-full bg-fuchsia-500 hidden"></span>
+                <span id="nav-notif-dot" class="absolute top-1 right-2.5 w-2 h-2 rounded-full bg-fuchsia-500 hidden"></span>
                 <span class="text-[10px]">Notificações</span>
             </button>
-            <button onclick="switchTab('friends')" id="nav-friends" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-all relative p-1">
+            <button onclick="switchTab('friends')" id="nav-friends" class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-all relative p-1">
                 <i data-lucide="message-circle" class="w-5 h-5"></i>
-                <span id="nav-chat-dot" class="absolute top-1 right-2 w-2 h-2 rounded-full bg-fuchsia-500 hidden"></span>
+                <span id="nav-chat-dot" class="absolute top-1 right-2.5 w-2 h-2 rounded-full bg-fuchsia-500 hidden"></span>
                 <span class="text-[10px]">Mensagens</span>
             </button>
         </nav>
@@ -1069,15 +1076,14 @@
             document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
             
-            // Atualiza destaque na barra inferior
             document.querySelectorAll('nav button').forEach(b => { 
-                if(!b.classList.contains('bg-gradient-to-tr')) {
-                    b.className = "flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-all p-1";
+                if(!b.closest('.flex.items-center.justify-center')) {
+                    b.className = "flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-all p-1";
                 }
             });
             const btn = document.getElementById(`nav-${tabId}`);
-            if(btn && !btn.classList.contains('bg-gradient-to-tr')) {
-                btn.className = "flex flex-col items-center gap-1 text-violet-400 font-semibold cursor-pointer transition-all p-1";
+            if(btn && !btn.closest('.flex.items-center.justify-center')) {
+                btn.className = "flex flex-col items-center justify-center gap-1 text-violet-400 font-semibold cursor-pointer transition-all p-1";
             }
         }
 
@@ -1451,7 +1457,6 @@
                         </div>
                     `);
                 });
-                // Rola para baixo automaticamente de forma suave
                 box.scrollTop = box.scrollHeight;
             });
         }
