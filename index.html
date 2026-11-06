@@ -475,18 +475,18 @@
     <!-- INPUT GLOBAL PARA GALERIA -->
     <input type="file" id="global-media-input" accept="image/*" class="hidden" onchange="handleNewMediaSelected(event)">
 
-    <!-- MODAL DE CRIAR POST / STORY -->
+    <!-- MODAL DE CRIAR POST / STORY (COM BOTÃO DE PUBLICAR GARANTIDO) -->
     <div id="create-post-modal" class="fixed inset-0 bg-black z-50 hidden flex flex-col justify-between p-4">
-        <div class="flex justify-between items-center py-3 z-25 bg-black/80 backdrop-blur-md rounded-2xl px-4 shadow-xl">
+        <!-- BARRA SUPERIOR FIXA COM BOTÕES DE FECHAR, SELETOR E PUBLICAR -->
+        <div class="absolute top-4 inset-x-4 z-40 flex justify-between items-center bg-black/85 backdrop-blur-md p-3 rounded-2xl border border-white/20 shadow-2xl">
             <button onclick="closeCreatePostModal()" class="text-white p-2 cursor-pointer bg-[#262626] rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
             
-            <!-- SELETOR STORY OU FEED -->
             <div class="flex bg-[#1a1a1a] p-1 rounded-full border border-[#262626]">
-                <button id="btn-mode-story" onclick="setPublishMode('story')" class="px-4 py-1.5 rounded-full text-xs font-bold bg-violet-600 text-white transition-all cursor-pointer">Story</button>
-                <button id="btn-mode-feed" onclick="setPublishMode('feed')" class="px-4 py-1.5 rounded-full text-xs font-bold text-slate-400 hover:text-white transition-all cursor-pointer">Feed / Post</button>
+                <button id="btn-mode-story" onclick="setPublishMode('story')" class="px-3 py-1.5 rounded-full text-xs font-bold bg-violet-600 text-white transition-all cursor-pointer">Story</button>
+                <button id="btn-mode-feed" onclick="setPublishMode('feed')" class="px-3 py-1.5 rounded-full text-xs font-bold text-slate-400 hover:text-white transition-all cursor-pointer">Feed</button>
             </div>
 
-            <button onclick="submitNewPost()" id="submit-post-btn" class="bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white px-5 py-2.5 rounded-full text-xs font-bold cursor-pointer shadow-lg hover:opacity-90 transition-all">Publicar Story</button>
+            <button onclick="submitNewPost()" id="submit-post-btn" class="bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white px-4 py-2 rounded-full text-xs font-bold cursor-pointer shadow-lg hover:opacity-90 transition-all">Publicar</button>
         </div>
 
         <!-- TELA CHEIA DA FOTO -->
@@ -550,7 +550,7 @@
         </div>
     </div>
 
-    <!-- MODAL DE SELEÇÃO DE MÚSICA (COM REFRÃO AUTOMÁTICO) -->
+    <!-- MODAL DE SELEÇÃO DE MÚSICA (REFRÃO AUTOMÁTICO) -->
     <div id="music-picker-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[60] hidden flex flex-col justify-end sm:items-center sm:justify-center p-0 sm:p-4">
         <div class="bg-[#121212] border border-[#262626] rounded-t-3xl sm:rounded-3xl w-full max-w-md h-[80vh] sm:h-[550px] flex flex-col shadow-2xl overflow-hidden">
             
@@ -561,7 +561,6 @@
                 <button onclick="closeMusicPickerModal()" class="text-slate-400 cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
 
-            <!-- BARRA DE PESQUISA -->
             <div class="p-4 bg-black/40 border-b border-[#262626]">
                 <div class="relative flex items-center">
                     <i data-lucide="search" class="absolute left-3 w-4 h-4 text-slate-400"></i>
@@ -569,7 +568,6 @@
                 </div>
             </div>
 
-            <!-- LISTA DE MÚSICAS -->
             <div class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3" id="music-results-container">
                 <div class="text-xs font-bold text-violet-400 mb-2">🔥 Mais Usadas & Sugestões Agro/Sertanejo (Refrão)</div>
                 <div id="default-agro-music-list" class="space-y-2"></div>
@@ -665,7 +663,6 @@
         let activeAudioPreviewElement = null;
         let publishTargetMode = 'story'; 
 
-        // CATÁLOGO COM O TEMPO DO REFRÃO (EM SEGUNDOS) PARA CADA MÚSICA
         const AGRO_MUSIC_CATALOG = [
             { title: "Leão", artist: "Marília Mendonça", cover: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=150", previewUrl: "https://cdn.pixabay.com/download/audio/2022/05/16/audio_db34789311.mp3?filename=country-rock-109966.mp3", chorusTime: 25 },
             { title: "Zona de Perigo", artist: "Gusttavo Lima", cover: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=150", previewUrl: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c2a74797.mp3?filename=energetic-indie-rock-105151.mp3", chorusTime: 30 },
@@ -746,13 +743,13 @@
             const submitBtn = document.getElementById('submit-post-btn');
 
             if(mode === 'story') {
-                btnStory.className = "px-4 py-1.5 rounded-full text-xs font-bold bg-violet-600 text-white transition-all cursor-pointer";
-                btnFeed.className = "px-4 py-1.5 rounded-full text-xs font-bold text-slate-400 hover:text-white transition-all cursor-pointer";
+                btnStory.className = "px-3 py-1.5 rounded-full text-xs font-bold bg-violet-600 text-white transition-all cursor-pointer";
+                btnFeed.className = "px-3 py-1.5 rounded-full text-xs font-bold text-slate-400 hover:text-white transition-all cursor-pointer";
                 submitBtn.innerText = "Publicar Story";
             } else {
-                btnFeed.className = "px-4 py-1.5 rounded-full text-xs font-bold bg-violet-600 text-white transition-all cursor-pointer";
-                btnStory.className = "px-4 py-1.5 rounded-full text-xs font-bold text-slate-400 hover:text-white transition-all cursor-pointer";
-                submitBtn.innerText = "Publicar no Feed";
+                btnFeed.className = "px-3 py-1.5 rounded-full text-xs font-bold bg-violet-600 text-white transition-all cursor-pointer";
+                btnStory.className = "px-3 py-1.5 rounded-full text-xs font-bold text-slate-400 hover:text-white transition-all cursor-pointer";
+                submitBtn.innerText = "Publicar Feed";
             }
         }
 
@@ -858,7 +855,6 @@
             try { lucide.createIcons(); } catch(e){}
         }
 
-        // TOCA DIRETO NO REFRÃO DA MÚSICA
         window.previewTrackChorus = function(url, chorusTime) {
             if(activeAudioPreviewElement) {
                 activeAudioPreviewElement.pause();
@@ -866,7 +862,7 @@
             }
             if(url) {
                 const audio = new Audio(url);
-                audio.currentTime = chorusTime; // Pula direto para o refrão
+                audio.currentTime = chorusTime;
                 audio.play();
                 activeAudioPreviewElement = audio;
                 showToast("Tocando direto no refrão... 🎶", "info");
