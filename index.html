@@ -475,19 +475,25 @@
     <!-- INPUT GLOBAL PARA GALERIA -->
     <input type="file" id="global-media-input" accept="image/*" class="hidden" onchange="handleNewMediaSelected(event)">
 
-    <!-- MODAL DE CRIAR POST / STORY (ESTILO INSTAGRAM STORIES) -->
+    <!-- MODAL DE CRIAR POST / STORY -->
     <div id="create-post-modal" class="fixed inset-0 bg-black z-50 hidden flex flex-col justify-between p-4">
         <div class="flex justify-between items-center py-3 z-25 bg-black/80 backdrop-blur-md rounded-2xl px-4 shadow-xl">
             <button onclick="closeCreatePostModal()" class="text-white p-2 cursor-pointer bg-[#262626] rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
-            <h3 class="font-bold text-white text-sm">Novo Story com Estilo</h3>
-            <button onclick="submitNewStory()" class="bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white px-5 py-2.5 rounded-full text-xs font-bold cursor-pointer shadow-lg hover:opacity-90 transition-all">Publicar Story</button>
+            
+            <!-- SELETOR STORY OU FEED -->
+            <div class="flex bg-[#1a1a1a] p-1 rounded-full border border-[#262626]">
+                <button id="btn-mode-story" onclick="setPublishMode('story')" class="px-4 py-1.5 rounded-full text-xs font-bold bg-violet-600 text-white transition-all cursor-pointer">Story</button>
+                <button id="btn-mode-feed" onclick="setPublishMode('feed')" class="px-4 py-1.5 rounded-full text-xs font-bold text-slate-400 hover:text-white transition-all cursor-pointer">Feed / Post</button>
+            </div>
+
+            <button onclick="submitNewPost()" id="submit-post-btn" class="bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white px-5 py-2.5 rounded-full text-xs font-bold cursor-pointer shadow-lg hover:opacity-90 transition-all">Publicar Story</button>
         </div>
 
-        <!-- TELA CHEIA DA FOTO DO STORY -->
+        <!-- TELA CHEIA DA FOTO -->
         <div class="absolute inset-0 z-10 flex items-center justify-center bg-black overflow-hidden">
             <img id="new-post-image-preview" src="" class="w-full h-full object-cover">
             
-            <!-- ÁREA DOS EMOJIS E STICKERS ARRASTÁVEIS -->
+            <!-- EMOJIS E STICKERS ARRASTÁVEIS -->
             <div id="story-stickers-canvas" class="absolute inset-0 pointer-events-none"></div>
 
             <!-- PLAYER DE MÚSICA SELECIONADA NA PRÉVIA -->
@@ -505,7 +511,7 @@
             </div>
         </div>
 
-        <!-- MENU LATERAL DIREITO COM FERRAMENTAS DO INSTAGRAM -->
+        <!-- MENU LATERAL DIREITO -->
         <div class="absolute right-4 top-24 z-30 flex flex-col gap-3">
             <button onclick="openEmojiPicker()" class="w-12 h-12 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-lg hover:scale-105 transition-all cursor-pointer" title="Adicionar Emoji">
                 <i data-lucide="smile" class="w-6 h-6 text-fuchsia-400"></i>
@@ -544,13 +550,13 @@
         </div>
     </div>
 
-    <!-- MODAL DE SELEÇÃO DE MÚSICA (SISTEMA INTELIGENTE AGRO/SERTANEJO) -->
+    <!-- MODAL DE SELEÇÃO DE MÚSICA (COM REFRÃO AUTOMÁTICO) -->
     <div id="music-picker-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[60] hidden flex flex-col justify-end sm:items-center sm:justify-center p-0 sm:p-4">
         <div class="bg-[#121212] border border-[#262626] rounded-t-3xl sm:rounded-3xl w-full max-w-md h-[80vh] sm:h-[550px] flex flex-col shadow-2xl overflow-hidden">
             
             <div class="p-4 border-b border-[#262626] flex justify-between items-center bg-black">
                 <h3 class="font-bold text-slate-100 text-sm flex items-center gap-2">
-                    <i data-lucide="music" class="w-4 h-4 text-violet-400"></i> Adicionar Música
+                    <i data-lucide="music" class="w-4 h-4 text-violet-400"></i> Adicionar Música (Direto no Refrão)
                 </h3>
                 <button onclick="closeMusicPickerModal()" class="text-slate-400 cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
@@ -565,7 +571,7 @@
 
             <!-- LISTA DE MÚSICAS -->
             <div class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3" id="music-results-container">
-                <div class="text-xs font-bold text-violet-400 mb-2">🔥 Mais Usadas & Sugestões Agro/Sertanejo</div>
+                <div class="text-xs font-bold text-violet-400 mb-2">🔥 Mais Usadas & Sugestões Agro/Sertanejo (Refrão)</div>
                 <div id="default-agro-music-list" class="space-y-2"></div>
             </div>
         </div>
@@ -654,19 +660,19 @@
         let currentStoryIndex = 0;
         let activeChatUnsubscribe = null;
 
-        // ESTADOS DO NOVO STORY (ESTILO INSTAGRAM)
         let storyStickersList = []; 
         let storySelectedMusic = null; 
         let activeAudioPreviewElement = null;
+        let publishTargetMode = 'story'; 
 
-        // CATÁLOGO ROBUSTO DE MÚSICAS AGRO E SERTANEJO (100% FUNCIONAL SEM ERROS DE CONEXÃO)
+        // CATÁLOGO COM O TEMPO DO REFRÃO (EM SEGUNDOS) PARA CADA MÚSICA
         const AGRO_MUSIC_CATALOG = [
-            { title: "Leão", artist: "Marília Mendonça", cover: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=150", previewUrl: "https://cdn.pixabay.com/download/audio/2022/05/16/audio_db34789311.mp3?filename=country-rock-109966.mp3" },
-            { title: "Zona de Perigo", artist: "Gusttavo Lima", cover: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=150", previewUrl: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c2a74797.mp3?filename=energetic-indie-rock-105151.mp3" },
-            { title: "Oi Balde", artist: "Zé Neto & Cristiano", cover: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=150", previewUrl: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=country-boy-987.mp3" },
-            { title: "Roça In Rio", artist: "Ana Castela", cover: "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=150", previewUrl: "https://cdn.pixabay.com/download/audio/2021/11/25/audio_9157291129.mp3?filename=acoustic-guitar-folk-8208.mp3" },
-            { title: "Nosso Quadro", artist: "Ana Castela", cover: "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=150", previewUrl: "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf756.mp3?filename=乡村-country-1122.mp3" },
-            { title: "Paz na Roça", artist: "Sertanejo Universitário", cover: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=150", previewUrl: "https://cdn.pixabay.com/download/audio/2022/03/24/audio_c653f53835.mp3?filename=happy-acoustic-guitar-108027.mp3" }
+            { title: "Leão", artist: "Marília Mendonça", cover: "https://images.unsplash.com/photo-1511671782779-c97d3d27a1d4?w=150", previewUrl: "https://cdn.pixabay.com/download/audio/2022/05/16/audio_db34789311.mp3?filename=country-rock-109966.mp3", chorusTime: 25 },
+            { title: "Zona de Perigo", artist: "Gusttavo Lima", cover: "https://images.unsplash.com/photo-1470225620780-dba8ba36b745?w=150", previewUrl: "https://cdn.pixabay.com/download/audio/2022/03/15/audio_c8c2a74797.mp3?filename=energetic-indie-rock-105151.mp3", chorusTime: 30 },
+            { title: "Oi Balde", artist: "Zé Neto & Cristiano", cover: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=150", previewUrl: "https://cdn.pixabay.com/download/audio/2022/01/18/audio_d0a13f69d2.mp3?filename=country-boy-987.mp3", chorusTime: 20 },
+            { title: "Roça In Rio", artist: "Ana Castela", cover: "https://images.unsplash.com/photo-1501386761578-eac5c94b800a?w=150", previewUrl: "https://cdn.pixabay.com/download/audio/2021/11/25/audio_9157291129.mp3?filename=acoustic-guitar-folk-8208.mp3", chorusTime: 15 },
+            { title: "Nosso Quadro", artist: "Ana Castela", cover: "https://images.unsplash.com/photo-1465847899084-d164df4dedc6?w=150", previewUrl: "https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf756.mp3?filename=乡村-country-1122.mp3", chorusTime: 22 },
+            { title: "Paz na Roça", artist: "Sertanejo Universitário", cover: "https://images.unsplash.com/photo-1508700115892-45ecd05ae2ad?w=150", previewUrl: "https://cdn.pixabay.com/download/audio/2022/03/24/audio_c653f53835.mp3?filename=happy-acoustic-guitar-108027.mp3", chorusTime: 18 }
         ];
 
         window.escapeHtml = text => (text || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -725,6 +731,7 @@
                     document.getElementById('story-stickers-canvas').innerHTML = "";
                     document.getElementById('story-selected-music-preview').classList.add('hidden');
                     isSubmittingPost = false;
+                    setPublishMode('story');
                     document.getElementById('create-post-modal').classList.remove('hidden');
                 }
                 r.readAsDataURL(e.target.files[0]);
@@ -732,7 +739,23 @@
         }
         window.closeCreatePostModal = () => document.getElementById('create-post-modal').classList.add('hidden');
 
-        // FUNÇÕES DE EMOJIS NO STORY
+        window.setPublishMode = function(mode) {
+            publishTargetMode = mode;
+            const btnStory = document.getElementById('btn-mode-story');
+            const btnFeed = document.getElementById('btn-mode-feed');
+            const submitBtn = document.getElementById('submit-post-btn');
+
+            if(mode === 'story') {
+                btnStory.className = "px-4 py-1.5 rounded-full text-xs font-bold bg-violet-600 text-white transition-all cursor-pointer";
+                btnFeed.className = "px-4 py-1.5 rounded-full text-xs font-bold text-slate-400 hover:text-white transition-all cursor-pointer";
+                submitBtn.innerText = "Publicar Story";
+            } else {
+                btnFeed.className = "px-4 py-1.5 rounded-full text-xs font-bold bg-violet-600 text-white transition-all cursor-pointer";
+                btnStory.className = "px-4 py-1.5 rounded-full text-xs font-bold text-slate-400 hover:text-white transition-all cursor-pointer";
+                submitBtn.innerText = "Publicar no Feed";
+            }
+        }
+
         window.openEmojiPicker = () => document.getElementById('emoji-picker-modal').classList.remove('hidden');
         window.closeEmojiPicker = () => document.getElementById('emoji-picker-modal').classList.add('hidden');
 
@@ -794,7 +817,6 @@
             document.removeEventListener('touchend', stopDragSticker);
         }
 
-        // SELETOR DE MÚSICA COM CATÁLOGO INTERNO ESTÁVEL
         window.openMusicPickerModal = function() {
             document.getElementById('music-picker-modal').classList.remove('hidden');
             renderMusicList(AGRO_MUSIC_CATALOG);
@@ -819,47 +841,49 @@
             tracks.forEach(track => {
                 container.insertAdjacentHTML('beforeend', `
                     <div class="flex items-center justify-between bg-black p-3 rounded-2xl border border-[#262626] hover:border-violet-500 transition-all">
-                        <div class="flex items-center gap-3 cursor-pointer flex-1" onclick="previewTrack('${track.previewUrl}')">
+                        <div class="flex items-center gap-3 cursor-pointer flex-1" onclick="previewTrackChorus('${track.previewUrl}', ${track.chorusTime})">
                             <div class="relative w-12 h-12 rounded-xl overflow-hidden flex-shrink-0">
                                 <img src="${track.cover}" class="w-full h-full object-cover">
                                 <div class="absolute inset-0 bg-black/40 flex items-center justify-center"><i data-lucide="play" class="w-5 h-5 text-white"></i></div>
                             </div>
                             <div class="truncate">
-                                <h4 class="font-bold text-xs text-slate-100 truncate">${escapeHtml(track.title)}</h4>
+                                <h4 class="font-bold text-xs text-slate-100 truncate">${escapeHtml(track.title)} <span class="text-[9px] text-violet-400 bg-violet-950/60 px-1.5 py-0.5 rounded ml-1">Refrão</span></h4>
                                 <p class="text-[11px] text-slate-400 truncate">${escapeHtml(track.artist)}</p>
                             </div>
                         </div>
-                        <button onclick="selectStoryMusic('${escapeHtml(track.title)}', '${escapeHtml(track.artist)}', '${track.cover}', '${track.previewUrl}')" class="bg-violet-600 hover:bg-violet-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer flex-shrink-0 ml-2">Usar</button>
+                        <button onclick="selectStoryMusic('${escapeHtml(track.title)}', '${escapeHtml(track.artist)}', '${track.cover}', '${track.previewUrl}', ${track.chorusTime})" class="bg-violet-600 hover:bg-violet-500 text-white px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer flex-shrink-0 ml-2">Usar</button>
                     </div>
                 `);
             });
             try { lucide.createIcons(); } catch(e){}
         }
 
-        window.previewTrack = function(url) {
+        // TOCA DIRETO NO REFRÃO DA MÚSICA
+        window.previewTrackChorus = function(url, chorusTime) {
             if(activeAudioPreviewElement) {
                 activeAudioPreviewElement.pause();
                 activeAudioPreviewElement = null;
             }
             if(url) {
                 const audio = new Audio(url);
+                audio.currentTime = chorusTime; // Pula direto para o refrão
                 audio.play();
                 activeAudioPreviewElement = audio;
-                showToast("Reproduzindo prévia da música...", "info");
+                showToast("Tocando direto no refrão... 🎶", "info");
             }
         }
 
-        window.selectStoryMusic = function(title, artist, cover, previewUrl) {
+        window.selectStoryMusic = function(title, artist, cover, previewUrl, chorusTime) {
             if(activeAudioPreviewElement) { activeAudioPreviewElement.pause(); activeAudioPreviewElement = null; }
-            storySelectedMusic = { title, artist, cover, previewUrl };
+            storySelectedMusic = { title, artist, cover, previewUrl, chorusTime };
             
             document.getElementById('preview-music-img').src = cover;
             document.getElementById('preview-music-title').innerText = title;
-            document.getElementById('preview-music-artist').innerText = artist;
+            document.getElementById('preview-music-artist').innerText = artist + " (Refrão)";
             document.getElementById('story-selected-music-preview').classList.remove('hidden');
 
             closeMusicPickerModal();
-            showToast("Música adicionada ao Story! 🎶", "success");
+            showToast("Música adicionada no refrão! 🤠", "success");
         }
 
         window.removeStoryMusic = function() {
@@ -868,23 +892,35 @@
             showToast("Música removida", "info");
         }
 
-        window.submitNewStory = async function() {
+        window.submitNewPost = async function() {
             if (isSubmittingPost) return;
             const title = document.getElementById('new-post-title-input').value.trim();
             if(!activeMediaBase64) return;
             isSubmittingPost = true;
 
             try {
-                await push(ref(db, 'stories'), {
-                    uid: currentUser.uid, author: document.getElementById('profile-name').innerText,
-                    avatar: document.getElementById('profile-avatar-img').src, title: title || "Meu Story",
-                    image: activeMediaBase64, stickers: storyStickersList, music: storySelectedMusic || null,
-                    timestamp: Date.now()
-                });
+                if(publishTargetMode === 'story') {
+                    await push(ref(db, 'stories'), {
+                        uid: currentUser.uid, author: document.getElementById('profile-name').innerText,
+                        avatar: document.getElementById('profile-avatar-img').src, title: title || "Meu Story",
+                        image: activeMediaBase64, stickers: storyStickersList, music: storySelectedMusic || null,
+                        timestamp: Date.now()
+                    });
+                    showToast("Story publicado com sucesso!", "success");
+                } else {
+                    let fullContent = title || "Nova publicação";
+                    if(storySelectedMusic) fullContent += `\n🎵 Tocando: ${storySelectedMusic.title} - ${storySelectedMusic.artist}`;
+                    
+                    await push(ref(db, 'posts'), {
+                        uid: currentUser.uid, author: document.getElementById('profile-name').innerText,
+                        avatar: document.getElementById('profile-avatar-img').src, title: title,
+                        content: fullContent, image: activeMediaBase64, timestamp: Date.now()
+                    });
+                    showToast("Publicado no Feed com sucesso!", "success");
+                }
                 closeCreatePostModal();
-                showToast("Story publicado com sucesso!", "success");
             } catch (err) {
-                showToast("Erro ao publicar story. Tente novamente.", "info");
+                showToast("Erro ao publicar. Tente novamente.", "info");
             } finally {
                 isSubmittingPost = false;
             }
@@ -1166,12 +1202,13 @@
                         <img src="${s.music.cover}" class="w-10 h-10 rounded-xl object-cover animate-spin" style="animation-duration: 4s;">
                         <div>
                             <h4 class="text-xs font-bold text-white truncate max-w-[180px]">${escapeHtml(s.music.title)}</h4>
-                            <span class="text-[10px] text-violet-300 truncate max-w-[180px] block">${escapeHtml(s.music.artist)}</span>
+                            <span class="text-[10px] text-violet-300 truncate max-w-[180px] block">${escapeHtml(s.music.artist)} (Refrão)</span>
                         </div>
                     </div>
                 `;
                 musicPlayerContainer.classList.remove('hidden');
                 storyAudioPlayer = new Audio(s.music.previewUrl);
+                if (s.music.chorusTime) storyAudioPlayer.currentTime = s.music.chorusTime;
                 storyAudioPlayer.play().catch(e => console.log("Áudio bloqueado pelo navegador"));
             } else {
                 musicPlayerContainer.classList.add('hidden');
