@@ -5,22 +5,39 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Corse - Conecte-se com estilo</title>
     
-    <!-- CONFIGURAÇÕES DE PWA E ÍCONES PARA IOS E ANDROID -->
-    <link rel="icon" type="image/png" sizes="192x192" href="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=192">
-    <link rel="apple-touch-icon" sizes="180x180" href="https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=180">
+    <!-- SCRIPT DINÂMICO PARA PWA -->
+    <script>
+        const MEU_LOGO = "logo-icon.png"; 
+        
+        const path = window.location.pathname;
+        const manifest = {
+            name: "Corse",
+            short_name: "Corse",
+            start_url: path,
+            display: "standalone",
+            background_color: "#0b0f19",
+            theme_color: "#0b0f19",
+            icons: [
+                { src: MEU_LOGO, sizes: "192x192", type: "image/png" },
+                { src: MEU_LOGO, sizes: "512x512", type: "image/png" }
+            ]
+        };
+        const manifestStr = encodeURIComponent(JSON.stringify(manifest));
+        document.head.insertAdjacentHTML('beforeend', `<link rel="manifest" href="data:application/manifest+json;charset=utf-8,${manifestStr}">`);
+        document.head.insertAdjacentHTML('beforeend', `<link rel="icon" type="image/png" href="${MEU_LOGO}">`);
+        document.head.insertAdjacentHTML('beforeend', `<link rel="apple-touch-icon" href="${MEU_LOGO}">`);
+    </script>
+
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Corse">
     <meta name="theme-color" content="#0b0f19">
 
-    <!-- MANIFEST DINÂMICO PWA PARA INSTALAÇÃO -->
-    <link rel="manifest" href="data:application/manifest+json;base64,eyJuYW1lIjoiQ29yc2UiLCJzaG9ydF9uYW1lIjoiQ29yc2UiLCJzdGFydF91cmwiOiIvIiwiZGlzcGxheSI6InN0YW5kYWxvbmUiLCJiYWNrZ3JvdW5kX2NvbG9yIjoiIzBiMGYxOSIsInRoZW1lX2NvbG9yIjoiIzBiMGYxOSIsImljb25zIjpbeyJzcmMiOiJodHRwczovL2ltYWdlcy51bnNwbGFzaC5jb20vcGhvdG8tMTYxODAwNTE4MjM4NC1hODNhOGJkNTdmYmU/dz0xOTIiLCJzaXplcyI6IjE5MngxOTIiLCJ0eXBlIjoiaW1hZ2UvcG5nIn0seyJzcmMiOiJodHRwczovL2ltYWdlcy51bnNwbGFzaC5jb20vcGhvdG8tMTYxODAwNTE4MjM4NC1hODNhOGJkNTdmYmU/dz01MTIiLCJzaXplcyI6IjUxMng1MTIiLCJ0eXBlIjoiaW1hZ2UvcG5nIn1dfQ==">
-
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0b0f19; color: #f8fafc; touch-action: manipulation; }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0b0f19; color: #f8fafc; touch-action: manipulation; overflow-x: hidden; }
         input, select, textarea { font-size: 16px !important; }
         .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
         .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
@@ -78,11 +95,11 @@
         </div>
     </div>
 
-    <!-- APLICATIVO PRINCIPAL (TELA CHEIA) -->
+    <!-- APLICATIVO PRINCIPAL -->
     <div id="app-container" class="hidden w-full max-w-xl min-h-screen flex flex-col bg-[#0b0f19] border-x border-slate-900 shadow-2xl relative pb-20">
         
         <!-- CABEÇALHO DO APP -->
-        <header class="sticky top-0 z-40 bg-[#0b0f19]/95 backdrop-blur-md px-4 py-3 flex justify-between items-center border-b border-slate-900/60">
+        <header id="main-header" class="sticky top-0 z-40 bg-[#0b0f19]/95 backdrop-blur-md px-4 py-3 flex justify-between items-center border-b border-slate-900/60">
             <div class="flex items-center gap-2">
                 <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-600 to-fuchsia-600 flex items-center justify-center shadow-md shadow-violet-600/30">
                     <i data-lucide="zap" class="w-5 h-5 text-white"></i>
@@ -127,7 +144,25 @@
                 </div>
             </section>
 
-            <!-- ABA 2: EXPLORAR -->
+            <!-- ABA 2: VÍDEOS / REELS (NOVO) -->
+            <section id="tab-reels" class="space-y-4 px-4 hidden">
+                <div class="flex items-center justify-between py-2">
+                    <div>
+                        <h2 class="text-lg font-bold text-white">Vídeos & Shorts</h2>
+                        <p class="text-xs text-slate-400">Assista e compartilhe vídeos da comunidade.</p>
+                    </div>
+                    <button onclick="openCreateReelModal()" class="bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-all cursor-pointer flex items-center gap-1.5">
+                        <i data-lucide="plus" class="w-4 h-4"></i> Postar Vídeo
+                    </button>
+                </div>
+                
+                <!-- FEED DE VÍDEOS ESTILO REELS -->
+                <div id="reels-feed" class="space-y-4">
+                    <div class="text-center py-12 text-slate-500 text-xs">Carregando vídeos...</div>
+                </div>
+            </section>
+
+            <!-- ABA 3: EXPLORAR -->
             <section id="tab-communities" class="space-y-4 px-4 hidden">
                 <div class="py-2">
                     <h2 class="text-lg font-bold text-white">Explorar</h2>
@@ -138,7 +173,7 @@
                 </div>
             </section>
 
-            <!-- ABA 3: CHAT, AMIGOS, GRUPOS E COMUNIDADES -->
+            <!-- ABA 4: CHAT, AMIGOS, GRUPOS E COMUNIDADES -->
             <section id="tab-friends" class="flex-1 flex flex-col px-4 hidden">
                 <div id="chat-container-view" class="space-y-4 flex-1">
                     <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 shadow-xl space-y-3">
@@ -155,60 +190,9 @@
                         </div>
                     </div>
                 </div>
-
-                <!-- TELA DA CONVERSA ABERTA EM TELA CHEIA -->
-                <div id="active-chat-view" class="flex-1 bg-[#0b0f19] flex flex-col h-[calc(100vh-130px)] hidden absolute inset-x-0 top-0 bottom-16 z-30 p-4">
-                    <!-- CABEÇALHO DO CHAT -->
-                    <div class="border-b border-slate-800 pb-3 mb-3 flex items-center justify-between flex-shrink-0 bg-[#0b0f19]">
-                        <div class="flex items-center gap-3">
-                            <button onclick="closeActiveChat()" class="text-slate-300 hover:text-white cursor-pointer p-1"><i data-lucide="arrow-left" class="w-6 h-6"></i></button>
-                            <img id="active-chat-avatar" src="" class="w-10 h-10 rounded-full object-cover border border-violet-500">
-                            <div>
-                                <h3 id="chat-title" class="font-bold text-sm text-slate-100">Conversa</h3>
-                                <span id="chat-subtitle-status" class="text-[10px] text-emerald-400">Online</span>
-                            </div>
-                        </div>
-                        <div class="flex items-center gap-3 text-slate-300">
-                            <span id="chat-typing-indicator" class="text-[11px] text-violet-400 italic hidden">digitando...</span>
-                            <button class="p-1 hover:text-white"><i data-lucide="phone" class="w-5 h-5"></i></button>
-                            <button class="p-1 hover:text-white"><i data-lucide="video" class="w-5 h-5"></i></button>
-                        </div>
-                    </div>
-
-                    <!-- MENSAGENS -->
-                    <div id="chat-messages" class="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-1 mb-3"></div>
-
-                    <!-- PRÉ-VISUALIZAÇÃO DE IMAGEM -->
-                    <div id="chat-image-preview-bar" class="hidden relative mb-2 p-2.5 bg-slate-900 rounded-2xl border border-slate-800 flex items-center justify-between flex-shrink-0">
-                        <span class="text-xs text-violet-400 truncate font-medium">Imagem pronta para envio</span>
-                        <button onclick="clearChatImage()" class="text-red-400 text-xs font-bold cursor-pointer">Remover</button>
-                    </div>
-
-                    <!-- BARRA DE INPUT DINÂMICA (ESTILO INSTAGRAM) -->
-                    <div class="flex items-center gap-2 pt-2 pb-1 bg-[#0b0f19] w-full flex-shrink-0">
-                        <label class="cursor-pointer bg-slate-900 hover:bg-slate-800 text-white p-2.5 rounded-full flex-shrink-0 border border-slate-800"><i data-lucide="camera" class="w-5 h-5"></i><input type="file" accept="image/*" class="hidden" onchange="handleChatImageSelect(event)"></label>
-                        
-                        <div class="flex-1 relative flex items-center bg-slate-900 border border-slate-800 rounded-full px-4 py-2">
-                            <input type="text" id="chat-input" placeholder="Mensagem..." oninput="handleChatTypingInput(this)" class="w-full bg-transparent text-sm text-slate-100 focus:outline-none pr-8">
-                        </div>
-
-                        <!-- BOTÕES DINÂMICOS (SE NÃO DIGITAR: MICS/GALERIA. SE DIGITAR: BOTÃO DE ENVIAR) -->
-                        <div id="chat-action-buttons" class="flex items-center gap-1.5 flex-shrink-0">
-                            <label class="cursor-pointer text-slate-400 hover:text-violet-400 p-2"><i data-lucide="mic" class="w-5 h-5"></i><input type="file" accept="audio/*" class="hidden"></label>
-                            <label class="cursor-pointer text-slate-400 hover:text-violet-400 p-2"><i data-lucide="image" class="w-5 h-5"></i><input type="file" accept="image/*" class="hidden" onchange="handleChatImageSelect(event)"></label>
-                            <button onclick="insertChatEmoji('😊')" class="text-lg p-1">😊</button>
-                        </div>
-
-                        <div id="chat-send-container" class="hidden flex-shrink-0">
-                            <button onclick="sendChatMessage()" class="w-10 h-10 rounded-full bg-violet-600 hover:bg-violet-500 text-white flex items-center justify-center shadow-md cursor-pointer">
-                                <i data-lucide="arrow-up" class="w-5 h-5 font-bold"></i>
-                            </button>
-                        </div>
-                    </div>
-                </div>
             </section>
 
-            <!-- ABA 4: NOTIFICAÇÕES -->
+            <!-- ABA 5: NOTIFICAÇÕES -->
             <section id="tab-notifications" class="space-y-4 px-4 hidden">
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
                     <h3 class="font-bold text-sm text-white flex items-center gap-2"><i data-lucide="bell" class="w-4 h-4 text-fuchsia-400"></i> Notificações e Pedidos</h3>
@@ -218,7 +202,7 @@
                 </div>
             </section>
 
-            <!-- ABA 5: PERFIL -->
+            <!-- ABA 6: PERFIL -->
             <section id="tab-profile" class="space-y-4 px-4 hidden">
                 <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
                     <div id="profile-banner-container" class="h-36 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-indigo-600 relative bg-cover bg-center">
@@ -246,15 +230,61 @@
             </section>
         </main>
 
-        <!-- BARRA DE NAVEGAÇÃO INFERIOR -->
-        <nav class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-xl bg-[#0b0f19]/95 backdrop-blur-lg border-t border-slate-900 z-40 px-2 py-2 grid grid-cols-5 items-center text-xs">
+        <!-- TELA DE CONVERSA EM TELA CHEIA EXCLUSIVA -->
+        <div id="active-chat-view" class="fixed inset-0 bg-[#0b0f19] z-50 flex flex-col hidden p-3 sm:p-4">
+            <div class="border-b border-slate-800 pb-3 mb-2 flex items-center justify-between flex-shrink-0 bg-[#0b0f19]">
+                <div class="flex items-center gap-3">
+                    <button onclick="closeActiveChat()" class="bg-slate-800 hover:bg-slate-700 text-slate-100 px-3 py-2 rounded-xl flex items-center gap-1.5 text-xs font-bold cursor-pointer transition-all">
+                        <i data-lucide="arrow-left" class="w-4 h-4"></i> Voltar
+                    </button>
+                    <img id="active-chat-avatar" src="" class="w-9 h-9 rounded-full object-cover border border-violet-500">
+                    <div>
+                        <h3 id="chat-title" class="font-bold text-xs text-slate-100">Conversa</h3>
+                        <span id="chat-subtitle-status" class="text-[10px] text-emerald-400">Online</span>
+                    </div>
+                </div>
+                <div class="flex items-center gap-3 text-slate-300">
+                    <span id="chat-typing-indicator" class="text-[11px] text-violet-400 italic hidden">digitando...</span>
+                </div>
+            </div>
+
+            <div id="chat-messages" class="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-1 mb-2"></div>
+
+            <div id="chat-image-preview-bar" class="hidden relative mb-2 p-2.5 bg-slate-900 rounded-2xl border border-slate-800 flex items-center justify-between flex-shrink-0">
+                <span class="text-xs text-violet-400 truncate font-medium">Imagem pronta para envio</span>
+                <button onclick="clearChatImage()" class="text-red-400 text-xs font-bold cursor-pointer">Remover</button>
+            </div>
+
+            <div class="flex items-center gap-2 pt-2 pb-1 bg-[#0b0f19] w-full flex-shrink-0 border-t border-slate-800/60">
+                <label class="cursor-pointer bg-slate-900 hover:bg-slate-800 text-white p-2.5 rounded-full flex-shrink-0 border border-slate-800"><i data-lucide="camera" class="w-5 h-5"></i><input type="file" accept="image/*" class="hidden" onchange="handleChatImageSelect(event)"></label>
+                
+                <div class="flex-1 relative flex items-center bg-slate-900 border border-slate-800 rounded-full px-4 py-2">
+                    <input type="text" id="chat-input" placeholder="Mensagem..." oninput="handleChatTypingInput(this)" class="w-full bg-transparent text-sm text-slate-100 focus:outline-none pr-8">
+                </div>
+
+                <div id="chat-action-buttons" class="flex items-center gap-1.5 flex-shrink-0">
+                    <label class="cursor-pointer text-slate-400 hover:text-violet-400 p-2"><i data-lucide="mic" class="w-5 h-5"></i><input type="file" accept="audio/*" class="hidden"></label>
+                    <label class="cursor-pointer text-slate-400 hover:text-violet-400 p-2"><i data-lucide="image" class="w-5 h-5"></i><input type="file" accept="image/*" class="hidden" onchange="handleChatImageSelect(event)"></label>
+                    <button onclick="insertChatEmoji('😊')" class="text-lg p-1">😊</button>
+                </div>
+
+                <div id="chat-send-container" class="hidden flex-shrink-0">
+                    <button onclick="sendChatMessage()" class="w-10 h-10 rounded-full bg-violet-600 hover:bg-violet-500 text-white flex items-center justify-center shadow-md cursor-pointer">
+                        <i data-lucide="arrow-up" class="w-5 h-5 font-bold"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- BARRA DE NAVEGAÇÃO INFERIOR (ATUALIZADA COM VÍDEOS) -->
+        <nav id="bottom-nav" class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-xl bg-[#0b0f19]/95 backdrop-blur-lg border-t border-slate-900 z-40 px-2 py-2 grid grid-cols-5 items-center text-xs">
             <button onclick="switchTab('feed')" id="nav-feed" class="flex flex-col items-center justify-center gap-1 text-violet-400 font-semibold cursor-pointer transition-all p-1">
                 <i data-lucide="home" class="w-5 h-5"></i>
                 <span class="text-[10px]">Início</span>
             </button>
-            <button onclick="switchTab('communities')" id="nav-communities" class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-all p-1">
-                <i data-lucide="compass" class="w-5 h-5"></i>
-                <span class="text-[10px]">Explorar</span>
+            <button onclick="switchTab('reels')" id="nav-reels" class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-all p-1">
+                <i data-lucide="play-square" class="w-5 h-5"></i>
+                <span class="text-[10px]">Vídeos</span>
             </button>
             
             <div class="flex items-center justify-center">
@@ -263,10 +293,9 @@
                 </button>
             </div>
 
-            <button onclick="switchTab('notifications')" id="nav-notifications" class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-all relative p-1">
-                <i data-lucide="bell" class="w-5 h-5"></i>
-                <span id="nav-notif-dot" class="absolute top-1 right-2.5 w-2 h-2 rounded-full bg-fuchsia-500 hidden"></span>
-                <span class="text-[10px]">Notificações</span>
+            <button onclick="switchTab('communities')" id="nav-communities" class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-all p-1">
+                <i data-lucide="compass" class="w-5 h-5"></i>
+                <span class="text-[10px]">Explorar</span>
             </button>
             <button onclick="switchTab('friends')" id="nav-friends" class="flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-all relative p-1">
                 <i data-lucide="message-circle" class="w-5 h-5"></i>
@@ -274,6 +303,91 @@
                 <span class="text-[10px]">Mensagens</span>
             </button>
         </nav>
+    </div>
+
+    <!-- MODAL DE VISUALIZAR STORY EM TELA CHEIA -->
+    <div id="story-viewer-modal" class="fixed inset-0 bg-black z-50 hidden flex flex-col justify-between">
+        <div class="w-full bg-slate-800 h-1 absolute top-0 left-0 z-20">
+            <div id="story-progress-bar-fill" class="h-full bg-white w-0"></div>
+        </div>
+
+        <div class="flex justify-between items-center p-4 absolute top-2 inset-x-0 z-20 bg-gradient-to-b from-black/80 to-transparent">
+            <div class="flex items-center gap-3">
+                <img id="viewer-author-avatar" src="" class="w-9 h-9 rounded-full object-cover border border-white/40">
+                <div>
+                    <h4 id="viewer-author-name" class="font-bold text-white text-xs">Nome</h4>
+                    <span id="viewer-time" class="text-[10px] text-slate-300">Agora</span>
+                </div>
+            </div>
+            <div class="flex items-center gap-2">
+                <button id="story-delete-btn" onclick="confirmDeleteStory()" class="text-red-400 p-2 cursor-pointer bg-black/40 rounded-full hidden" title="Apagar Story">
+                    <i data-lucide="trash-2" class="w-5 h-5"></i>
+                </button>
+                <button onclick="closeStoryViewer()" class="text-white p-2 cursor-pointer bg-black/40 rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+        </div>
+
+        <div class="flex-1 relative flex items-center justify-center w-full h-full">
+            <div onclick="prevStoryIndex()" class="absolute left-0 top-0 w-1/3 h-full z-10 cursor-pointer"></div>
+            <div onclick="nextStoryIndex()" class="absolute right-0 top-0 w-2/3 h-full z-10 cursor-pointer"></div>
+
+            <img id="viewer-story-img" src="" class="w-full h-full object-cover">
+            
+            <div class="absolute bottom-16 inset-x-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-4 z-10">
+                <p id="viewer-story-title" class="text-sm text-white font-medium text-center"></p>
+            </div>
+        </div>
+
+        <div class="absolute bottom-0 inset-x-0 bg-black/90 p-3 z-20 flex items-center gap-3 border-t border-slate-800/60">
+            <div class="flex-1 relative flex items-center bg-slate-900 border border-slate-800 rounded-full px-4 py-2">
+                <input type="text" id="story-comment-input" placeholder="Enviar mensagem ou comentário..." class="w-full bg-transparent text-xs text-slate-100 focus:outline-none">
+            </div>
+            <button onclick="sendStoryComment()" class="bg-violet-600 hover:bg-violet-500 text-white px-4 py-2 rounded-full text-xs font-bold cursor-pointer flex-shrink-0">
+                Enviar
+            </button>
+            <button onclick="likeCurrentStory()" id="story-like-btn" class="p-2.5 rounded-full bg-slate-900 border border-slate-800 text-slate-300 hover:text-fuchsia-400 cursor-pointer flex-shrink-0">
+                <i data-lucide="heart" class="w-5 h-5"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIRMAÇÃO DE EXCLUSÃO DE STORY -->
+    <div id="confirm-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4 text-center">
+            <div class="w-12 h-12 bg-red-950/50 border border-red-900/50 rounded-2xl flex items-center justify-center mx-auto text-red-400">
+                <i data-lucide="trash-2" class="w-6 h-6"></i>
+            </div>
+            <div class="space-y-1">
+                <h3 class="font-bold text-slate-100 text-sm">Apagar Story</h3>
+                <p class="text-xs text-slate-400">Deseja realmente apagar esta publicação dos seus stories? Esta ação não poderá ser desfeita.</p>
+            </div>
+            <div class="grid grid-cols-2 gap-2 pt-2">
+                <button onclick="closeConfirmModal()" class="bg-slate-800 hover:bg-slate-700 text-white py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer">Cancelar</button>
+                <button onclick="executeDeleteStory()" class="bg-red-600 hover:bg-red-500 text-white py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer">Sim, Apagar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE POSTAR VÍDEO (REELS / SHORTS) -->
+    <div id="create-reel-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-slate-100 text-sm">Publicar Vídeo (Shorts)</h3>
+                <button onclick="closeCreateReelModal()" class="text-slate-400 cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Link do YouTube Shorts</label>
+                    <input type="text" id="reel-link-input" placeholder="Ex: https://youtube.com/shorts/..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-violet-500">
+                    <p class="text-[10px] text-slate-500 mt-1">Cole o link de um YouTube Shorts. O vídeo rodará direto na tela!</p>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Legenda do Vídeo</label>
+                    <textarea id="reel-caption-input" rows="2" placeholder="Escreva algo sobre o vídeo..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-100 resize-none focus:outline-none focus:border-violet-500"></textarea>
+                </div>
+                <button onclick="submitNewReel()" class="w-full bg-violet-600 hover:bg-violet-500 text-white py-3 rounded-xl text-xs font-bold transition-all cursor-pointer shadow-lg shadow-violet-600/30">Publicar Vídeo</button>
+            </div>
+        </div>
     </div>
 
     <!-- MODAL DE COMPARTILHAMENTO -->
@@ -349,60 +463,6 @@
         </div>
     </div>
 
-    <!-- MODAL DE VISUALIZAR STORY -->
-    <div id="story-viewer-modal" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col justify-between p-4">
-        <div class="w-full bg-slate-800 h-1 rounded-full overflow-hidden absolute top-0 left-0">
-            <div id="story-progress-bar-fill" class="h-full bg-white w-0"></div>
-        </div>
-
-        <div class="flex justify-between items-center pt-3">
-            <div class="flex items-center gap-3">
-                <img id="viewer-author-avatar" src="" class="w-10 h-10 rounded-full object-cover border border-violet-500">
-                <div>
-                    <h4 id="viewer-author-name" class="font-bold text-white text-xs">Nome</h4>
-                    <span id="viewer-time" class="text-[10px] text-slate-400">Agora</span>
-                </div>
-            </div>
-            <button onclick="closeStoryViewer()" class="text-white p-2 cursor-pointer"><i data-lucide="x" class="w-6 h-6"></i></button>
-        </div>
-
-        <div class="flex-1 flex flex-col items-center justify-center p-2 relative">
-            <div onclick="prevStoryIndex()" class="absolute left-0 top-0 w-1/3 h-full z-10 cursor-pointer"></div>
-            <div onclick="nextStoryIndex()" class="absolute right-0 top-0 w-1/3 h-full z-10 cursor-pointer"></div>
-
-            <div class="relative max-w-sm w-full h-[65vh] bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 flex items-center justify-center">
-                <img id="viewer-story-img" src="" class="w-full h-full object-cover">
-                <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-4">
-                    <p id="viewer-story-title" class="text-sm text-white font-medium text-center"></p>
-                </div>
-            </div>
-        </div>
-
-        <div id="story-views-panel" class="bg-slate-900 border border-slate-800 rounded-2xl p-3 max-w-sm mx-auto w-full flex items-center justify-between hidden">
-            <button onclick="openStoryViewersList()" class="flex items-center gap-2 cursor-pointer hover:opacity-80">
-                <i data-lucide="eye" class="w-4 h-4 text-violet-400"></i>
-                <span id="story-views-count" class="text-xs text-slate-200 font-semibold underline">0 visualizações</span>
-            </button>
-            <button onclick="likeCurrentStory()" class="flex items-center gap-1.5 text-fuchsia-400 text-xs font-bold bg-fuchsia-950/40 px-3 py-1.5 rounded-xl border border-fuchsia-900 cursor-pointer">
-                <i data-lucide="heart" class="w-4 h-4"></i><span id="story-likes-count">Curtir</span>
-            </button>
-        </div>
-    </div>
-
-    <!-- MODAL DA LISTA DE QUEM VIU O STORY -->
-    <div id="story-viewers-list-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-5 shadow-2xl space-y-4">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                <h3 class="font-bold text-slate-100 text-sm">Quem viu este story</h3>
-                <button onclick="closeStoryViewersList()" class="text-slate-400 cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div id="story-viewers-container" class="space-y-2 max-h-64 overflow-y-auto custom-scrollbar">
-                <div class="text-xs text-slate-500 text-center py-4">Nenhuma visualização ainda.</div>
-            </div>
-            <button onclick="closeStoryViewersList()" class="w-full bg-slate-800 text-white py-2 rounded-xl text-xs font-bold cursor-pointer">Fechar</button>
-        </div>
-    </div>
-
     <!-- MODAL DE EDITAR PERFIL -->
     <div id="edit-profile-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-4">
@@ -468,15 +528,17 @@
         const auth = getAuth(app);
         const db = getDatabase(app);
 
-        let isRegistering = false, currentUser = null, activeMediaBase64 = "", chatImageBase64 = "", activeChatId = null, activeChatName = "";
+        let isRegistering = false, currentUser = null, activeMediaBase64 = "", chatImageBase64 = "", activeChatId = null;
         let globalUsersCache = {}, globalFriendsCache = {}, globalGroupsCache = {}, openCommentSections = new Set();
         let typingTimeout = null, portalTimer = null, activeViewingStoryId = null;
         let storyTimer = null;
         let isSubmittingPost = false;
         let sharingPostData = null;
 
-        let currentAuthorStoriesList = [];
+        let globalAllStoriesAuthors = [];
+        let currentAuthorIndex = 0;
         let currentStoryIndex = 0;
+        let activeChatUnsubscribe = null;
 
         window.escapeHtml = text => (text || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         window.showToast = function(msg, type = 'info') {
@@ -710,6 +772,118 @@
             }
         }
 
+        // LÓGICA DE VÍDEOS / REELS (YOUTUBE SHORTS EMBED)
+        window.openCreateReelModal = () => {
+            document.getElementById('reel-link-input').value = "";
+            document.getElementById('reel-caption-input').value = "";
+            document.getElementById('create-reel-modal').classList.remove('hidden');
+        }
+        window.closeCreateReelModal = () => document.getElementById('create-reel-modal').classList.add('hidden');
+
+        window.submitNewReel = async function() {
+            const rawLink = document.getElementById('reel-link-input').value.trim();
+            const caption = document.getElementById('reel-caption-input').value.trim();
+            
+            if(!rawLink) {
+                showToast("Cole o link de um YouTube Shorts.", "info");
+                return;
+            }
+
+            // Extrai o ID do Shorts do YouTube para montar o embed limpo
+            let embedUrl = "";
+            if (rawLink.includes("shorts/")) {
+                const parts = rawLink.split("shorts/");
+                const videoId = parts[1].split("?")[0];
+                embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}`;
+            } else if (rawLink.includes("youtu.be/")) {
+                const parts = rawLink.split("youtu.be/");
+                const videoId = parts[1].split("?")[0];
+                embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}`;
+            } else if (rawLink.includes("watch?v=")) {
+                const urlParams = new URLSearchParams(rawLink.split('?')[1]);
+                const videoId = urlParams.get('v');
+                embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}`;
+            } else {
+                showToast("Link inválido. Use um link do YouTube Shorts.", "info");
+                return;
+            }
+
+            try {
+                await push(ref(db, 'reels'), {
+                    uid: currentUser.uid,
+                    author: document.getElementById('profile-name').innerText,
+                    avatar: document.getElementById('profile-avatar-img').src,
+                    embedUrl: embedUrl,
+                    caption: caption || "Novo vídeo",
+                    timestamp: Date.now()
+                });
+                closeCreateReelModal();
+                showToast("Vídeo publicado com sucesso!", "success");
+            } catch(e) {
+                showToast("Erro ao publicar vídeo.", "info");
+            }
+        }
+
+        function listenReels() {
+            const container = document.getElementById('reels-feed');
+            onValue(ref(db, 'reels'), (snap) => {
+                container.innerHTML = "";
+                const data = snap.val() || {};
+                const keys = Object.keys(data).reverse();
+
+                if(keys.length === 0) {
+                    container.innerHTML = `
+                        <div class="text-center py-16 bg-slate-900 border border-slate-800 rounded-3xl p-6 space-y-3">
+                            <i data-lucide="play-square" class="w-10 h-10 text-violet-400 mx-auto"></i>
+                            <h4 class="font-bold text-slate-100 text-sm">Nenhum vídeo publicado</h4>
+                            <p class="text-xs text-slate-400">Seja o primeiro a postar um Shorts da comunidade!</p>
+                            <button onclick="openCreateReelModal()" class="bg-violet-600 text-white px-4 py-2 rounded-xl text-xs font-bold cursor-pointer inline-block">Postar Vídeo Agora</button>
+                        </div>
+                    `;
+                    lucide.createIcons();
+                    return;
+                }
+
+                keys.forEach(reelId => {
+                    const r = data[reelId];
+                    const likesObj = r.likes || {}, likesCount = Object.keys(likesObj).length, iLiked = !!likesObj[currentUser.uid];
+
+                    container.insertAdjacentHTML('beforeend', `
+                        <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl relative">
+                            <!-- PLAYER DO YOUTUBE EMBUTIDO (VERTICAL / REELS) -->
+                            <div class="relative w-full h-[450px] bg-black">
+                                <iframe src="${r.embedUrl}" class="w-full h-full border-0 pointer-events-auto" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                            </div>
+
+                            <!-- INFORMAÇÕES E AUTOR -->
+                            <div class="p-4 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-3 cursor-pointer" onclick="openUserProfile('${r.uid}')">
+                                        <img src="${r.avatar}" class="w-9 h-9 rounded-full object-cover border border-violet-500">
+                                        <div>
+                                            <h4 class="font-bold text-xs text-slate-100">${escapeHtml(r.author)}</h4>
+                                            <span class="text-[10px] text-slate-500">Corse Shorts</span>
+                                        </div>
+                                    </div>
+                                    <button onclick="toggleReelLike('${reelId}')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 ${iLiked ? 'text-fuchsia-500' : 'text-slate-300 hover:text-fuchsia-400'} cursor-pointer text-xs font-bold transition-all">
+                                        <i data-lucide="heart" class="w-4 h-4 ${iLiked ? 'fill-fuchsia-500' : ''}"></i>
+                                        <span>${likesCount}</span>
+                                    </button>
+                                </div>
+                                <p class="text-xs text-slate-200 leading-relaxed">${escapeHtml(r.caption)}</p>
+                            </div>
+                        </div>
+                    `);
+                });
+                lucide.createIcons();
+            });
+        }
+
+        window.toggleReelLike = async function(reelId) {
+            const refItem = ref(db, `reels/${reelId}/likes/${currentUser.uid}`);
+            onValue(refItem, (snap) => { if(snap.exists()) remove(refItem); else set(refItem, true); }, { onlyOnce: true });
+        }
+
         // COMPARTILHAMENTO
         window.openShareModal = function(content, image, author) {
             sharingPostData = { content, image, author };
@@ -805,19 +979,35 @@
                     const friends = fSnap.val() || {};
                     onValue(ref(db, `storyViews/${currentUser.uid}`), (vSnap) => {
                         const viewedMap = vSnap.val() || {};
+                        const now = Date.now();
+                        const twentyFourHours = 24 * 60 * 60 * 1000;
 
                         let authorsMap = {};
                         Object.keys(storiesData).forEach(sId => {
                             const s = storiesData[sId];
-                            if (!authorsMap[s.uid]) {
-                                authorsMap[s.uid] = {
-                                    uid: s.uid,
-                                    author: s.author,
-                                    avatar: s.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
-                                    items: []
-                                };
+                            if (s.timestamp && (now - s.timestamp < twentyFourHours)) {
+                                if (!authorsMap[s.uid]) {
+                                    authorsMap[s.uid] = {
+                                        uid: s.uid,
+                                        author: s.author,
+                                        avatar: s.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150',
+                                        items: []
+                                    };
+                                }
+                                authorsMap[s.uid].items.push({ id: sId, ...s });
                             }
-                            authorsMap[s.uid].items.push({ id: sId, ...s });
+                        });
+
+                        globalAllStoriesAuthors = [];
+                        let myUid = currentUser.uid;
+                        if (authorsMap[myUid]) {
+                            globalAllStoriesAuthors.push(authorsMap[myUid]);
+                        }
+
+                        Object.keys(authorsMap).forEach(authorUid => {
+                            if (authorUid !== myUid && friends[authorUid]) {
+                                globalAllStoriesAuthors.push(authorsMap[authorUid]);
+                            }
                         });
 
                         let html = `
@@ -830,19 +1020,14 @@
                             </div>
                         `;
 
-                        Object.keys(authorsMap).forEach(authorUid => {
-                            const authorObj = authorsMap[authorUid];
-                            const isMyStory = authorUid === currentUser.uid;
-                            const isFriend = friends[authorUid];
-
-                            if (isMyStory || !isFriend) return;
+                        globalAllStoriesAuthors.forEach((authorObj, index) => {
+                            if (authorObj.uid === myUid) return;
 
                             const allViewed = authorObj.items.every(item => viewedMap[item.id]);
                             const ringClass = allViewed ? 'p-[2.5px] bg-slate-700' : 'p-[2.5px] bg-gradient-to-tr from-fuchsia-500 via-violet-500 to-pink-500 animate-pulse';
-                            const serializedItems = encodeURIComponent(JSON.stringify(authorObj.items));
 
                             html += `
-                                <div class="flex flex-col items-center gap-1.5 flex-shrink-0 cursor-pointer" onclick="openAuthorStories('${serializedItems}')">
+                                <div class="flex flex-col items-center gap-1.5 flex-shrink-0 cursor-pointer" onclick="openAuthorStoriesByIndex(${index})">
                                     <div class="w-16 h-16 rounded-full ${ringClass}">
                                         <img src="${authorObj.avatar}" class="w-full h-full rounded-full object-cover border-2 border-[#0b0f19]" loading="lazy">
                                     </div>
@@ -857,45 +1042,56 @@
         }
 
         window.openMyStories = function() {
-            onValue(ref(db, 'stories'), (snap) => {
-                const storiesData = snap.val() || {};
-                let myStories = [];
-                Object.keys(storiesData).forEach(id => {
-                    if (storiesData[id].uid === currentUser.uid) {
-                        myStories.push({ id, ...storiesData[id] });
-                    }
-                });
-
-                if (myStories.length === 0) {
-                    showToast("Você ainda não publicou nenhum story. Clique no + para criar!", "info");
-                    return;
-                }
-                
-                currentAuthorStoriesList = myStories;
-                currentStoryIndex = 0;
-                renderAndPlayStory();
-            }, { onlyOnce: true });
-        }
-
-        window.openAuthorStories = function(encodedJson) {
-            try {
-                currentAuthorStoriesList = JSON.parse(decodeURIComponent(encodedJson));
-                currentStoryIndex = 0;
-                renderAndPlayStory();
-            } catch (err) {
-                console.error("Erro ao abrir stories:", err);
+            let myIndex = globalAllStoriesAuthors.findIndex(a => a.uid === currentUser.uid);
+            if(myIndex !== -1 && globalAllStoriesAuthors[myIndex].items.length > 0) {
+                openAuthorStoriesByIndex(myIndex);
+            } else {
+                showToast("Você não tem stories ativos (24h). Clique no + para publicar!", "info");
             }
         }
 
+        window.openAuthorStoriesByIndex = function(authorIdx) {
+            currentAuthorIndex = authorIdx;
+            currentStoryIndex = 0;
+            renderAndPlayStory();
+        }
+
         window.renderAndPlayStory = async function() {
-            if (!currentAuthorStoriesList || currentAuthorStoriesList.length === 0) return;
-            const s = currentAuthorStoriesList[currentStoryIndex];
+            if (!globalAllStoriesAuthors[currentAuthorIndex]) {
+                closeStoryViewer();
+                return;
+            }
+
+            const currentAuthor = globalAllStoriesAuthors[currentAuthorIndex];
+            if (!currentAuthor.items[currentStoryIndex]) {
+                closeStoryViewer();
+                return;
+            }
+
+            const s = currentAuthor.items[currentStoryIndex];
             activeViewingStoryId = s.id;
 
-            document.getElementById('viewer-author-name').innerText = s.author;
-            document.getElementById('viewer-author-avatar').src = s.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
+            document.getElementById('viewer-author-name').innerText = currentAuthor.author;
+            document.getElementById('viewer-author-avatar').src = currentAuthor.avatar;
             document.getElementById('viewer-story-img').src = s.image;
             document.getElementById('viewer-story-title').innerText = s.title || "";
+
+            const deleteBtn = document.getElementById('story-delete-btn');
+            if (s.uid === currentUser.uid) {
+                deleteBtn.classList.remove('hidden');
+            } else {
+                deleteBtn.classList.add('hidden');
+            }
+
+            onValue(ref(db, `storyInteractions/${s.id}/likes/${currentUser.uid}`), (snap) => {
+                const liked = snap.exists();
+                const likeBtn = document.getElementById('story-like-btn');
+                if (liked) {
+                    likeBtn.className = "p-2.5 rounded-full bg-fuchsia-950/60 border border-fuchsia-800 text-fuchsia-400 cursor-pointer flex-shrink-0";
+                } else {
+                    likeBtn.className = "p-2.5 rounded-full bg-slate-900 border border-slate-800 text-slate-300 hover:text-fuchsia-400 cursor-pointer flex-shrink-0";
+                }
+            }, { onlyOnce: true });
 
             const barFill = document.getElementById('story-progress-bar-fill');
             barFill.classList.remove('story-progress-bar');
@@ -908,38 +1104,67 @@
             }, 5000);
 
             await set(ref(db, `storyViews/${currentUser.uid}/${s.id}`), true);
-
-            const viewsPanel = document.getElementById('story-views-panel');
-            if(s.uid === currentUser.uid) {
-                viewsPanel.classList.remove('hidden');
-                onValue(ref(db, `storyInteractions/${s.id}`), (snap) => {
-                    const inter = snap.val() || {};
-                    const viewsCount = inter.views ? Object.keys(inter.views).length : 0;
-                    const likesCount = inter.likes ? Object.keys(inter.likes).length : 0;
-                    document.getElementById('story-views-count').innerText = `${viewsCount} visualizações`;
-                    document.getElementById('story-likes-count').innerText = `${likesCount} Curtir`;
-                }, { onlyOnce: true });
-                await set(ref(db, `storyInteractions/${s.id}/views/${currentUser.uid}`), true);
-            } else {
-                viewsPanel.classList.add('hidden');
-                await set(ref(db, `storyInteractions/${s.id}/views/${currentUser.uid}`), true);
-            }
-
             document.getElementById('story-viewer-modal').classList.remove('hidden');
         }
 
-        window.nextStoryIndex = function() {
-            if (currentStoryIndex < currentAuthorStoriesList.length - 1) {
-                currentStoryIndex++;
+        window.confirmDeleteStory = function() {
+            if (storyTimer) clearTimeout(storyTimer);
+            document.getElementById('confirm-modal').classList.remove('hidden');
+        }
+
+        window.closeConfirmModal = function() {
+            document.getElementById('confirm-modal').classList.add('hidden');
+            renderAndPlayStory();
+        }
+
+        window.executeDeleteStory = async function() {
+            if (!activeViewingStoryId) return;
+            document.getElementById('confirm-modal').classList.add('hidden');
+            
+            await remove(ref(db, `stories/${activeViewingStoryId}`));
+            await remove(ref(db, `storyInteractions/${activeViewingStoryId}`));
+            showToast("Story apagado com sucesso!", "success");
+            
+            const currentAuthor = globalAllStoriesAuthors[currentAuthorIndex];
+            currentAuthor.items.splice(currentStoryIndex, 1);
+            
+            if (currentAuthor.items.length > 0) {
+                if (currentStoryIndex >= currentAuthor.items.length) {
+                    currentStoryIndex = currentAuthor.items.length - 1;
+                }
                 renderAndPlayStory();
             } else {
                 closeStoryViewer();
             }
         }
 
+        window.nextStoryIndex = function() {
+            if (storyTimer) clearTimeout(storyTimer);
+            const currentAuthor = globalAllStoriesAuthors[currentAuthorIndex];
+
+            if (currentStoryIndex < currentAuthor.items.length - 1) {
+                currentStoryIndex++;
+                renderAndPlayStory();
+            } else {
+                if (currentAuthorIndex < globalAllStoriesAuthors.length - 1) {
+                    currentAuthorIndex++;
+                    currentStoryIndex = 0;
+                    renderAndPlayStory();
+                } else {
+                    closeStoryViewer();
+                }
+            }
+        }
+
         window.prevStoryIndex = function() {
+            if (storyTimer) clearTimeout(storyTimer);
             if (currentStoryIndex > 0) {
                 currentStoryIndex--;
+                renderAndPlayStory();
+            } else if (currentAuthorIndex > 0) {
+                currentAuthorIndex--;
+                const prevAuthor = globalAllStoriesAuthors[currentAuthorIndex];
+                currentStoryIndex = prevAuthor.items.length - 1;
                 renderAndPlayStory();
             }
         }
@@ -951,37 +1176,40 @@
 
         window.likeCurrentStory = async function() {
             if(!activeViewingStoryId) return;
-            await set(ref(db, `storyInteractions/${activeViewingStoryId}/likes/${currentUser.uid}`), true);
-            showToast("Você curtiu este story!", "success");
-        }
-
-        window.openStoryViewersList = function() {
-            if(!activeViewingStoryId) return;
-            const container = document.getElementById('story-viewers-container');
-            container.innerHTML = `<div class="text-xs text-slate-500 text-center py-2">Carregando visualizações...</div>`;
-            document.getElementById('story-viewers-list-modal').classList.remove('hidden');
-
-            onValue(ref(db, `storyInteractions/${activeViewingStoryId}/views`), (snap) => {
-                const viewsObj = snap.val() || {};
-                const uids = Object.keys(viewsObj);
-                if(uids.length === 0) {
-                    container.innerHTML = `<div class="text-xs text-slate-500 text-center py-4">Nenhuma visualização ainda.</div>`;
-                    return;
+            const likeRef = ref(db, `storyInteractions/${activeViewingStoryId}/likes/${currentUser.uid}`);
+            onValue(likeRef, async (snap) => {
+                if(snap.exists()) {
+                    await remove(likeRef);
+                    showToast("Curtida removida", "info");
+                } else {
+                    await set(likeRef, true);
+                    showToast("Você curtiu este story! ❤️", "success");
                 }
-                container.innerHTML = "";
-                uids.forEach(uid => {
-                    const u = globalUsersCache[uid] || { name: "Usuário", avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" };
-                    container.insertAdjacentHTML('beforeend', `
-                        <div class="flex items-center gap-3 bg-slate-950 p-2.5 rounded-xl border border-slate-800">
-                            <img src="${u.avatar}" class="w-8 h-8 rounded-full object-cover">
-                            <span class="font-semibold text-xs text-slate-100">${escapeHtml(u.name)}</span>
-                        </div>
-                    `);
-                });
             }, { onlyOnce: true });
         }
 
-        window.closeStoryViewersList = () => document.getElementById('story-viewers-list-modal').classList.add('hidden');
+        window.sendStoryComment = async function() {
+            const input = document.getElementById('story-comment-input');
+            const txt = input.value.trim();
+            if(!txt || !activeViewingStoryId) return;
+
+            const currentAuthor = globalAllStoriesAuthors[currentAuthorIndex];
+            if(!currentAuthor) return;
+
+            const targetUid = currentAuthor.uid;
+            const rId = currentUser.uid < targetUid ? `${currentUser.uid}_${targetUid}` : `${targetUid}_${currentUser.uid}`;
+
+            await push(ref(db, `chats/${rId}`), {
+                senderUid: currentUser.uid,
+                senderName: document.getElementById('profile-name').innerText,
+                text: `💬 Respondeu ao seu story: "${txt}"`,
+                read: false,
+                timestamp: Date.now()
+            });
+
+            input.value = "";
+            showToast("Resposta enviada por mensagem!", "success");
+        }
 
         window.toggleAuthMode = function() {
             isRegistering = !isRegistering;
@@ -1073,6 +1301,7 @@
                 listenExploreGrid(); 
                 listenNotifications(); 
                 listenStories();
+                listenReels();
                 startPortalsAutoUpdater();
             } else {
                 if(currentUser) set(ref(db, `users/${currentUser.uid}/online`), false);
@@ -1093,6 +1322,10 @@
         }
 
         window.switchTab = function(tabId) {
+            if (activeChatId) {
+                closeActiveChat();
+            }
+
             document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
             
@@ -1434,10 +1667,7 @@
 
         window.openChat = function(rId, chatName) {
             activeChatId = rId;
-            activeChatName = chatName;
-            
             document.getElementById('chat-title').innerText = chatName;
-            document.getElementById('chat-container-view').classList.add('hidden');
             document.getElementById('active-chat-view').classList.remove('hidden');
             
             onValue(ref(db, `typing/${rId}`), (snap) => {
@@ -1451,15 +1681,21 @@
                 else indicator.classList.add('hidden');
             });
 
-            onValue(ref(db, `chats/${rId}`), (snap) => {
+            if (activeChatUnsubscribe) {
+                activeChatUnsubscribe();
+            }
+
+            activeChatUnsubscribe = onValue(ref(db, `chats/${rId}`), (snap) => {
                 const box = document.getElementById('chat-messages'); 
                 box.innerHTML = ""; 
                 const msgs = snap.val() || {};
-                
+                let unreadUpdates = {};
+
                 Object.keys(msgs).forEach(k => {
                     const m = msgs[k], isMe = m.senderUid === currentUser.uid;
+                    
                     if (!isMe && !m.read) {
-                        update(ref(db, `chats/${rId}/${k}`), { read: true });
+                        unreadUpdates[`${k}/read`] = true;
                     }
 
                     let checkmarks = isMe ? (m.read ? '<span class="text-[10px] text-emerald-400">✓✓</span>' : '<span class="text-[10px] text-slate-400">✓</span>') : '';
@@ -1477,14 +1713,26 @@
                         </div>
                     `);
                 });
-                box.scrollTop = box.scrollHeight;
+
+                setTimeout(() => {
+                    box.scrollTop = box.scrollHeight;
+                }, 50);
+
+                if (Object.keys(unreadUpdates).length > 0) {
+                    setTimeout(() => {
+                        update(ref(db, `chats/${rId}`), unreadUpdates);
+                    }, 100);
+                }
             });
         }
 
         window.closeActiveChat = function() {
             activeChatId = null;
+            if(activeChatUnsubscribe) {
+                activeChatUnsubscribe();
+                activeChatUnsubscribe = null;
+            }
             document.getElementById('active-chat-view').classList.add('hidden');
-            document.getElementById('chat-container-view').classList.remove('hidden');
         }
 
         window.notifyTyping = function() {
