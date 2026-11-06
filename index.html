@@ -523,7 +523,7 @@
         </div>
     </div>
 
-    <!-- LÓGICA E FIREBASE (COM SUPORTE A FCM BACKGROUND E TRATAMENTO DE ERROS DE AUTH) -->
+    <!-- LÓGICA E FIREBASE (COM ALERTA DE TESTE DE CLIQUE) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -562,7 +562,6 @@
             setTimeout(() => { const el = document.getElementById(id); if(el) el.remove(); }, 3000);
         }
 
-        // REGISTRAR TOKEN FCM PARA NOTIFICAÇÕES EM SEGUNDO PLANO
         async function registerPushNotifications(userId) {
             try {
                 const permission = await Notification.requestPermission();
@@ -1288,7 +1287,10 @@
             }
         }
 
+        // FUNÇÃO DE LOGIN COM ALERTA DE TESTE NA TELA
         window.handleAuthSubmit = async function() {
+            alert("O botão foi clicado!"); // Alerta para testar se o toque está funcionando
+
             const email = document.getElementById('auth-email').value.trim();
             const pass = document.getElementById('auth-password').value.trim();
             const name = document.getElementById('auth-name').value.trim();
@@ -1317,6 +1319,7 @@
                 }
             } catch(e) {
                 console.error("Erro de Auth do Firebase:", e);
+                alert("Erro do Firebase: " + e.message); // Exibe o erro exato na tela do celular
                 let msg = e.message;
                 if(e.code === 'auth/invalid-credential' || e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password') {
                     msg = "E-mail não cadastrado ou senha incorreta.";
@@ -1324,8 +1327,6 @@
                     msg = "Este e-mail já está em uso por outra conta.";
                 } else if(e.code === 'auth/weak-password') {
                     msg = "A senha deve ter pelo menos 6 caracteres.";
-                } else if(e.code === 'auth/operation-not-allowed') {
-                    msg = "Erro: O login por E-mail/Senha está desativado no painel do Firebase.";
                 }
                 errorBox.innerText = "Erro: " + msg;
                 errorBox.classList.remove('hidden');
