@@ -2,251 +2,970 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rede Social - Corse</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Corse - Conecte-se com estilo</title>
+    
+    <link rel="icon" type="image/png" sizes="192x192" href="logo-icon.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="logo-icon.png">
+
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0b132b; color: #f8fafc; }
-        .hide-scrollbar::-webkit-scrollbar { display: none; }
-        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0b0f19; color: #f8fafc; touch-action: manipulation; }
+        input, select, textarea { font-size: 16px !important; }
+        .custom-scrollbar::-webkit-scrollbar { width: 4px; height: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
+        @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .toast-notification { animation: slideDown 0.3s ease-out forwards; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col justify-between max-w-md mx-auto bg-slate-950 border-x border-slate-900 shadow-2xl">
+<body class="min-h-screen flex flex-col items-center justify-start relative pb-28 md:pb-12">
 
-    <!-- CABEÇALHO -->
-    <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur border-b border-slate-800 p-4 flex justify-between items-center">
-        <h1 class="font-extrabold text-amber-400 text-lg tracking-wide">CORSE</h1>
-        <div class="flex items-center gap-3">
-            <button onclick="switchTab('communities')" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl font-semibold transition-all">Comunidades</button>
-            <button onclick="switchTab('chat')" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl font-semibold transition-all">Chat</button>
-        </div>
-    </header>
+    <!-- NOTIFICAÇÕES FLUTUANTES -->
+    <div id="toast-container" class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-sm px-4 pointer-events-none space-y-2"></div>
 
-    <!-- CONTEÚDO PRINCIPAL (ABAS) -->
-    <main class="flex-1 overflow-y-auto p-4 space-y-4 pb-20">
-
-        <!-- ABA 1: FEED DE PUBLICAÇÕES & POSTS -->
-        <div id="tab-feed" class="tab-content space-y-4">
-            <!-- Criar Post -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-lg">
-                <textarea id="post-input" placeholder="No que você está pensando hoje?" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-amber-500 resize-none h-20"></textarea>
-                <div class="flex justify-between items-center">
-                    <span class="text-[10px] text-slate-500">Compartilhe com a rede</span>
-                    <button onclick="createPost()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-1.5 rounded-xl text-xs transition-all cursor-pointer">Publicar</button>
+    <!-- TELA DE AUTENTICAÇÃO -->
+    <div id="auth-screen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-md p-6 sm:p-8 shadow-2xl space-y-6">
+            <div class="text-center space-y-2 flex flex-col items-center">
+                <div class="inline-flex bg-gradient-to-tr from-violet-600 to-fuchsia-600 p-3.5 rounded-2xl shadow-xl shadow-violet-500/30 mb-2">
+                    <i data-lucide="zap" class="w-8 h-8 text-white"></i>
                 </div>
+                <h1 class="text-3xl font-black tracking-wider bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Corse</h1>
+                <p id="auth-subtitle" class="text-xs text-slate-400">Conectando pessoas com estilo e tecnologia</p>
             </div>
-
-            <!-- Lista de Feed -->
-            <div id="feed-container" class="space-y-4">
-                <!-- Post de Exemplo 1 -->
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-                    <div class="flex items-center gap-3 cursor-pointer" onclick="openUserProfile('Carlos Mendes', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150', 'Criador de conteúdo e entusiasta de tecnologia.')">
-                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150" class="w-10 h-10 rounded-full object-cover border border-amber-500/40">
-                        <div>
-                            <h4 class="font-bold text-xs text-slate-200">Carlos Mendes</h4>
-                            <span class="text-[10px] text-slate-500">Há 15 minutos</span>
-                        </div>
-                    </div>
-                    <p class="text-xs text-slate-300 leading-relaxed">Galera, acabei de atualizar o sistema da fazenda por aqui. A integração de estoque via PDF ficou fantástica! 🚜💨</p>
-                    <div class="flex gap-4 border-t border-slate-800/80 pt-3 text-xs text-slate-400 font-semibold">
-                        <button class="hover:text-amber-400 transition-all flex items-center gap-1">❤️ 12</button>
-                        <button class="hover:text-amber-400 transition-all flex items-center gap-1">💬 Comentar</button>
-                        <button onclick="repost('Carlos Mendes', 'Galera, acabei de atualizar o sistema da fazenda por aqui...')" class="hover:text-amber-400 transition-all flex items-center gap-1">🔄 Repostar</button>
-                    </div>
+            <div class="space-y-4">
+                <div id="name-field-container" class="hidden">
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Seu Nome / Apelido</label>
+                    <input type="text" id="auth-name" placeholder="Ex: Dr. Cezar" class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-slate-100 focus:outline-none focus:border-violet-500 transition-all">
                 </div>
-            </div>
-        </div>
-
-        <!-- ABA 2: BATE-PAPO / CHAT (Com Rolagem Automática para Baixo) -->
-        <div id="tab-chat" class="tab-content hidden flex flex-col h-[calc(100vh-140px)]">
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 mb-2 flex items-center gap-3">
-                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="w-8 h-8 rounded-full object-cover cursor-pointer" onclick="openUserProfile('Mariana Souza', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150', 'Administradora de comunidades.')">
                 <div>
-                    <h4 class="font-bold text-xs text-slate-200">Mariana Souza</h4>
-                    <span class="text-[9px] text-emerald-400">Online agora</span>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">E-mail</label>
+                    <input type="email" id="auth-email" placeholder="seu@email.com" class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-slate-100 focus:outline-none focus:border-violet-500 transition-all">
                 </div>
-            </div>
-
-            <!-- Caixa de Mensagens com Rolagem Automática -->
-            <div id="chat-messages" class="flex-1 overflow-y-auto space-y-3 pr-1 hide-scrollbar">
-                <div class="flex justify-start">
-                    <div class="bg-slate-800 text-slate-200 p-2.5 rounded-2xl text-xs max-w-[80%]">Oi! Tudo bem com o projeto novo?</div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Senha</label>
+                    <input type="password" id="auth-password" placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-slate-100 focus:outline-none focus:border-violet-500 transition-all">
                 </div>
-                <div class="flex justify-end">
-                    <div class="bg-amber-600 text-white p-2.5 rounded-2xl text-xs max-w-[80%]">Tudo ótimo! Rodando perfeitamente por aqui.</div>
-                </div>
+                <div id="auth-error" class="text-xs text-red-400 font-medium p-3 bg-red-950/40 border border-red-900/50 rounded-2xl hidden"></div>
+                <button id="auth-submit-btn" onclick="handleAuthSubmit()" class="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-90 text-white py-3.5 rounded-2xl font-bold shadow-lg shadow-violet-600/30 transition-all text-sm cursor-pointer">
+                    Entrar na Conta
+                </button>
             </div>
-
-            <!-- Input do Chat -->
-            <div class="mt-3 flex gap-2">
-                <input type="text" id="chat-input" placeholder="Escreva sua mensagem..." class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
-                <button onclick="sendMessage()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition-all cursor-pointer">Enviar</button>
+            <div class="text-center pt-2 border-t border-slate-800">
+                <p class="text-xs text-slate-400"><span id="auth-switch-text">Não tem uma conta?</span> <button onclick="toggleAuthMode()" id="auth-switch-btn" class="text-violet-400 font-semibold hover:underline ml-1">Criar conta</button></p>
             </div>
-        </div>
-
-        <!-- ABA 3: COMUNIDADES / GRUPOS -->
-        <div id="tab-communities" class="tab-content hidden space-y-4">
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-                <div class="flex justify-between items-start">
-                    <div class="flex items-center gap-3">
-                        <div id="comm-avatar" class="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xl font-bold text-amber-400 overflow-hidden">
-                            🌾
-                        </div>
-                        <div>
-                            <h3 id="comm-name" class="font-bold text-sm text-slate-100">AgroTech Brasil</h3>
-                            <p class="text-[10px] text-slate-400"><span id="comm-members-count">1.420</span> membros ativos</p>
-                        </div>
-                    </div>
-                    <button onclick="openCommSettings()" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl font-semibold transition-all text-amber-400">⚙️ Configurações</button>
-                </div>
-                <p class="text-xs text-slate-300">Comunidade dedicada a automação, máquinas e gestão agrícola moderna.</p>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- MODAL DE PERFIL DE OUTRO USUÁRIO -->
-    <div id="user-profile-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4 text-center">
-            <img id="modal-user-avatar" src="" class="w-20 h-20 rounded-full object-cover mx-auto border-2 border-amber-500 shadow-lg">
-            <div>
-                <h3 id="modal-user-name" class="font-bold text-amber-400 text-base">Nome do Usuário</h3>
-                <p id="modal-user-bio" class="text-xs text-slate-300 mt-2">Biografia do usuário aparece aqui...</p>
-            </div>
-            <button onclick="closeUserProfile()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-semibold py-2 rounded-xl text-xs transition-all cursor-pointer">Fechar Perfil</button>
         </div>
     </div>
 
-    <!-- MODAL DE CONFIGURAÇÕES DO GRUPO / COMUNIDADE -->
-    <div id="comm-settings-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <!-- APLICATIVO PRINCIPAL -->
+    <div id="app-container" class="hidden w-full max-w-xl min-h-screen flex flex-col bg-[#0b0f19] border-x border-slate-900 shadow-2xl relative pb-24">
+        
+        <!-- CABEÇALHO DO APP -->
+        <header class="sticky top-0 z-40 bg-[#0b0f19]/90 backdrop-blur-md px-4 py-3 flex justify-between items-center border-b border-slate-900/60">
+            <div class="flex items-center gap-2">
+                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-600 to-fuchsia-600 flex items-center justify-center shadow-md shadow-violet-600/30">
+                    <i data-lucide="zap" class="w-5 h-5 text-white"></i>
+                </div>
+                <span class="text-2xl font-black tracking-tight text-white">Corse</span>
+            </div>
+            <div class="flex items-center gap-2.5">
+                <button onclick="fetchAllPortalsNews()" title="Atualizar Portais" class="w-10 h-10 rounded-full bg-slate-900/80 border border-slate-800 flex items-center justify-center text-violet-400 hover:text-white transition-all cursor-pointer shadow-sm">
+                    <i data-lucide="globe" class="w-5 h-5"></i>
+                </button>
+                <button onclick="switchTab('notifications')" class="relative w-10 h-10 rounded-full bg-slate-900/80 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white transition-all cursor-pointer">
+                    <i data-lucide="bell" class="w-5 h-5"></i>
+                    <span id="notif-badge" class="absolute top-2 right-2 w-2 h-2 rounded-full bg-fuchsia-500 hidden"></span>
+                </button>
+                <button onclick="switchTab('friends')" class="relative w-10 h-10 rounded-full bg-slate-900/80 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white transition-all cursor-pointer">
+                    <i data-lucide="message-circle" class="w-5 h-5"></i>
+                    <span id="unread-chat-badge" class="absolute -top-1 -right-1 bg-violet-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- CONTEÚDO DINÂMICO (ABAS) -->
+        <main class="flex-1 w-full">
+
+            <!-- ABA 1: INÍCIO / FEED -->
+            <section id="tab-feed" class="space-y-4">
+                <!-- CARROSSEL DE STORIES -->
+                <div class="w-full overflow-x-auto hide-scrollbar px-4 py-3 flex gap-3.5 custom-scrollbar" id="stories-tray">
+                    <div class="flex flex-col items-center gap-1 flex-shrink-0 cursor-pointer" onclick="triggerCreatePost()">
+                        <div class="w-16 h-16 rounded-full p-[2.5px] bg-gradient-to-tr from-violet-600 to-fuchsia-600 relative">
+                            <img id="story-my-avatar" src="" class="w-full h-full rounded-full object-cover border-2 border-[#0b0f19]">
+                            <div class="absolute bottom-0 right-0 w-5 h-5 bg-violet-600 text-white rounded-full flex items-center justify-center border-2 border-[#0b0f19] text-xs font-bold">+</div>
+                        </div>
+                        <span class="text-[11px] text-slate-300 font-medium truncate w-16 text-center">Seu story</span>
+                    </div>
+                </div>
+
+                <div id="posts-feed" class="space-y-4 px-4">
+                    <div class="text-center py-8 text-slate-500 text-xs">Carregando feed...</div>
+                </div>
+            </section>
+
+            <!-- ABA 2: EXPLORAR / COMUNIDADES -->
+            <section id="tab-communities" class="space-y-4 px-4 hidden">
+                <div class="flex justify-between items-center py-2">
+                    <div><h2 class="text-lg font-bold text-white">Explorar Grupos</h2><p class="text-xs text-slate-400">Conecte-se com interesses em comum.</p></div>
+                    <button onclick="openCreateGroupModal()" class="bg-violet-600 hover:bg-violet-500 text-white text-xs px-3.5 py-2 rounded-xl font-bold cursor-pointer shadow-md">+ Criar Grupo</button>
+                </div>
+                <div id="communities-grid" class="grid grid-cols-1 gap-3"></div>
+            </section>
+
+            <!-- ABA 3: CHAT & AMIGOS -->
+            <section id="tab-friends" class="space-y-4 px-4 hidden">
+                <div class="grid grid-cols-1 gap-4">
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+                        <h3 class="font-bold text-xs text-slate-200 flex items-center gap-2"><span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span><span>Meus Amigos e Membros</span></h3>
+                        <div id="online-users-list" class="space-y-2 max-h-36 overflow-y-auto custom-scrollbar"></div>
+                    </div>
+                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 shadow-xl flex flex-col h-[400px]">
+                        <div class="border-b border-slate-800 pb-2 mb-2 flex items-center justify-between">
+                            <div class="flex items-center gap-2"><div class="w-2.5 h-2.5 rounded-full bg-violet-500"></div><h3 id="chat-title" class="font-bold text-xs text-slate-100">Selecione uma conversa</h3></div>
+                            <span id="chat-typing-indicator" class="text-[10px] text-violet-400 italic hidden">digitando...</span>
+                        </div>
+                        <div id="chat-messages" class="flex-1 overflow-y-auto custom-scrollbar space-y-2.5 pr-1 mb-2"></div>
+                        <div id="chat-image-preview-bar" class="hidden relative mb-2 p-2 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between">
+                            <span class="text-[10px] text-violet-400 truncate">Imagem pronta para envio</span>
+                            <button onclick="clearChatImage()" class="text-red-400 text-xs font-bold">Remover</button>
+                        </div>
+                        <!-- BARRA DE CHAT BLINDADA E RESPONSIVA -->
+                        <div class="flex items-center gap-1.5 pt-2 border-t border-slate-800 bg-slate-900 w-full">
+                            <label class="cursor-pointer text-slate-400 hover:text-violet-400 p-1 flex-shrink-0"><i data-lucide="image" class="w-5 h-5"></i><input type="file" accept="image/*" class="hidden" onchange="handleChatImageSelect(event)"></label>
+                            <input type="text" id="chat-input" placeholder="Digite sua mensagem..." disabled oninput="notifyTyping()" class="flex-1 min-w-0 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-violet-500 disabled:opacity-50">
+                            <button onclick="insertChatEmoji('😊')" class="text-sm p-1 flex-shrink-0">😊</button>
+                            <button onclick="insertChatEmoji('👍')" class="text-sm p-1 flex-shrink-0">👍</button>
+                            <button id="chat-send-btn" onclick="sendChatMessage()" disabled class="bg-violet-600 hover:bg-violet-500 text-white px-3 py-2 rounded-xl text-xs font-bold cursor-pointer disabled:opacity-50 flex-shrink-0">Enviar</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ABA 4: NOTIFICAÇÕES -->
+            <section id="tab-notifications" class="space-y-4 px-4 hidden">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+                    <h3 class="font-bold text-sm text-white flex items-center gap-2"><i data-lucide="bell" class="w-4 h-4 text-fuchsia-400"></i> Notificações e Pedidos</h3>
+                    <div id="friend-requests-list" class="space-y-2.5 max-h-96 overflow-y-auto custom-scrollbar">
+                        <div class="text-xs text-slate-500 text-center py-4">Nenhuma notificação nova.</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- ABA 5: PERFIL -->
+            <section id="tab-profile" class="space-y-4 px-4 hidden">
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+                    <div id="profile-banner-container" class="h-36 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-indigo-600 relative bg-cover bg-center">
+                        <div class="absolute -bottom-8 left-4"><img id="profile-avatar-img" src="" class="w-20 h-20 rounded-2xl object-cover border-4 border-slate-900 shadow-xl"></div>
+                    </div>
+                    <div class="pt-10 p-5 flex flex-col gap-3">
+                        <div>
+                            <h2 id="profile-name" class="text-xl font-bold text-slate-100">Usuário</h2>
+                            <p id="profile-email" class="text-xs text-violet-400 font-medium">email@exemplo.com</p>
+                            <p id="profile-bio-text" class="text-xs text-slate-300 mt-2">Biografia...</p>
+                        </div>
+                        <button onclick="openEditProfileModal()" class="w-full bg-slate-800 hover:bg-slate-700 text-white py-2 rounded-xl text-xs font-bold border border-slate-700 flex items-center justify-center gap-1.5 cursor-pointer"><i data-lucide="edit-3" class="w-4 h-4"></i><span>Editar Perfil, Foto & Banner</span></button>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <h3 class="font-bold text-sm text-white px-1">Minhas Publicações</h3>
+                    <div id="my-posts-feed" class="space-y-3">
+                        <div class="text-center py-6 text-slate-500 text-xs">Carregando suas publicações...</div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <!-- BARRA DE NAVEGAÇÃO INFERIOR -->
+        <nav class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-xl bg-[#0b0f19]/95 backdrop-blur-lg border-t border-slate-900 z-40 px-6 py-2.5 flex justify-between items-center text-xs">
+            <button onclick="switchTab('feed')" id="nav-feed" class="flex flex-col items-center gap-1 text-violet-400 font-semibold cursor-pointer transition-all">
+                <i data-lucide="home" class="w-5 h-5"></i>
+                <span class="text-[10px]">Início</span>
+            </button>
+            <button onclick="switchTab('communities')" id="nav-communities" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-all">
+                <i data-lucide="compass" class="w-5 h-5"></i>
+                <span class="text-[10px]">Explorar</span>
+            </button>
+            <button onclick="triggerCreatePost()" class="w-12 h-12 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 text-white flex items-center justify-center shadow-lg shadow-violet-600/40 transform -translate-y-3 hover:scale-105 transition-all cursor-pointer">
+                <i data-lucide="plus" class="w-6 h-6"></i>
+            </button>
+            <button onclick="switchTab('notifications')" id="nav-notifications" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-all relative">
+                <i data-lucide="bell" class="w-5 h-5"></i>
+                <span id="nav-notif-dot" class="absolute -top-0.5 right-2 w-2 h-2 rounded-full bg-fuchsia-500 hidden"></span>
+                <span class="text-[10px]">Notificações</span>
+            </button>
+            <button onclick="switchTab('profile')" id="nav-profile" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-all">
+                <i data-lucide="user" class="w-5 h-5"></i>
+                <span class="text-[10px]">Perfil</span>
+            </button>
+        </nav>
+    </div>
+
+    <!-- INPUT INVISÍVEL PARA CAPTURAR CÂMERA/GALERIA -->
+    <input type="file" id="global-media-input" accept="image/*" capture="environment" class="hidden" onchange="handleNewMediaSelected(event)">
+
+    <!-- MODAL DE CRIAR POST / STORY -->
+    <div id="create-post-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                <h3 class="font-bold text-amber-400 text-sm">⚙️ Configurações da Comunidade</h3>
-                <button onclick="closeCommSettings()" class="text-slate-400 hover:text-white text-xs cursor-pointer">✕</button>
+                <h3 class="font-bold text-slate-100 text-sm">Nova Publicação</h3>
+                <button onclick="closeCreatePostModal()" class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div class="space-y-3">
-                <div>
-                    <label class="text-[10px] text-slate-400 font-bold block mb-1">Nome do Grupo</label>
-                    <input type="text" id="edit-comm-name" value="AgroTech Brasil" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-200">
+                <div class="relative rounded-2xl overflow-hidden h-48 bg-slate-950 border border-slate-800">
+                    <img id="new-post-image-preview" src="" class="w-full h-full object-cover">
                 </div>
+                <textarea id="new-post-title-input" rows="2" placeholder="Adicione um título ou legenda..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-100 resize-none focus:outline-none focus:border-violet-500"></textarea>
                 <div>
-                    <label class="text-[10px] text-slate-400 font-bold block mb-1">Ícone / Emoji do Grupo</label>
-                    <input type="text" id="edit-comm-icon" value="🌾" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-200">
+                    <label class="block text-xs font-semibold text-slate-300 mb-1.5">Onde deseja publicar?</label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="submitNewPost('feed')" class="bg-violet-600 hover:bg-violet-500 text-white py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer">Publicar no Feed</button>
+                        <button onclick="submitNewPost('story')" class="bg-fuchsia-600 hover:bg-fuchsia-500 text-white py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer">Publicar nos Stories</button>
+                    </div>
                 </div>
-                <button onclick="saveCommSettings()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition-all cursor-pointer">Salvar Alterações</button>
             </div>
         </div>
     </div>
 
-    <!-- RODAPÉ DE NAVEGAÇÃO DA REDE SOCIAL -->
-    <nav class="sticky bottom-0 bg-slate-900/90 backdrop-blur border-t border-slate-800 p-3 flex justify-around items-center text-xs font-semibold text-slate-400">
-        <button onclick="switchTab('feed')" id="nav-feed" class="hover:text-amber-400 transition-all text-amber-400">🏠 Feed</button>
-        <button onclick="switchTab('chat')" id="nav-chat" class="hover:text-amber-400 transition-all">💬 Chat</button>
-        <button onclick="switchTab('communities')" id="nav-communities" class="hover:text-amber-400 transition-all">👥 Comunidades</button>
-    </nav>
+    <!-- MODAL DE VISUALIZAR STORY -->
+    <div id="story-viewer-modal" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col justify-between p-4">
+        <div class="flex justify-between items-center pt-2">
+            <div class="flex items-center gap-3">
+                <img id="viewer-author-avatar" src="" class="w-10 h-10 rounded-full object-cover border border-violet-500">
+                <div>
+                    <h4 id="viewer-author-name" class="font-bold text-white text-xs">Nome</h4>
+                    <span id="viewer-time" class="text-[10px] text-slate-400">Agora</span>
+                </div>
+            </div>
+            <button onclick="closeStoryViewer()" class="text-white p-2"><i data-lucide="x" class="w-6 h-6"></i></button>
+        </div>
+        <div class="flex-1 flex flex-col items-center justify-center p-2">
+            <div class="relative max-w-sm w-full h-[65vh] bg-slate-950 rounded-2xl overflow-hidden border border-slate-800 flex items-center justify-center">
+                <img id="viewer-story-img" src="" class="w-full h-full object-cover">
+                <div class="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/80 to-transparent p-4">
+                    <p id="viewer-story-title" class="text-sm text-white font-medium text-center"></p>
+                </div>
+            </div>
+        </div>
+        <div id="story-views-panel" class="bg-slate-900 border border-slate-800 rounded-2xl p-3 max-w-sm mx-auto w-full flex items-center justify-between hidden">
+            <div class="flex items-center gap-2">
+                <i data-lucide="eye" class="w-4 h-4 text-violet-400"></i>
+                <span id="story-views-count" class="text-xs text-slate-200 font-semibold">0 visualizações</span>
+            </div>
+            <button onclick="likeCurrentStory()" class="flex items-center gap-1.5 text-fuchsia-400 text-xs font-bold bg-fuchsia-950/40 px-3 py-1.5 rounded-xl border border-fuchsia-900">
+                <i data-lucide="heart" class="w-4 h-4"></i><span id="story-likes-count">Curtir</span>
+            </button>
+        </div>
+    </div>
 
-    <script>
-        // Função para alternar abas de navegação
-        function switchTab(tabName) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
-            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+    <!-- MODAL DE EDITAR PERFIL -->
+    <div id="edit-profile-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-slate-100 text-sm">Editar Perfil & Visual</h3>
+                <button onclick="closeEditProfileModal()" class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div class="flex flex-col items-center gap-2">
+                    <img id="edit-avatar-preview" src="" class="w-16 h-16 rounded-full object-cover border-2 border-violet-500">
+                    <label class="cursor-pointer bg-slate-800 text-slate-200 px-3 py-1.5 rounded-xl text-xs font-semibold">Alterar Foto de Perfil<input type="file" accept="image/*" class="hidden" onchange="handleProfileAvatarSelect(event)"></label>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Link da Imagem de Banner (Fundo)</label>
+                    <input type="text" id="edit-banner-input" placeholder="URL da imagem de fundo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-100">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Seu Nome</label>
+                    <input type="text" id="edit-name-input" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-100">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Biografia</label>
+                    <textarea id="edit-bio-input" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-100 resize-none"></textarea>
+                </div>
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeEditProfileModal()" class="text-slate-400 text-xs">Cancelar</button>
+                <button onclick="saveProfileChanges()" class="bg-violet-600 text-white px-4 py-2 rounded-xl text-xs font-bold">Salvar Alterações</button>
+            </div>
+        </div>
+    </div>
 
-            // Se abrir o chat, rola automaticamente para o final da conversa
-            if(tabName === 'chat') {
-                scrollToBottomChat();
+    <!-- MODAL DE CRIAR GRUPO -->
+    <div id="create-group-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-slate-100 text-sm">Criar Grupo</h3>
+                <button onclick="closeCreateGroupModal()" class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="space-y-3">
+                <input type="text" id="group-name-input" placeholder="Nome do Grupo" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-100">
+                <input type="text" id="group-icon-input" placeholder="Emoji (ex: 🚜)" value="🚜" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-100">
+            </div>
+            <div class="flex justify-end gap-2 pt-2">
+                <button onclick="closeCreateGroupModal()" class="text-slate-400 text-xs">Cancelar</button>
+                <button onclick="submitGroupModal()" class="bg-violet-600 text-white px-4 py-2 rounded-xl text-xs font-bold">Criar</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL DE PERFIL DO USUÁRIO -->
+    <div id="user-profile-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4 text-center">
+            <img id="modal-user-avatar" src="" class="w-20 h-20 rounded-full object-cover mx-auto border-2 border-violet-500 shadow-lg">
+            <div>
+                <h3 id="modal-user-name" class="font-bold text-slate-100 text-base">Nome</h3>
+                <p id="modal-user-bio" class="text-xs text-slate-400 mt-2">Biografia</p>
+            </div>
+            <div id="modal-user-actions" class="flex gap-2 mt-4 hidden">
+                <button id="modal-btn-add" class="flex-1 bg-emerald-600 text-white py-2 rounded-xl text-xs font-bold cursor-pointer">Adicionar Amigo</button>
+                <button id="modal-btn-chat" class="flex-1 bg-violet-600 text-white py-2 rounded-xl text-xs font-bold cursor-pointer">Mensagem</button>
+            </div>
+            <button onclick="closeUserProfile()" class="w-full bg-slate-800 text-white py-2 rounded-xl text-xs font-bold cursor-pointer">Fechar</button>
+        </div>
+    </div>
+
+    <!-- LÓGICA E FIREBASE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getDatabase, ref, push, set, onValue, update, remove, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+        const firebaseConfig = {
+          apiKey: "AIzaSyDtNh6DX5NZNzJdoTWN9Dklu97munmJf1w",
+          authDomain: "gestaofazenda-106ec.firebaseapp.com",
+          databaseURL: "https://gestaofazenda-106ec-default-rtdb.firebaseio.com",
+          projectId: "gestaofazenda-106ec",
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getDatabase(app);
+
+        let isRegistering = false, currentUser = null, activeMediaBase64 = "", chatImageBase64 = "", activeChatFriendUid = null;
+        let globalUsersCache = {}, globalFriendsCache = {}, openCommentSections = new Set();
+        let typingTimeout = null, portalTimer = null, activeViewingStoryId = null;
+
+        window.escapeHtml = text => (text || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        window.showToast = function(msg, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const id = 'toast-' + Date.now();
+            container.insertAdjacentHTML('beforeend', `<div id="${id}" class="toast-notification p-3.5 rounded-2xl border bg-slate-900 shadow-2xl text-xs font-semibold text-slate-100">${escapeHtml(msg)}</div>`);
+            setTimeout(() => { const el = document.getElementById(id); if(el) el.remove(); }, 3000);
+        }
+
+        // ==========================
+        // 1. CORSE NOTÍCIA (API APITube)
+        // ==========================
+        window.fetchCorseNews = async function(isAutomatic = false) {
+            try {
+                const response = await fetch("https://api.apitube.io/v1/news/everything?language.code=pt&per_page=3", {
+                    method: "GET",
+                    headers: { "X-API-Key": "api_live_xpjJ039TjmQobLLMo4oolzkVgJqpQ9jH4dXOc9Fm6BNajkcmNdugeWhw4ZI" }
+                });
+                if (!response.ok) return;
+                const data = await response.json();
+                const articles = data.results || data.articles || data.data || [];
+                if (articles.length === 0) return;
+
+                const postsRef = ref(db, 'posts');
+                const snapshot = await get(postsRef);
+                const existingPosts = snapshot.val() || {};
+                const existingTitles = Object.values(existingPosts).map(p => p.content ? p.content.substring(0, 30) : "");
+
+                let count = 0;
+                for (let art of articles) {
+                    const title = art.title || "Notícia do Corse Notícia";
+                    if (existingTitles.some(t => t.includes(title.substring(0, 15)))) continue;
+
+                    const desc = art.description || art.snippet || "Acompanhe as principais atualizações no portal Corse Notícia.";
+                    const img = art.image_url || art.urlToImage || art.image || "";
+
+                    await push(postsRef, {
+                        uid: "corse_noticia_bot",
+                        author: "Corse Notícia 📰",
+                        avatar: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=150",
+                        content: `📢 **${title}**\n\n${desc}`,
+                        image: img,
+                        timestamp: Date.now()
+                    });
+                    count++;
+                    if (count >= 2) break;
+                }
+                if (!isAutomatic && count > 0) showToast("2 novas notícias no Corse Notícia!", "success");
+            } catch (err) { console.error(err); }
+        }
+
+        // ==========================
+        // 2. FOFOCALIZA (API API-Ninjas)
+        // ==========================
+        window.fetchFofocalizaNews = async function(isAutomatic = false) {
+            try {
+                const response = await fetch("https://api.api-ninjas.com/v1/stockprice?ticker=AAPL", {
+                    method: "GET",
+                    headers: { "X-Api-Key": "TI22ELUkGQozawR0PeJMnQJcMzoFcQtSIlmbHS6U" }
+                });
+                let stock = null;
+                if (response.ok) stock = await response.json();
+
+                const fofocasPool = [
+                    { title: "Bafão nos bastidores da TV! 🌟", desc: "Fontes exclusivas revelam novos segredos de celebridades que estão dando o que falar nas redes sociais!", image: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=600" },
+                    { title: "Flagra exclusivo das estrelas ✨", desc: "Artistas são vistos em evento vip badalado. Todo mundo comentando os looks da noite!", image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600" },
+                    { title: "O mundo dos famosos e negócios 📈", desc: stock ? `Cotação e investimentos das estrelas: Apple (AAPL) em US$ ${stock.price || '185.00'}.` : "Astros fecham contratos milionários para campanhas.", image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600" }
+                ];
+
+                const postsRef = ref(db, 'posts');
+                const snapshot = await get(postsRef);
+                const existingPosts = snapshot.val() || {};
+                const existingTitles = Object.values(existingPosts).map(p => p.content ? p.content.substring(0, 30) : "");
+
+                let count = 0;
+                for (let item of fofocasPool) {
+                    if (existingTitles.some(t => t.includes(item.title.substring(0, 15)))) continue;
+
+                    await push(postsRef, {
+                        uid: "fofocaliza_bot",
+                        author: "Fofocaliza 🌟",
+                        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
+                        content: `🔥 **${item.title}**\n\n${item.desc}`,
+                        image: item.image,
+                        timestamp: Date.now()
+                    });
+                    count++;
+                    if (count >= 2) break;
+                }
+                if (!isAutomatic && count > 0) showToast("2 novas fofocas no Fofocaliza!", "success");
+            } catch (err) { console.error(err); }
+        }
+
+        window.fetchAllPortalsNews = function(isAuto = false) {
+            fetchCorseNews(isAuto);
+            fetchFofocalizaNews(isAuto);
+            if (!isAuto) showToast("Atualizando portais...", "info");
+        }
+
+        function startPortalsAutoUpdater() {
+            if (portalTimer) clearInterval(portalTimer);
+            fetchAllPortalsNews(true);
+            portalTimer = setInterval(() => { if (currentUser) fetchAllPortalsNews(true); }, 60000);
+        }
+
+        // ==========================
+        // FLUXO DE CÂMERA / GALERIA (BOTÃO +)
+        // ==========================
+        window.triggerCreatePost = () => {
+            document.getElementById('global-media-input').click();
+        }
+
+        window.handleNewMediaSelected = e => {
+            if(e.target.files[0]) {
+                const r = new FileReader();
+                r.onload = ev => {
+                    activeMediaBase64 = ev.target.result;
+                    document.getElementById('new-post-image-preview').src = activeMediaBase64;
+                    document.getElementById('new-post-title-input').value = "";
+                    document.getElementById('create-post-modal').classList.remove('hidden');
+                }
+                r.readAsDataURL(e.target.files[0]);
+            }
+        }
+        window.closeCreatePostModal = () => document.getElementById('create-post-modal').classList.add('hidden');
+
+        window.submitNewPost = async function(destination) {
+            const title = document.getElementById('new-post-title-input').value.trim();
+            if(!activeMediaBase64) return;
+
+            if(destination === 'feed') {
+                await push(ref(db, 'posts'), {
+                    uid: currentUser.uid,
+                    author: document.getElementById('profile-name').innerText,
+                    avatar: document.getElementById('profile-avatar-img').src,
+                    content: title || "Nova publicação",
+                    image: activeMediaBase64,
+                    timestamp: Date.now()
+                });
+                showToast("Publicado no Feed com sucesso!", "success");
+            } else {
+                await push(ref(db, 'stories'), {
+                    uid: currentUser.uid,
+                    author: document.getElementById('profile-name').innerText,
+                    avatar: document.getElementById('profile-avatar-img').src,
+                    title: title || "Meu Story",
+                    image: activeMediaBase64,
+                    timestamp: Date.now()
+                });
+                showToast("Publicado nos Stories!", "success");
+            }
+            closeCreatePostModal();
+        }
+
+        // ==========================
+        // STORIES (NEON E VISTO)
+        // ==========================
+        function listenStories() {
+            const tray = document.getElementById('stories-tray');
+            onValue(ref(db, 'stories'), (snap) => {
+                const storiesData = snap.val() || {};
+                onValue(ref(db, `friends/${currentUser.uid}`), (fSnap) => {
+                    const friends = fSnap.val() || {};
+                    onValue(ref(db, `storyViews/${currentUser.uid}`), (vSnap) => {
+                        const viewedMap = vSnap.val() || {};
+
+                        let html = `
+                            <div class="flex flex-col items-center gap-1 flex-shrink-0 cursor-pointer" onclick="triggerCreatePost()">
+                                <div class="w-16 h-16 rounded-full p-[2.5px] bg-gradient-to-tr from-violet-600 to-fuchsia-600 relative">
+                                    <img id="story-my-avatar" src="${document.getElementById('profile-avatar-img')?.src || ''}" class="w-full h-full rounded-full object-cover border-2 border-[#0b0f19]">
+                                    <div class="absolute bottom-0 right-0 w-5 h-5 bg-violet-600 text-white rounded-full flex items-center justify-center border-2 border-[#0b0f19] text-xs font-bold">+</div>
+                                </div>
+                                <span class="text-[11px] text-slate-300 font-medium truncate w-16 text-center">Seu story</span>
+                            </div>
+                        `;
+
+                        Object.keys(storiesData).forEach(sId => {
+                            const s = storiesData[sId];
+                            const isMyStory = s.uid === currentUser.uid;
+                            const isFriend = friends[s.uid];
+
+                            if(!isMyStory && !isFriend) return;
+
+                            const isViewed = viewedMap[sId];
+                            const ringClass = isViewed ? 'p-[2.5px] bg-slate-700' : 'p-[2.5px] bg-gradient-to-tr from-fuchsia-500 via-violet-500 to-pink-500 animate-pulse';
+
+                            html += `
+                                <div class="flex flex-col items-center gap-1 flex-shrink-0 cursor-pointer" onclick="openStoryViewer('${sId}', '${s.uid}', '${escapeHtml(s.author)}', '${s.avatar}', '${s.image}', '${escapeHtml(s.title)}')">
+                                    <div class="w-16 h-16 rounded-full ${ringClass}">
+                                        <img src="${s.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" class="w-full h-full rounded-full object-cover border-2 border-[#0b0f19]">
+                                    </div>
+                                    <span class="text-[11px] text-slate-300 font-medium truncate w-16 text-center">${escapeHtml(s.author)}</span>
+                                </div>
+                            `;
+                        });
+                        tray.innerHTML = html;
+                    });
+                });
+            });
+        }
+
+        window.openStoryViewer = async function(storyId, authorUid, authorName, authorAvatar, storyImg, storyTitle) {
+            activeViewingStoryId = storyId;
+            document.getElementById('viewer-author-name').innerText = authorName;
+            document.getElementById('viewer-author-avatar').src = authorAvatar;
+            document.getElementById('viewer-story-img').src = storyImg;
+            document.getElementById('viewer-story-title').innerText = storyTitle;
+
+            await set(ref(db, `storyViews/${currentUser.uid}/${storyId}`), true);
+
+            const viewsPanel = document.getElementById('story-views-panel');
+            if(authorUid === currentUser.uid) {
+                viewsPanel.classList.remove('hidden');
+                onValue(ref(db, `storyInteractions/${storyId}`), (snap) => {
+                    const inter = snap.val() || {};
+                    const viewsCount = inter.views ? Object.keys(inter.views).length : 0;
+                    const likesCount = inter.likes ? Object.keys(inter.likes).length : 0;
+                    document.getElementById('story-views-count').innerText = `${viewsCount} visualizações`;
+                    document.getElementById('story-likes-count').innerText = `${likesCount} Curtir`;
+                }, { onlyOnce: true });
+                await set(ref(db, `storyInteractions/${storyId}/views/${currentUser.uid}`), true);
+            } else {
+                viewsPanel.classList.add('hidden');
+                await set(ref(db, `storyInteractions/${storyId}/views/${currentUser.uid}`), true);
+            }
+
+            document.getElementById('story-viewer-modal').classList.remove('hidden');
+        }
+
+        window.closeStoryViewer = () => document.getElementById('story-viewer-modal').classList.add('hidden');
+
+        window.likeCurrentStory = async function() {
+            if(!activeViewingStoryId) return;
+            await set(ref(db, `storyInteractions/${activeViewingStoryId}/likes/${currentUser.uid}`), true);
+            showToast("Você curtiu este story!", "success");
+        }
+
+        // ==========================
+        // AUTENTICAÇÃO E ESTADO
+        // ==========================
+        window.toggleAuthMode = function() {
+            isRegistering = !isRegistering;
+            document.getElementById('auth-subtitle').innerText = isRegistering ? "Crie sua conta no Corse" : "Conectando pessoas com estilo e tecnologia";
+            document.getElementById('name-field-container').classList.toggle('hidden');
+            document.getElementById('auth-submit-btn').innerText = isRegistering ? "Cadastrar Conta" : "Entrar na Conta";
+            document.getElementById('auth-switch-text').innerText = isRegistering ? "Já tem uma conta?" : "Não tem uma conta?";
+            document.getElementById('auth-switch-btn').innerText = isRegistering ? "Fazer login" : "Criar conta";
+        }
+
+        window.handleAuthSubmit = async function() {
+            const email = document.getElementById('auth-email').value.trim(), pass = document.getElementById('auth-password').value.trim(), name = document.getElementById('auth-name').value.trim();
+            try {
+                if(isRegistering) {
+                    const cred = await createUserWithEmailAndPassword(auth, email, pass);
+                    await set(ref(db, `users/${cred.user.uid}`), { name, email, avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150", banner: "", online: true, bio: "Inovando no Corse." });
+                } else await signInWithEmailAndPassword(auth, email, pass);
+            } catch(e) { alert("Erro: " + e.message); }
+        }
+
+        onAuthStateChanged(auth, (user) => {
+            if(user) {
+                currentUser = user;
+                document.getElementById('auth-screen').classList.add('hidden');
+                document.getElementById('app-container').classList.remove('hidden');
+                set(ref(db, `users/${user.uid}/online`), true);
+                loadProfile(); listenUsersAndFriends(); listenPosts(); listenCommunities(); listenNotifications(); listenStories();
+                startPortalsAutoUpdater();
+            } else {
+                if(currentUser) set(ref(db, `users/${currentUser.uid}/online`), false);
+                currentUser = null;
+                if(portalTimer) clearInterval(portalTimer);
+                document.getElementById('app-container').classList.add('hidden');
+                document.getElementById('auth-screen').classList.remove('hidden');
+            }
+            lucide.createIcons();
+        });
+
+        window.logoutUser = async function() { if(currentUser) await set(ref(db, `users/${currentUser.uid}/online`), false); await signOut(auth); }
+
+        window.switchTab = function(tabId) {
+            document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+            document.querySelectorAll('nav button').forEach(b => { if(!b.classList.contains('bg-gradient-to-tr')) b.className = "flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-all"; });
+            const btn = document.getElementById(`nav-${tabId}`);
+            if(btn) btn.className = "flex flex-col items-center gap-1 text-violet-400 font-semibold cursor-pointer transition-all";
+        }
+
+        // ==========================
+        // PERFIL
+        // ==========================
+        function loadProfile() {
+            onValue(ref(db, `users/${currentUser.uid}`), (snap) => {
+                const d = snap.val() || {};
+                const name = d.name || "Usuário", av = d.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150";
+                document.getElementById('profile-name').innerText = name;
+                document.getElementById('profile-email').innerText = d.email || currentUser.email;
+                document.getElementById('profile-bio-text').innerText = d.bio || "Biografia...";
+                if(document.getElementById('story-my-avatar')) document.getElementById('story-my-avatar').src = av;
+                document.getElementById('profile-avatar-img').src = av;
+                if(d.banner) document.getElementById('profile-banner-container').style.backgroundImage = `url('${d.banner}')`;
+            });
+        }
+
+        window.openEditProfileModal = () => {
+            document.getElementById('edit-name-input').value = document.getElementById('profile-name').innerText;
+            document.getElementById('edit-bio-input').value = document.getElementById('profile-bio-text').innerText;
+            document.getElementById('edit-avatar-preview').src = document.getElementById('profile-avatar-img').src;
+            document.getElementById('edit-profile-modal').classList.remove('hidden');
+        }
+        window.closeEditProfileModal = () => document.getElementById('edit-profile-modal').classList.add('hidden');
+
+        window.handleProfileAvatarSelect = e => {
+            if(e.target.files[0]) {
+                const r = new FileReader();
+                r.onload = ev => { 
+                    document.getElementById('edit-avatar-preview').src = ev.target.result;
+                    update(ref(db, `users/${currentUser.uid}`), { avatar: ev.target.result });
+                    showToast("Foto de perfil atualizada!", "success");
+                }
+                r.readAsDataURL(e.target.files[0]);
             }
         }
 
-        // Função de Rolagem Automática do Chat
-        function scrollToBottomChat() {
-            const chatBox = document.getElementById('chat-messages');
-            setTimeout(() => {
-                chatBox.scrollTop = chatBox.scrollHeight;
-            }, 50);
+        window.saveProfileChanges = async function() {
+            const name = document.getElementById('edit-name-input').value.trim();
+            const bio = document.getElementById('edit-bio-input').value.trim();
+            const banner = document.getElementById('edit-banner-input').value.trim();
+            if(!name) return;
+            let data = { name, bio };
+            if(banner) data.banner = banner;
+            await update(ref(db, `users/${currentUser.uid}`), data);
+            closeEditProfileModal(); showToast("Perfil atualizado!", "success");
         }
 
-        // Enviar mensagem no chat e rolar automaticamente para baixo
-        function sendMessage() {
-            const input = document.getElementById('chat-input');
-            const text = input.value.trim();
-            if(!text) return;
+        // ==========================
+        // FEED DE POSTS E MINHAS PUBLICAÇÕES
+        // ==========================
+        function listenPosts() {
+            const feed = document.getElementById('posts-feed');
+            const myFeed = document.getElementById('my-posts-feed');
+            onValue(ref(db, 'posts'), (snap) => {
+                feed.innerHTML = ""; myFeed.innerHTML = "";
+                const data = snap.val() || {};
+                const keys = Object.keys(data).reverse();
+                if(keys.length === 0) {
+                    feed.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">Nenhum post ainda.</div>`;
+                    myFeed.innerHTML = `<div class="text-center py-8 text-slate-500 text-xs">Você ainda não fez publicações.</div>`;
+                    return;
+                }
 
-            const chatBox = document.getElementById('chat-messages');
-            chatBox.insertAdjacentHTML('beforeend', `
-                <div class="flex justify-end">
-                    <div class="bg-amber-600 text-white p-2.5 rounded-2xl text-xs max-w-[80%]">${text}</div>
-                </div>
-            `);
-            input.value = '';
-            scrollToBottomChat();
+                keys.forEach(postId => {
+                    const p = data[postId];
+                    const likesObj = p.likes || {}, likesCount = Object.keys(likesObj).length, iLiked = !!likesObj[currentUser.uid];
+                    const commentsObj = p.comments || {}, commentsCount = Object.keys(commentsObj).length;
+                    const isMyPost = p.uid === currentUser.uid;
+
+                    let commentsHtml = '';
+                    Object.keys(commentsObj).forEach(cId => {
+                        const c = commentsObj[cId];
+                        commentsHtml += `<div class="bg-slate-950 p-2.5 rounded-xl border border-slate-800 text-xs"><span class="font-semibold text-violet-400 cursor-pointer" onclick="openUserProfile('${c.uid}')">${escapeHtml(c.author)}</span><p class="text-slate-300 mt-0.5">${escapeHtml(c.text)}</p></div>`;
+                    });
+                    const isOpen = openCommentSections.has(postId) ? '' : 'hidden';
+                    const img = p.image ? `<div class="mt-3 rounded-2xl overflow-hidden border border-slate-800"><img src="${p.image}" class="w-full object-cover max-h-96"></div>` : "";
+
+                    const postCardHtml = `
+                        <div class="bg-slate-900/80 border border-slate-800 rounded-3xl p-4 shadow-xl space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="flex items-center gap-3 cursor-pointer" onclick="openUserProfile('${p.uid}')">
+                                    <img src="${p.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" class="w-10 h-10 rounded-full object-cover border border-slate-700">
+                                    <div>
+                                        <div class="flex items-center gap-1">
+                                            <h3 class="font-bold text-slate-100 text-xs hover:text-violet-400">${escapeHtml(p.author)}</h3>
+                                            <svg class="w-3.5 h-3.5 text-blue-400" fill="currentColor" viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+                                        </div>
+                                        <span class="text-[10px] text-slate-500">Publicado no Corse</span>
+                                    </div>
+                                </div>
+                            </div>
+                            <p class="text-xs text-slate-200 leading-relaxed whitespace-pre-line">${escapeHtml(p.content)}</p>
+                            ${img}
+                            <div class="flex items-center justify-between pt-3 border-t border-slate-800 text-slate-400 text-xs font-semibold">
+                                <button onclick="toggleLike('${postId}')" class="flex items-center gap-1.5 ${iLiked ? 'text-fuchsia-500' : 'hover:text-fuchsia-400'} cursor-pointer"><i data-lucide="heart" class="w-4 h-4 ${iLiked ? 'fill-fuchsia-500' : ''}"></i><span>${likesCount} Curtidas</span></button>
+                                <button onclick="toggleCommentSection('${postId}')" class="flex items-center gap-1.5 hover:text-violet-400 cursor-pointer"><i data-lucide="message-circle" class="w-4 h-4"></i><span>${commentsCount} Comentários</span></button>
+                            </div>
+                            <div id="comments-${postId}" class="${isOpen} pt-3 border-t border-slate-800 space-y-2">
+                                <div class="space-y-1.5 max-h-36 overflow-y-auto custom-scrollbar">${commentsHtml || '<p class="text-[10px] text-slate-500">Nenhum comentário ainda.</p>'}</div>
+                                <div class="flex gap-2">
+                                    <input type="text" id="comment-input-${postId}" placeholder="Escreva um comentário..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-violet-500">
+                                    <button onclick="postComment('${postId}')" class="bg-violet-600 text-white px-3 py-2 rounded-xl text-xs font-bold cursor-pointer">Enviar</button>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+
+                    feed.insertAdjacentHTML('beforeend', postCardHtml);
+                    if(isMyPost) myFeed.insertAdjacentHTML('beforeend', postCardHtml);
+                });
+                lucide.createIcons();
+            });
         }
 
-        // Abrir Perfil de Outro Usuário
-        function openUserProfile(name, avatar, bio) {
-            document.getElementById('modal-user-name').innerText = name;
-            document.getElementById('modal-user-avatar').src = avatar;
-            document.getElementById('modal-user-bio').innerText = bio;
+        window.toggleLike = async function(postId) {
+            const refItem = ref(db, `posts/${postId}/likes/${currentUser.uid}`);
+            onValue(refItem, (snap) => { if(snap.exists()) remove(refItem); else set(refItem, true); }, { onlyOnce: true });
+        }
+        window.toggleCommentSection = function(postId) {
+            const el = document.getElementById(`comments-${postId}`);
+            if(el.classList.contains('hidden')) { el.classList.remove('hidden'); openCommentSections.add(postId); }
+            else { el.classList.add('hidden'); openCommentSections.delete(postId); }
+        }
+        window.postComment = async function(postId) {
+            const txt = document.getElementById(`comment-input-${postId}`).value.trim(); if(!txt) return;
+            await push(ref(db, `posts/${postId}/comments`), { uid: currentUser.uid, author: document.getElementById('profile-name').innerText, text: txt });
+            document.getElementById(`comment-input-${postId}`).value = ""; showToast("Comentário enviado!", "success");
+        }
+
+        // ==========================
+        // AMIGOS E CHAT
+        // ==========================
+        function listenUsersAndFriends() {
+            onValue(ref(db, `friends/${currentUser.uid}`), (snap) => {
+                globalFriendsCache = snap.val() || {};
+                onValue(ref(db, 'users'), (uSnap) => {
+                    globalUsersCache = uSnap.val() || {};
+                    renderUsersList();
+                });
+            });
+        }
+
+        function renderUsersList() {
+            const list = document.getElementById('online-users-list'); list.innerHTML = "";
+            Object.keys(globalUsersCache).forEach(uid => {
+                if(uid === currentUser.uid) return;
+                const u = globalUsersCache[uid];
+                const isFriend = !!globalFriendsCache[uid];
+
+                list.insertAdjacentHTML('beforeend', `
+                    <div class="flex items-center justify-between bg-slate-950 p-2 rounded-xl border border-slate-800">
+                        <div class="flex items-center gap-2 cursor-pointer" onclick="openUserProfile('${uid}')">
+                            <img src="${u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" class="w-7 h-7 rounded-full object-cover">
+                            <div>
+                                <h4 class="font-semibold text-xs text-slate-100">${escapeHtml(u.name)}</h4>
+                                <p class="text-[9px] ${u.online ? 'text-emerald-400' : 'text-slate-500'}">${u.online ? 'Online' : 'Offline'}</p>
+                            </div>
+                        </div>
+                        ${isFriend ? `<button onclick="openChat('${uid}', '${escapeHtml(u.name)}')" class="bg-violet-600 text-white px-2.5 py-1 rounded-lg text-[10px] font-bold">Conversar</button>` : `<button onclick="sendFriendRequest('${uid}', '${escapeHtml(u.name)}')" class="bg-emerald-600/20 text-emerald-400 px-2.5 py-1 rounded-lg text-[10px] font-bold border border-emerald-500/30">Adicionar</button>`}
+                    </div>
+                `);
+            });
+        }
+
+        window.sendFriendRequest = async function(targetUid, targetName) {
+            await set(ref(db, `friendRequests/${targetUid}/${currentUser.uid}`), {
+                fromUid: currentUser.uid,
+                fromName: document.getElementById('profile-name').innerText,
+                fromAvatar: document.getElementById('profile-avatar-img').src
+            });
+            showToast(`Solicitação enviada para ${targetName}!`, "success");
+        }
+
+        function listenNotifications() {
+            const container = document.getElementById('friend-requests-list');
+            const notifBadge = document.getElementById('notif-badge');
+            const navNotifDot = document.getElementById('nav-notif-dot');
+
+            onValue(ref(db, `friendRequests/${currentUser.uid}`), (snap) => {
+                const reqs = snap.val();
+                if(!reqs) {
+                    container.innerHTML = `<div class="text-xs text-slate-500 text-center py-4">Nenhuma notificação nova.</div>`;
+                    notifBadge.classList.add('hidden'); navNotifDot.classList.add('hidden');
+                    return;
+                }
+                container.innerHTML = "";
+                notifBadge.classList.remove('hidden'); navNotifDot.classList.remove('hidden');
+
+                Object.keys(reqs).forEach(uid => {
+                    const r = reqs[uid];
+                    container.insertAdjacentHTML('beforeend', `
+                        <div class="flex items-center justify-between bg-slate-950 p-3 rounded-xl border border-slate-800">
+                            <div class="flex items-center gap-3">
+                                <img src="${r.fromAvatar}" class="w-9 h-9 rounded-full object-cover">
+                                <div>
+                                    <h4 class="font-semibold text-xs text-slate-100">${escapeHtml(r.fromName)}</h4>
+                                    <p class="text-[10px] text-slate-400">Quer se conectar com você</p>
+                                </div>
+                            </div>
+                            <div class="flex gap-2">
+                                <button onclick="acceptFriend('${r.fromUid}', '${escapeHtml(r.fromName)}')" class="bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold">Aceitar</button>
+                                <button onclick="rejectFriend('${r.fromUid}')" class="bg-slate-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold">Recusar</button>
+                            </div>
+                        </div>
+                    `);
+                });
+            });
+        }
+
+        window.acceptFriend = async function(uid, name) {
+            await set(ref(db, `friends/${currentUser.uid}/${uid}`), true);
+            await set(ref(db, `friends/${uid}/${currentUser.uid}`), true);
+            await remove(ref(db, `friendRequests/${currentUser.uid}/${uid}`));
+            showToast(`Você e ${name} agora são amigos!`, "success");
+        }
+        window.rejectFriend = async function(uid) {
+            await remove(ref(db, `friendRequests/${currentUser.uid}/${uid}`));
+        }
+
+        window.openChat = function(fUid, fName) {
+            activeChatFriendUid = fUid;
+            document.getElementById('chat-title').innerText = `Conversando com ${fName}`;
+            document.getElementById('chat-input').removeAttribute('disabled');
+            document.getElementById('chat-send-btn').removeAttribute('disabled');
+            
+            const rId = currentUser.uid < fUid ? `${currentUser.uid}_${fUid}` : `${fUid}_${currentUser.uid}`;
+            
+            onValue(ref(db, `typing/${rId}/${fUid}`), (snap) => {
+                const isTyping = snap.val();
+                const indicator = document.getElementById('chat-typing-indicator');
+                if (isTyping) indicator.classList.remove('hidden');
+                else indicator.classList.add('hidden');
+            });
+
+            onValue(ref(db, `chats/${rId}`), (snap) => {
+                const box = document.getElementById('chat-messages'); box.innerHTML = ""; const msgs = snap.val() || {};
+                Object.keys(msgs).forEach(k => {
+                    const m = msgs[k], isMe = m.senderUid === currentUser.uid;
+                    if (!isMe && !m.read) {
+                        update(ref(db, `chats/${rId}/${k}`), { read: true });
+                    }
+
+                    let checkmarks = isMe ? (m.read ? '<span class="text-[10px] text-emerald-400">✓✓</span>' : '<span class="text-[10px] text-slate-400">✓</span>') : '';
+                    let imgHtml = m.image ? `<img src="${m.image}" class="mt-2 rounded-xl max-w-full h-32 object-cover">` : '';
+
+                    box.insertAdjacentHTML('beforeend', `
+                        <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
+                            <div class="px-3 py-2 rounded-xl text-xs max-w-[80%] ${isMe ? 'bg-violet-600 text-white' : 'bg-slate-800 text-slate-200'}">
+                                ${escapeHtml(m.text)}
+                                ${imgHtml}
+                                <div class="flex justify-end gap-1 mt-1">${checkmarks}</div>
+                            </div>
+                        </div>
+                    `);
+                });
+                box.scrollTop = box.scrollHeight;
+            });
+        }
+
+        window.notifyTyping = function() {
+            if(!activeChatFriendUid) return;
+            const rId = currentUser.uid < activeChatFriendUid ? `${currentUser.uid}_${activeChatFriendUid}` : `${activeChatFriendUid}_${currentUser.uid}`;
+            set(ref(db, `typing/${rId}/${currentUser.uid}`), true);
+            if(typingTimeout) clearTimeout(typingTimeout);
+            typingTimeout = setTimeout(() => {
+                set(ref(db, `typing/${rId}/${currentUser.uid}`), false);
+            }, 2000);
+        }
+
+        window.handleChatImageSelect = e => {
+            if(e.target.files[0]) {
+                const r = new FileReader();
+                r.onload = ev => { chatImageBase64 = ev.target.result; document.getElementById('chat-image-preview-bar').classList.remove('hidden'); }
+                r.readAsDataURL(e.target.files[0]);
+            }
+        }
+        window.clearChatImage = () => { chatImageBase64 = ""; document.getElementById('chat-image-preview-bar').classList.add('hidden'); }
+        window.insertChatEmoji = emoji => { const inp = document.getElementById('chat-input'); inp.value += emoji; inp.focus(); }
+
+        window.sendChatMessage = async function() {
+            const text = document.getElementById('chat-input').value.trim();
+            if(!text && !chatImageBase64) return;
+            if(!activeChatFriendUid) return;
+
+            const rId = currentUser.uid < activeChatFriendUid ? `${currentUser.uid}_${activeChatFriendUid}` : `${activeChatFriendUid}_${currentUser.uid}`;
+            await push(ref(db, `chats/${rId}`), {
+                senderUid: currentUser.uid,
+                text: text || "📷 Imagem",
+                image: chatImageBase64 || "",
+                read: false,
+                timestamp: Date.now()
+            });
+
+            document.getElementById('chat-input').value = "";
+            clearChatImage();
+        }
+
+        window.openCreateGroupModal = () => document.getElementById('create-group-modal').classList.remove('hidden');
+        window.closeCreateGroupModal = () => document.getElementById('create-group-modal').classList.add('hidden');
+        window.submitGroupModal = async function() {
+            const name = document.getElementById('group-name-input').value.trim(), icon = document.getElementById('group-icon-input').value.trim() || '🚜';
+            if(!name) return; await push(ref(db, 'communities'), { name, icon, creator: currentUser.uid });
+            closeCreateGroupModal(); showToast("Grupo criado!", "success");
+        }
+        function listenCommunities() {
+            onValue(ref(db, 'communities'), (snap) => {
+                const grid = document.getElementById('communities-grid'); grid.innerHTML = ""; const data = snap.val() || {};
+                Object.keys(data).forEach(k => {
+                    const c = data[k];
+                    grid.insertAdjacentHTML('beforeend', `<div class="bg-slate-900 border border-slate-800 rounded-2xl p-3.5 flex justify-between items-center"><div class="flex items-center gap-3"><div class="w-10 h-10 rounded-xl bg-violet-600/20 text-violet-400 flex items-center justify-center font-bold text-lg">${escapeHtml(c.icon || '🚜')}</div><div><h4 class="font-bold text-xs text-white">${escapeHtml(c.name)}</h4><p class="text-[10px] text-slate-400">Comunidade ativa</p></div></div><button onclick="showToast('Você entrou no grupo!', 'success')" class="bg-violet-600/20 text-violet-400 text-xs px-3 py-1.5 rounded-xl font-bold border border-violet-500/30">Participar</button></div>`);
+                });
+            });
+        }
+
+        window.openUserProfile = function(uid) {
+            const u = globalUsersCache[uid]; if(!u) return;
+            document.getElementById('modal-user-name').innerText = u.name;
+            document.getElementById('modal-user-avatar').src = u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150';
+            document.getElementById('modal-user-bio').innerText = u.bio || 'Membro do Corse.';
+            const actions = document.getElementById('modal-user-actions');
+            if(uid === currentUser.uid) actions.classList.add('hidden');
+            else {
+                actions.classList.remove('hidden');
+                document.getElementById('modal-btn-add').onclick = () => { sendFriendRequest(uid, u.name); closeUserProfile(); };
+                document.getElementById('modal-btn-chat').onclick = () => { closeUserProfile(); openChat(uid, u.name); switchTab('friends'); };
+            }
             document.getElementById('user-profile-modal').classList.remove('hidden');
         }
-        function closeUserProfile() {
-            document.getElementById('user-profile-modal').classList.add('hidden');
-        }
+        window.closeUserProfile = () => document.getElementById('user-profile-modal').classList.add('hidden');
 
-        // Configurações do Grupo / Comunidade
-        function openCommSettings() { document.getElementById('comm-settings-modal').classList.remove('hidden'); }
-        function closeCommSettings() { document.getElementById('comm-settings-modal').classList.add('hidden'); }
-        function saveCommSettings() {
-            const newName = document.getElementById('edit-comm-name').value;
-            const newIcon = document.getElementById('edit-comm-icon').value;
-            document.getElementById('comm-name').innerText = newName;
-            document.getElementById('comm-avatar').innerText = newIcon;
-            closeCommSettings();
-        }
-
-        // Criar Publicação no Feed
-        function createPost() {
-            const text = document.getElementById('post-input').value.trim();
-            if(!text) return;
-
-            const feed = document.getElementById('feed-container');
-            feed.insertAdjacentHTML('afterbegin', `
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
-                    <div class="flex items-center gap-3 cursor-pointer" onclick="openUserProfile('Você', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150', 'Usuário ativo na plataforma Corse.')">
-                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="w-10 h-10 rounded-full object-cover border border-amber-500/40">
-                        <div>
-                            <h4 class="font-bold text-xs text-slate-200">Você</h4>
-                            <span class="text-[10px] text-slate-500">Agora mesmo</span>
-                        </div>
-                    </div>
-                    <p class="text-xs text-slate-300 leading-relaxed">${text}</p>
-                    <div class="flex gap-4 border-t border-slate-800/80 pt-3 text-xs text-slate-400 font-semibold">
-                        <button class="hover:text-amber-400 transition-all flex items-center gap-1">❤️ 0</button>
-                        <button class="hover:text-amber-400 transition-all flex items-center gap-1">💬 Comentar</button>
-                    </div>
-                </div>
-            `);
-            document.getElementById('post-input').value = '';
-        }
-
-        // Sistema de Repost
-        function repost(author, content) {
-            const feed = document.getElementById('feed-container');
-            feed.insertAdjacentHTML('afterbegin', `
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 border-l-4 border-l-amber-500">
-                    <div class="flex items-center gap-3">
-                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="w-8 h-8 rounded-full object-cover">
-                        <div>
-                            <h4 class="font-bold text-xs text-slate-200">Você repostou de <span class="text-amber-400">${author}</span></h4>
-                            <span class="text-[10px] text-slate-500">Agora mesmo</span>
-                        </div>
-                    </div>
-                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/60 text-xs text-slate-300 italic">
-                        "${content}"
-                    </div>
-                </div>
-            `);
-        }
+        lucide.createIcons();
     </script>
 </body>
 </html>
