@@ -75,12 +75,12 @@
             <div class="text-center space-y-2 flex flex-col items-center">
                 <img src="logo-icon.png" alt="Logo Corse" class="w-24 h-24 mb-2 object-cover rounded-2xl shadow-xl border border-[#262626]" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150'">
                 <h1 class="text-3xl font-black tracking-wider bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Corse</h1>
-                <p id="auth-subtitle" class="text-xs text-slate-400">Painel de Controle e Automação</p>
+                <p id="auth-subtitle" class="text-xs text-slate-400">Conecte-se com estilo</p>
             </div>
             <div class="space-y-4">
                 <div id="name-field-container" class="hidden">
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Seu Nome / Apelido</label>
-                    <input type="text" id="auth-name" placeholder="Ex: Dr. Cezar" class="w-full bg-[#000000] border border-[#262626] rounded-2xl px-4 py-3 text-slate-100 focus:outline-none focus:border-violet-500 transition-all">
+                    <input type="text" id="auth-name" placeholder="Ex: Cezar" class="w-full bg-[#000000] border border-[#262626] rounded-2xl px-4 py-3 text-slate-100 focus:outline-none focus:border-violet-500 transition-all">
                 </div>
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1">E-mail</label>
@@ -98,7 +98,7 @@
                 <div id="auth-error" class="text-xs text-red-400 font-medium p-3 bg-red-950/40 border border-red-900/50 rounded-2xl hidden"></div>
                 
                 <button type="button" id="auth-submit-btn" onclick="handleAuthSubmit()" class="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-90 text-white py-3.5 rounded-2xl font-bold shadow-lg shadow-violet-600/30 transition-all text-sm cursor-pointer">
-                    Entrar no Painel
+                    Entrar
                 </button>
             </div>
             <div class="text-center pt-2 border-t border-[#262626]">
@@ -107,19 +107,16 @@
         </div>
     </div>
 
-    <!-- APLICATIVO / PAINEL DE CONTROLE PRINCIPAL -->
+    <!-- APLICATIVO PRINCIPAL -->
     <div id="app-container" class="hidden w-full max-w-xl min-h-screen flex flex-col bg-black border-x border-[#1a1a1a] shadow-2xl relative pb-20">
         
-        <!-- CABEÇALHO DO PAINEL -->
+        <!-- CABEÇALHO -->
         <header id="main-header" class="sticky top-0 z-40 bg-black/95 backdrop-blur-md px-4 py-3 flex justify-between items-center border-b border-[#1a1a1a]">
             <div class="flex items-center gap-2">
                 <img src="logo-icon.png" class="w-9 h-9 rounded-xl object-cover border border-[#262626]" onerror="this.src='https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=150'">
-                <span class="text-2xl font-black tracking-tight text-white">Corse <span class="text-xs text-violet-400 font-semibold px-2 py-0.5 bg-violet-950/50 rounded-lg">Painel</span></span>
+                <span class="text-2xl font-black tracking-tight text-white">Corse</span>
             </div>
             <div class="flex items-center gap-2">
-                <button onclick="switchTab('bot')" title="Automação de Vídeos" class="relative w-9 h-9 rounded-full bg-violet-600/25 border border-violet-500/40 flex items-center justify-center text-violet-300 hover:text-white transition-all cursor-pointer">
-                    <i data-lucide="cpu" class="w-4 h-4"></i>
-                </button>
                 <button onclick="switchTab('notifications')" class="relative w-9 h-9 rounded-full bg-[#121212] border border-[#262626] flex items-center justify-center text-slate-300 hover:text-white transition-all cursor-pointer">
                     <i data-lucide="bell" class="w-4 h-4"></i>
                     <span id="notif-badge" class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-fuchsia-500 hidden"></span>
@@ -171,60 +168,11 @@
                 </div>
             </section>
 
-            <!-- ABA NOVA: PAINEL DE AUTOMAÇÃO DE VÍDEOS (BOT) -->
-            <section id="tab-bot" class="space-y-4 px-4 hidden">
-                <div class="bg-[#121212] border border-[#262626] rounded-3xl p-5 shadow-2xl space-y-4">
-                    <div class="flex items-center justify-between pb-3 border-b border-[#262626]">
-                        <div>
-                            <h2 class="text-base font-bold text-white flex items-center gap-2">
-                                <i data-lucide="cpu" class="w-5 h-5 text-violet-400"></i> Agendador Automático de Vídeos
-                            </h2>
-                            <p class="text-[11px] text-slate-400">Programe links do YouTube para postar sozinhos nos horários definidos.</p>
-                        </div>
-                        <span id="bot-status-badge" class="px-2.5 py-1 rounded-xl text-[10px] font-bold bg-emerald-950/60 text-emerald-400 border border-emerald-800">Bot Ativo</span>
-                    </div>
-
-                    <!-- Formulário de Agendamento -->
-                    <div class="space-y-3 bg-black p-4 rounded-2xl border border-[#262626]">
-                        <h3 class="font-bold text-xs text-violet-300">Novo Vídeo para a Fila</h3>
-                        <div>
-                            <label class="block text-[11px] font-semibold text-slate-300 mb-1">Link do YouTube Shorts</label>
-                            <input type="text" id="bot-link-input" placeholder="Ex: https://youtube.com/shorts/..." class="w-full bg-[#121212] border border-[#262626] rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-violet-500">
-                        </div>
-                        <div>
-                            <label class="block text-[11px] font-semibold text-slate-300 mb-1">Título / Legenda da Postagem</label>
-                            <input type="text" id="bot-title-input" placeholder="Ex: Conteúdo exclusivo programado 🔥" class="w-full bg-[#121212] border border-[#262626] rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-violet-500">
-                        </div>
-                        <div class="grid grid-cols-2 gap-2">
-                            <div>
-                                <label class="block text-[11px] font-semibold text-slate-300 mb-1">Data da Publicação</label>
-                                <input type="date" id="bot-date-input" class="w-full bg-[#121212] border border-[#262626] rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-violet-500">
-                            </div>
-                            <div>
-                                <label class="block text-[11px] font-semibold text-slate-300 mb-1">Horário (Ex: 14:30)</label>
-                                <input type="time" id="bot-time-input" class="w-full bg-[#121212] border border-[#262626] rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-violet-500">
-                            </div>
-                        </div>
-                        <button onclick="scheduleBotVideo()" class="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-90 text-white py-2.5 rounded-xl text-xs font-bold shadow-md cursor-pointer transition-all">
-                            Adicionar à Fila de Publicação
-                        </button>
-                    </div>
-
-                    <!-- Fila de Vídeos Agendados -->
-                    <div class="space-y-2">
-                        <h3 class="font-bold text-xs text-slate-200">Vídeos na Fila de Espera</h3>
-                        <div id="bot-scheduled-list" class="space-y-2 max-h-72 overflow-y-auto custom-scrollbar">
-                            <div class="text-center py-6 text-slate-500 text-xs">Nenhum vídeo agendado na fila.</div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
             <!-- ABA 3: EXPLORAR -->
             <section id="tab-communities" class="space-y-4 px-4 hidden">
                 <div class="py-2">
                     <h2 class="text-lg font-bold text-white">Explorar</h2>
-                    <p class="text-xs text-slate-400">Descubra publicações dos portais e da comunidade.</p>
+                    <p class="text-xs text-slate-400">Descubra publicações da comunidade.</p>
                 </div>
                 <div id="explore-grid" class="grid grid-cols-2 gap-2.5">
                     <div class="text-center py-8 text-slate-500 text-xs col-span-2">Carregando conteúdos...</div>
@@ -288,7 +236,7 @@
             </section>
         </main>
 
-        <!-- TELA DE CONVERSA EM TELA CHEIA ESTILO INSTAGRAM -->
+        <!-- TELA DE CONVERSA EM TELA CHEIA -->
         <div id="active-chat-view" class="fixed inset-0 bg-black z-50 flex flex-col hidden p-3 sm:p-4">
             
             <div class="pb-3 mb-2 flex items-center justify-between flex-shrink-0 bg-black border-b border-[#1a1a1a]">
@@ -589,7 +537,7 @@
         </div>
     </div>
 
-    <!-- LÓGICA DO PAINEL, FIREBASE E AGENDADOR AUTOMÁTICO DE VÍDEOS -->
+    <!-- LÓGICA DO SITE PRINCIPAL -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -608,7 +556,7 @@
 
         let isRegistering = false, currentUser = null, activeMediaBase64 = "", chatImageBase64 = "", activeChatId = null;
         let globalUsersCache = {}, globalFriendsCache = {}, globalGroupsCache = {}, openCommentSections = new Set();
-        let typingTimeout = null, portalTimer = null, botSchedulerTimer = null, activeViewingStoryId = null;
+        let typingTimeout = null, activeViewingStoryId = null;
         let storyTimer = null;
         let isSubmittingPost = false;
         let sharingPostData = null;
@@ -632,229 +580,7 @@
             setTimeout(() => { const el = document.getElementById(id); if(el) el.remove(); }, 3000);
         }
 
-        async function enforceBotPostLimit(botUid) {
-            try {
-                const postsRef = ref(db, 'posts');
-                const snapshot = await get(postsRef);
-                const posts = snapshot.val() || {};
-                let botPosts = [];
-                Object.keys(posts).forEach(id => {
-                    if (posts[id].uid === botUid) botPosts.push({ id, timestamp: posts[id].timestamp || 0 });
-                });
-                botPosts.sort((a, b) => a.timestamp - b.timestamp);
-                while (botPosts.length >= 4) {
-                    const oldest = botPosts.shift();
-                    await remove(ref(db, `posts/${oldest.id}`));
-                }
-            } catch (err) {}
-        }
-
-        window.fetchCorseNews = async function(isAutomatic = false) {
-            try {
-                await enforceBotPostLimit("corse_noticia_bot");
-                const response = await fetch("https://api.apitube.io/v1/news/everything?language.code=pt&per_page=3", {
-                    method: "GET", headers: { "X-API-Key": "api_live_xpjJ039TjmQobLLMo4oolzkVgJqpQ9jH4dXOc9Fm6BNajkcmNdugeWhw4ZI" }
-                });
-                if (!response.ok) return;
-                const data = await response.json();
-                const articles = data.results || data.articles || data.data || [];
-                if (articles.length === 0) return;
-
-                const postsRef = ref(db, 'posts');
-                const snapshot = await get(postsRef);
-                const existingPosts = snapshot.val() || {};
-                const existingTitles = Object.values(existingPosts).map(p => p.content ? p.content.substring(0, 30) : "");
-
-                let count = 0;
-                for (let art of articles) {
-                    const title = art.title || "Notícia";
-                    if (existingTitles.some(t => t.includes(title.substring(0, 15)))) continue;
-                    const desc = art.description || art.snippet || "Acompanhe as atualizações.";
-                    const img = art.image_url || art.urlToImage || art.image || "";
-
-                    await push(postsRef, {
-                        uid: "corse_noticia_bot", author: "Corse Notícia 📰",
-                        avatar: "https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=150",
-                        content: `📢 **${title}**\n\n${desc}`, image: img, timestamp: Date.now()
-                    });
-                    count++;
-                    if (count >= 1) break;
-                }
-                if (!isAutomatic && count > 0) showToast("Nova notícia no Corse Notícia!", "success");
-            } catch (err) {}
-        }
-
-        window.fetchFofocalizaNews = async function(isAutomatic = false) {
-            try {
-                await enforceBotPostLimit("fofocaliza_bot");
-                let stockPriceVal = null;
-                try {
-                    const response = await fetch("https://api.api-ninjas.com/v1/stockprice?ticker=AAPL", {
-                        method: "GET", headers: { "X-Api-Key": "TI22ELUkGQozawR0PeJMnQJcMzoFcQtSIlmbHS6U" }
-                    });
-                    if (response.ok) {
-                        const stock = await response.json();
-                        stockPriceVal = stock.price;
-                    }
-                } catch (apiErr) {}
-
-                const fofocasPool = [
-                    { title: "Bafão nos bastidores da TV! 🌟", desc: "Fontes exclusivas revelam novos segredos!", image: "https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=600" },
-                    { title: "Flagra exclusivo das estrelas ✨", desc: "Artistas são vistos em evento vip badalado.", image: "https://images.unsplash.com/photo-1514525253161-7a46d19cd819?w=600" },
-                    { title: "O mundo dos famosos e negócios 📈", desc: stockPriceVal ? `Apple (AAPL) em US$ ${stockPriceVal}.` : "Astros fecham contratos milionários.", image: "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=600" }
-                ];
-
-                const postsRef = ref(db, 'posts');
-                const snapshot = await get(postsRef);
-                const existingPosts = snapshot.val() || {};
-                const existingTitles = Object.values(existingPosts).map(p => p.content ? p.content.substring(0, 30) : "");
-
-                let count = 0;
-                for (let item of fofocasPool) {
-                    if (existingTitles.some(t => t.includes(item.title.substring(0, 15)))) continue;
-                    await push(postsRef, {
-                        uid: "fofocaliza_bot", author: "Fofocaliza 🌟",
-                        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
-                        content: `🔥 **${item.title}**\n\n${item.desc}`, image: item.image, timestamp: Date.now()
-                    });
-                    count++;
-                    if (count >= 1) break;
-                }
-                if (!isAutomatic && count > 0) showToast("Nova fofoca no Fofocaliza!", "success");
-            } catch (err) {}
-        }
-
-        window.fetchAllPortalsNews = function(isAuto = false) {
-            fetchCorseNews(isAuto);
-            setTimeout(() => fetchFofocalizaNews(isAuto), 3000);
-            if (!isAuto) showToast("Atualizando portais...", "info");
-        }
-
-        function startPortalsAutoUpdater() {
-            if (portalTimer) clearInterval(portalTimer);
-            portalTimer = setInterval(() => { if (currentUser) fetchAllPortalsNews(true); }, 3600000);
-        }
-
-        // --- SISTEMA DE AGENDAMENTO AUTOMÁTICO DE VÍDEOS (BOT) ---
-        window.scheduleBotVideo = async function() {
-            const rawLink = document.getElementById('bot-link-input').value.trim();
-            const title = document.getElementById('bot-title-input').value.trim();
-            const dateStr = document.getElementById('bot-date-input').value;
-            const timeStr = document.getElementById('bot-time-input').value;
-
-            if(!rawLink || !dateStr || !timeStr) {
-                showToast("Preencha o link, a data e o horário para agendar.", "info");
-                return;
-            }
-
-            let videoId = "";
-            if (rawLink.includes("shorts/")) {
-                videoId = rawLink.split("shorts/")[1].split("?")[0];
-            } else if (rawLink.includes("youtu.be/")) {
-                videoId = rawLink.split("youtu.be/")[1].split("?")[0];
-            } else if (rawLink.includes("watch?v=")) {
-                videoId = new URLSearchParams(rawLink.split('?')[1]).get('v');
-            } else {
-                showToast("Link inválido. Insira um link do YouTube Shorts.", "info");
-                return;
-            }
-
-            const embedUrl = `https://www.youtube.com/embed/${videoId}?enablejsapi=1&autoplay=1&mute=0&controls=1&loop=1&playlist=${videoId}`;
-            const targetTimestamp = new Date(`${dateStr}T${timeStr}:00`).getTime();
-
-            if (isNaN(targetTimestamp)) {
-                showToast("Data ou horário inválidos.", "info");
-                return;
-            }
-
-            try {
-                await push(ref(db, `scheduledReels/${currentUser.uid}`), {
-                    embedUrl,
-                    caption: title || "Vídeo automatizado",
-                    targetTime: targetTimestamp,
-                    author: document.getElementById('profile-name').innerText,
-                    avatar: document.getElementById('profile-avatar-img').src,
-                    createdAt: Date.now()
-                });
-
-                document.getElementById('bot-link-input').value = "";
-                document.getElementById('bot-title-input').value = "";
-                document.getElementById('bot-date-input').value = "";
-                document.getElementById('bot-time-input').value = "";
-                showToast("Vídeo agendado com sucesso na sua fila!", "success");
-            } catch(e) {
-                showToast("Erro ao agendar vídeo.", "info");
-            }
-        }
-
-        function listenScheduledReels() {
-            if(!currentUser) return;
-            onValue(ref(db, `scheduledReels/${currentUser.uid}`), (snap) => {
-                const container = document.getElementById('bot-scheduled-list');
-                if(!container) return;
-                container.innerHTML = "";
-                const data = snap.val() || {};
-                const keys = Object.keys(data);
-
-                if(keys.length === 0) {
-                    container.innerHTML = `<div class="text-center py-6 text-slate-500 text-xs">Nenhum vídeo agendado na fila.</div>`;
-                    return;
-                }
-
-                keys.forEach(id => {
-                    const item = data[id];
-                    const dateFormatted = new Date(item.targetTime).toLocaleString('pt-BR');
-                    container.insertAdjacentHTML('beforeend', `
-                        <div class="flex items-center justify-between bg-black p-3 rounded-xl border border-[#262626]">
-                            <div class="space-y-0.5 max-w-[220px]">
-                                <h4 class="font-bold text-xs text-slate-100 truncate">${escapeHtml(item.caption)}</h4>
-                                <p class="text-[10px] text-violet-400 font-medium">📅 Publicação para: ${dateFormatted}</p>
-                            </div>
-                            <button onclick="cancelScheduledReel('${id}')" class="text-red-400 hover:text-red-300 p-1.5 cursor-pointer text-xs font-semibold bg-red-950/30 rounded-lg border border-red-900/50">Cancelar</button>
-                        </div>
-                    `);
-                });
-            });
-        }
-
-        window.cancelScheduledReel = async function(id) {
-            await remove(ref(db, `scheduledReels/${currentUser.uid}/${id}`));
-            showToast("Agendamento cancelado.", "info");
-        }
-
-        function startBotSchedulerWatcher() {
-            if (botSchedulerTimer) clearInterval(botSchedulerTimer);
-            // Verifica a cada 20 segundos se algum vídeo agendado atingiu o horário de disparo
-            botSchedulerTimer = setInterval(async () => {
-                if(!currentUser) return;
-                try {
-                    const snap = await get(ref(db, `scheduledReels/${currentUser.uid}`));
-                    if(!snap.exists()) return;
-                    const items = snap.val();
-                    const now = Date.now();
-
-                    Object.keys(items).forEach(async (id) => {
-                        const item = items[id];
-                        if (now >= item.targetTime) {
-                            // Horário atingido! Publica automaticamente no feed de reels principal
-                            await push(ref(db, 'reels'), {
-                                uid: currentUser.uid,
-                                author: item.author,
-                                avatar: item.avatar,
-                                embedUrl: item.embedUrl,
-                                caption: item.caption,
-                                timestamp: Date.now()
-                            });
-                            // Remove da fila de agendamento após postar
-                            await remove(ref(db, `scheduledReels/${currentUser.uid}/${id}`));
-                            showToast(`🤖 Vídeo "${item.caption.substring(0, 20)}..." postado automaticamente pelo bot!`, "success");
-                        }
-                    });
-                } catch(e) {}
-            }, 20000);
-        }
-
-        function listenExploreGrid() {
+        window.listenExploreGrid = function() {
             const grid = document.getElementById('explore-grid');
             onValue(ref(db, 'posts'), (snap) => {
                 grid.innerHTML = "";
@@ -977,7 +703,7 @@
             } catch(e) { showToast("Erro ao publicar vídeo.", "info"); }
         }
 
-        function listenReels() {
+        window.listenReels = function() {
             const container = document.getElementById('reels-feed');
             if (!container) return;
             onValue(ref(db, 'reels'), (snap) => {
@@ -1121,7 +847,7 @@
             closeShareModal(); showToast("Adicionado aos seus Stories!", "success");
         }
 
-        function listenStories() {
+        window.listenStories = function() {
             const tray = document.getElementById('stories-tray');
             onValue(ref(db, 'stories'), (snap) => {
                 const storiesData = snap.val() || {};
@@ -1301,9 +1027,9 @@
 
         window.toggleAuthMode = function() {
             isRegistering = !isRegistering;
-            document.getElementById('auth-subtitle').innerText = isRegistering ? "Crie sua conta no Corse" : "Painel de Controle e Automação";
+            document.getElementById('auth-subtitle').innerText = isRegistering ? "Crie sua conta no Corse" : "Conecte-se com estilo";
             document.getElementById('name-field-container').classList.toggle('hidden');
-            document.getElementById('auth-submit-btn').innerText = isRegistering ? "Cadastrar Conta" : "Entrar no Painel";
+            document.getElementById('auth-submit-btn').innerText = isRegistering ? "Cadastrar Conta" : "Entrar";
             document.getElementById('auth-switch-text').innerText = isRegistering ? "Já tem uma conta?" : "Não tem uma conta?";
             document.getElementById('auth-switch-btn').innerText = isRegistering ? "Fazer login" : "Criar conta";
             document.getElementById('forgot-password-container').classList.toggle('hidden', isRegistering);
@@ -1357,7 +1083,7 @@
                     const cred = await createUserWithEmailAndPassword(auth, email, pass);
                     await set(ref(db, `users/${cred.user.uid}`), { 
                         name, email, avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150", 
-                        banner: "", online: true, bio: "Painel de Automação Corse." 
+                        banner: "", online: true, bio: "Membro da rede Corse." 
                     });
                     showToast("Conta criada com sucesso!", "success");
                 } else {
@@ -1397,14 +1123,9 @@
                 listenNotifications(); 
                 listenStories();
                 listenReels();
-                listenScheduledReels();
-                startBotSchedulerWatcher();
-                startPortalsAutoUpdater();
             } else {
                 if(currentUser) set(ref(db, `users/${currentUser.uid}/online`), false);
                 currentUser = null;
-                if(portalTimer) clearInterval(portalTimer);
-                if(botSchedulerTimer) clearInterval(botSchedulerTimer);
                 document.getElementById('app-container').classList.add('hidden');
                 document.getElementById('auth-screen').classList.remove('hidden');
             }
@@ -1443,7 +1164,7 @@
                 const name = d.name || "Usuário", av = d.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150";
                 document.getElementById('profile-name').innerText = name;
                 document.getElementById('profile-email').innerText = d.email || currentUser.email;
-                document.getElementById('profile-bio-text').innerText = d.bio || "Painel de Automação Corse.";
+                document.getElementById('profile-bio-text').innerText = d.bio || "Membro da rede Corse.";
                 if(document.getElementById('story-my-avatar')) document.getElementById('story-my-avatar').src = av;
                 document.getElementById('profile-avatar-img').src = av;
                 document.getElementById('header-user-avatar').src = av;
@@ -1778,6 +1499,8 @@
                     let imgHtml = m.image ? `<img src="${m.image}" class="mt-2 rounded-2xl max-w-full h-32 object-cover" loading="lazy">` : '';
                     let senderLabel = !isMe && rId.startsWith('group_') ? `<span class="text-[10px] font-bold text-violet-400 block mb-0.5">${escapeHtml(m.senderName || 'Membro')}</span>` : '';
 
+                    let deleteBtn = isMe ? `<button onclick="deleteChatMessage('${activeChatId}', '${k}')" class="text-[10px] text-red-400 hover:text-red-300 ml-2 cursor-pointer font-semibold">🗑️ Apagar</button>` : '';
+
                     let contentHtml = '';
                     if (m.text && m.text.startsWith('data:audio')) {
                         let playCount = m.playCount || 0;
@@ -1804,7 +1527,7 @@
                             <div class="flex flex-col items-end w-full">
                                 <div class="px-4 py-2.5 rounded-3xl text-xs max-w-[80%] bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white shadow-md">
                                     ${contentHtml}
-                                    <div class="flex justify-end gap-1 mt-1">${checkmarks}</div>
+                                    <div class="flex justify-end items-center gap-1 mt-1">${checkmarks} ${deleteBtn}</div>
                                 </div>
                             </div>
                         `);
@@ -1822,6 +1545,15 @@
                 setTimeout(() => { box.scrollTop = box.scrollHeight; }, 50);
                 if (Object.keys(unreadUpdates).length > 0) setTimeout(() => { update(ref(db, `chats/${rId}`), unreadUpdates); }, 100);
             });
+        }
+
+        window.deleteChatMessage = async function(chatId, msgKey) {
+            try {
+                await remove(ref(db, `chats/${chatId}/${msgKey}`));
+                showToast("Mensagem apagada.", "info");
+            } catch(e) {
+                showToast("Erro ao apagar mensagem.", "info");
+            }
         }
 
         window.handleAudioPlay = async function(chatId, msgKey, currentCount, currentFirstPlayed) {
@@ -1873,7 +1605,7 @@
 
                 mediaRecorder.onstop = async () => {
                     const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
-                    if (audioBlob.size < 100) {
+                    if (audioBlob.size < 50) {
                         showToast("Áudio muito curto ou vazio.", "info");
                         stream.getTracks().forEach(track => track.stop());
                         return;
@@ -1894,7 +1626,8 @@
                     stream.getTracks().forEach(track => track.stop());
                 };
 
-                mediaRecorder.start(250);
+                // Coleta dados a cada 100ms para evitar corte no início e garantir o áudio inteiro
+                mediaRecorder.start(100);
                 recordingSeconds = 0;
                 document.getElementById('audio-recording-bar').classList.remove('hidden');
                 document.getElementById('chat-action-buttons').classList.add('hidden');
