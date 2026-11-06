@@ -51,7 +51,14 @@
                     <label class="block text-xs font-semibold text-slate-300 mb-1">Senha</label>
                     <input type="password" id="auth-password" placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-2xl px-4 py-3 text-slate-100 focus:outline-none focus:border-violet-500 transition-all">
                 </div>
+                
+                <!-- BOTÃO DE ESQUECI MINHA SENHA -->
+                <div id="forgot-password-container" class="text-right">
+                    <button onclick="handleForgotPassword()" class="text-xs text-violet-400 hover:underline font-medium cursor-pointer">Esqueceu sua senha?</button>
+                </div>
+
                 <div id="auth-error" class="text-xs text-red-400 font-medium p-3 bg-red-950/40 border border-red-900/50 rounded-2xl hidden"></div>
+                
                 <button id="auth-submit-btn" onclick="handleAuthSubmit()" class="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-90 text-white py-3.5 rounded-2xl font-bold shadow-lg shadow-violet-600/30 transition-all text-sm cursor-pointer">
                     Entrar na Conta
                 </button>
@@ -93,7 +100,6 @@
 
             <!-- ABA 1: INÍCIO / FEED -->
             <section id="tab-feed" class="space-y-4">
-                <!-- CARROSSEL DE STORIES -->
                 <div class="w-full overflow-x-auto hide-scrollbar px-4 py-3 flex gap-3.5 custom-scrollbar" id="stories-tray">
                     <div class="flex flex-col items-center gap-1 flex-shrink-0 cursor-pointer" onclick="openMyStories()">
                         <div class="w-16 h-16 rounded-full p-[2.5px] bg-gradient-to-tr from-violet-600 to-fuchsia-600 relative shadow-lg">
@@ -234,9 +240,8 @@
         </div>
     </div>
 
-    <!-- MODAL DE VISUALIZAR STORY (COM TEMPORIZADOR E PAINEL DE VISUALIZAÇÃO SEGURO) -->
+    <!-- MODAL DE VISUALIZAR STORY -->
     <div id="story-viewer-modal" class="fixed inset-0 bg-black/95 z-50 hidden flex flex-col justify-between p-4">
-        <!-- BARRA DE PROGRESSO DO TEMPORIZADOR -->
         <div class="w-full bg-slate-800 h-1 rounded-full overflow-hidden absolute top-0 left-0">
             <div id="story-progress-bar-fill" class="h-full bg-white w-0"></div>
         </div>
@@ -259,7 +264,6 @@
                 </div>
             </div>
         </div>
-        <!-- PAINEL DE QUEM VIU (APARECE APENAS PARA O DONO DO STORY) -->
         <div id="story-views-panel" class="bg-slate-900 border border-slate-800 rounded-2xl p-3 max-w-sm mx-auto w-full flex items-center justify-between hidden">
             <button onclick="openStoryViewersList()" class="flex items-center gap-2 cursor-pointer hover:opacity-80">
                 <i data-lucide="eye" class="w-4 h-4 text-violet-400"></i>
@@ -271,7 +275,7 @@
         </div>
     </div>
 
-    <!-- MODAL DA LISTA DE QUEM VIU O STORY (ESTILO INSTAGRAM) -->
+    <!-- MODAL DA LISTA DE QUEM VIU O STORY -->
     <div id="story-viewers-list-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-5 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -336,7 +340,7 @@
     <!-- LÓGICA E FIREBASE -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
+        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
         import { getDatabase, ref, push, set, onValue, update, remove, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
         const firebaseConfig = {
@@ -353,7 +357,7 @@
         let isRegistering = false, currentUser = null, activeMediaBase64 = "", chatImageBase64 = "", activeChatFriendUid = null;
         let globalUsersCache = {}, globalFriendsCache = {}, openCommentSections = new Set();
         let typingTimeout = null, portalTimer = null, activeViewingStoryId = null;
-        let storyTimer = null; // Temporizador automático do story
+        let storyTimer = null;
         let isSubmittingPost = false;
 
         window.escapeHtml = text => (text || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
@@ -364,9 +368,6 @@
             setTimeout(() => { const el = document.getElementById(id); if(el) el.remove(); }, 3000);
         }
 
-        // ==========================
-        // GESTÃO DE LIMITE MÁXIMO DE 4 POSTS POR BOT (FIFO)
-        // ==========================
         async function enforceBotPostLimit(botUid) {
             try {
                 const postsRef = ref(db, 'posts');
@@ -389,9 +390,6 @@
             } catch (err) { console.error("Erro ao limitar posts:", err); }
         }
 
-        // ==========================
-        // 1. CORSE NOTÍCIA
-        // ==========================
         window.fetchCorseNews = async function(isAutomatic = false) {
             try {
                 await enforceBotPostLimit("corse_noticia_bot");
@@ -433,9 +431,6 @@
             } catch (err) { console.error(err); }
         }
 
-        // ==========================
-        // 2. FOFOCALIZA (COM FALLBACK SEGURO)
-        // ==========================
         window.fetchFofocalizaNews = async function(isAutomatic = false) {
             try {
                 await enforceBotPostLimit("fofocaliza_bot");
@@ -497,9 +492,6 @@
             portalTimer = setInterval(() => { if (currentUser) fetchAllPortalsNews(true); }, 3600000);
         }
 
-        // ==========================
-        // ABA EXPLORAR
-        // ==========================
         function listenExploreGrid() {
             const grid = document.getElementById('explore-grid');
             onValue(ref(db, 'posts'), (snap) => {
@@ -537,9 +529,6 @@
             }, 200);
         }
 
-        // ==========================
-        // FLUXO DE CÂMERA / GALERIA
-        // ==========================
         window.triggerCreatePost = () => {
             document.getElementById('global-media-input').click();
         }
@@ -604,9 +593,6 @@
             }
         }
 
-        // ==========================
-        // STORIES (COM PAINEL DE VISUALIZAÇÃO CONDICIONAL E TEMPORIZADOR)
-        // ==========================
         function listenStories() {
             const tray = document.getElementById('stories-tray');
             onValue(ref(db, 'stories'), (snap) => {
@@ -672,15 +658,12 @@
             document.getElementById('viewer-story-img').src = storyImg;
             document.getElementById('viewer-story-title').innerText = storyTitle;
 
-            // Reinicia a animação da barra de progresso (5 segundos)
             const barFill = document.getElementById('story-progress-bar-fill');
             barFill.classList.remove('story-progress-bar');
-            void barFill.offsetWidth; // Trigger reflow
+            void barFill.offsetWidth;
             barFill.classList.add('story-progress-bar');
 
-            // Limpa temporizador anterior se houver
             if (storyTimer) clearTimeout(storyTimer);
-            // Configura o temporizador automático de 5 segundos para fechar o story
             storyTimer = setTimeout(() => {
                 closeStoryViewer();
             }, 5000);
@@ -689,7 +672,6 @@
 
             const viewsPanel = document.getElementById('story-views-panel');
             if(authorUid === currentUser.uid) {
-                // EXIBE O OLINHO APENAS SE FOR O DONO DO STORY
                 viewsPanel.classList.remove('hidden');
                 onValue(ref(db, `storyInteractions/${storyId}`), (snap) => {
                     const inter = snap.val() || {};
@@ -700,7 +682,6 @@
                 }, { onlyOnce: true });
                 await set(ref(db, `storyInteractions/${storyId}/views/${currentUser.uid}`), true);
             } else {
-                // ESCONDE O PAINEL DE VISUALIZAÇÕES PARA OUTROS USUÁRIOS
                 viewsPanel.classList.add('hidden');
                 await set(ref(db, `storyInteractions/${storyId}/views/${currentUser.uid}`), true);
             }
@@ -747,9 +728,6 @@
 
         window.closeStoryViewersList = () => document.getElementById('story-viewers-list-modal').classList.add('hidden');
 
-        // ==========================
-        // AUTENTICAÇÃO E ESTADO
-        // ==========================
         window.toggleAuthMode = function() {
             isRegistering = !isRegistering;
             document.getElementById('auth-subtitle').innerText = isRegistering ? "Crie sua conta no Corse" : "Conectando pessoas com estilo e tecnologia";
@@ -757,16 +735,75 @@
             document.getElementById('auth-submit-btn').innerText = isRegistering ? "Cadastrar Conta" : "Entrar na Conta";
             document.getElementById('auth-switch-text').innerText = isRegistering ? "Já tem uma conta?" : "Não tem uma conta?";
             document.getElementById('auth-switch-btn').innerText = isRegistering ? "Fazer login" : "Criar conta";
+            document.getElementById('forgot-password-container').classList.toggle('hidden', isRegistering);
+        }
+
+        // FUNÇÃO DE REDEFINIÇÃO DE SENHA POR E-MAIL
+        window.handleForgotPassword = async function() {
+            const email = document.getElementById('auth-email').value.trim();
+            const errorBox = document.getElementById('auth-error');
+            errorBox.classList.add('hidden');
+
+            if (!email) {
+                errorBox.innerText = "Digite seu e-mail no campo acima para recuperar a senha.";
+                errorBox.classList.remove('hidden');
+                return;
+            }
+
+            try {
+                await sendPasswordResetEmail(auth, email);
+                showToast("E-mail de redefinição enviado! Verifique sua caixa de entrada.", "success");
+            } catch (e) {
+                let msg = e.message;
+                if (e.code === 'auth/user-not-found') {
+                    msg = "Não há nenhuma conta cadastrada com este e-mail.";
+                } else if (e.code === 'auth/invalid-email') {
+                    msg = "E-mail inválido.";
+                }
+                errorBox.innerText = "Erro: " + msg;
+                errorBox.classList.remove('hidden');
+            }
         }
 
         window.handleAuthSubmit = async function() {
-            const email = document.getElementById('auth-email').value.trim(), pass = document.getElementById('auth-password').value.trim(), name = document.getElementById('auth-name').value.trim();
+            const email = document.getElementById('auth-email').value.trim();
+            const pass = document.getElementById('auth-password').value.trim();
+            const name = document.getElementById('auth-name').value.trim();
+            const errorBox = document.getElementById('auth-error');
+            errorBox.classList.add('hidden');
+
             try {
                 if(isRegistering) {
+                    if(!name) {
+                        errorBox.innerText = "Por favor, digite seu nome ou apelido.";
+                        errorBox.classList.remove('hidden');
+                        return;
+                    }
                     const cred = await createUserWithEmailAndPassword(auth, email, pass);
-                    await set(ref(db, `users/${cred.user.uid}`), { name, email, avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150", banner: "", online: true, bio: "Inovando no Corse." });
-                } else await signInWithEmailAndPassword(auth, email, pass);
-            } catch(e) { alert("Erro: " + e.message); }
+                    await set(ref(db, `users/${cred.user.uid}`), { 
+                        name, 
+                        email, 
+                        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150", 
+                        banner: "", 
+                        online: true, 
+                        bio: "Inovando no Corse." 
+                    });
+                    showToast("Conta criada com sucesso!", "success");
+                } else {
+                    await signInWithEmailAndPassword(auth, email, pass);
+                }
+            } catch(e) {
+                let msg = e.message;
+                if(e.code === 'auth/invalid-credential' || e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password') {
+                    msg = "E-mail não cadastrado ou senha incorreta. Use 'Esqueceu sua senha?' se necessário.";
+                } else if(e.code === 'auth/email-already-in-use') {
+                    msg = "Este e-mail já está em uso por outra conta.";
+                } else if(e.code === 'auth/weak-password') {
+                    msg = "A senha deve ter pelo menos 6 caracteres.";
+                }
+                errorBox.innerText = "Erro: " + msg;
+                errorBox.classList.remove('hidden');
+            }
         }
 
         onAuthStateChanged(auth, (user) => {
@@ -797,9 +834,6 @@
             if(btn) btn.className = "flex flex-col items-center gap-1 text-violet-400 font-semibold cursor-pointer transition-all";
         }
 
-        // ==========================
-        // PERFIL
-        // ==========================
         function loadProfile() {
             onValue(ref(db, `users/${currentUser.uid}`), (snap) => {
                 const d = snap.val() || {};
@@ -844,9 +878,6 @@
             closeEditProfileModal(); showToast("Perfil atualizado!", "success");
         }
 
-        // ==========================
-        // FEED DE POSTS
-        // ==========================
         function listenPosts() {
             const feed = document.getElementById('posts-feed');
             const myFeed = document.getElementById('my-posts-feed');
@@ -926,9 +957,6 @@
             document.getElementById(`comment-input-${postId}`).value = ""; showToast("Comentário enviado!", "success");
         }
 
-        // ==========================
-        // AMIGOS E CHAT
-        // ==========================
         function listenUsersAndFriends() {
             onValue(ref(db, `friends/${currentUser.uid}`), (snap) => {
                 globalFriendsCache = snap.val() || {};
