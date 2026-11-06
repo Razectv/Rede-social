@@ -2,1700 +2,251 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Corse - Conecte-se com estilo</title>
-    
-    <!-- Ícones para Atalho na Tela Inicial -->
-    <link rel="icon" type="image/png" sizes="192x192" href="logo-icon.png">
-    <link rel="apple-touch-icon" sizes="180x180" href="logo-icon.png">
-    <link rel="manifest" href="manifest.json">
-
-    <!-- Tailwind CSS -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rede Social - Corse</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- Ícones Lucide -->
-    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap');
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: #0f172a;
-            color: #f8fafc;
-            touch-action: manipulation;
-        }
-        input, select, textarea {
-            font-size: 16px !important;
-        }
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; border-radius: 3px; }
-        
-        @keyframes slideDown {
-            from { transform: translateY(-100%); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-        .toast-notification {
-            animation: slideDown 0.3s ease-out forwards;
-        }
-        @keyframes pulsePlant {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.08); }
-        }
-        .animate-plant {
-            animation: pulsePlant 2s infinite ease-in-out;
-        }
+        body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #0b132b; color: #f8fafc; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col md:flex-row relative">
+<body class="min-h-screen flex flex-col justify-between max-w-md mx-auto bg-slate-950 border-x border-slate-900 shadow-2xl">
 
-    <!-- NOTIFICAÇÃO FLUTUANTE NO TOPO -->
-    <div id="toast-container" class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-sm px-4 pointer-events-none space-y-2"></div>
-
-    <!-- TELA DE AUTENTICAÇÃO -->
-    <div id="auth-screen" class="fixed inset-0 bg-slate-950 z-50 flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 sm:p-8 shadow-2xl space-y-6">
-            <div class="text-center space-y-2 flex flex-col items-center">
-                <img src="logo-icon.png" alt="Logo Corse" class="h-16 w-auto object-contain mb-2 rounded-xl shadow-lg shadow-violet-500/20" onerror="this.outerHTML='<div class=\\'inline-flex bg-gradient-to-tr from-violet-600 to-fuchsia-600 p-3 rounded-2xl shadow-lg shadow-violet-500/20 mb-2\\'><i data-lucide=\\'zap\\' class=\\'w-8 h-8 text-white\\'></i></div>'">
-                <h1 class="text-3xl font-black tracking-wider bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Corse</h1>
-                <p id="auth-subtitle" class="text-xs text-slate-400">Entre na sua conta para acessar o feed e os jogos</p>
-            </div>
-
-            <div class="space-y-4">
-                <div id="name-field-container" class="hidden">
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Seu Nome / Apelido</label>
-                    <input type="text" id="auth-name" placeholder="Ex: Dr. Cezar" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-violet-500 transition-all">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">E-mail</label>
-                    <input type="email" id="auth-email" placeholder="seu@email.com" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-violet-500 transition-all">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Senha</label>
-                    <input type="password" id="auth-password" placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-violet-500 transition-all">
-                </div>
-                
-                <div id="auth-error" class="text-xs text-red-400 font-medium p-3 bg-red-950/40 border border-red-900/50 rounded-xl hidden"></div>
-
-                <button id="auth-submit-btn" onclick="handleAuthSubmit()" class="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white py-3 rounded-xl font-semibold shadow-lg shadow-violet-600/20 transition-all text-sm cursor-pointer">
-                    Entrar na Conta
-                </button>
-            </div>
-
-            <div class="text-center pt-2 border-t border-slate-800">
-                <p class="text-xs text-slate-400">
-                    <span id="auth-switch-text">Não tem uma conta?</span> 
-                    <button onclick="toggleAuthMode()" id="auth-switch-btn" class="text-violet-400 font-semibold hover:underline ml-1">Criar conta</button>
-                </p>
-            </div>
+    <!-- CABEÇALHO -->
+    <header class="sticky top-0 z-50 bg-slate-900/90 backdrop-blur border-b border-slate-800 p-4 flex justify-between items-center">
+        <h1 class="font-extrabold text-amber-400 text-lg tracking-wide">CORSE</h1>
+        <div class="flex items-center gap-3">
+            <button onclick="switchTab('communities')" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl font-semibold transition-all">Comunidades</button>
+            <button onclick="switchTab('chat')" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl font-semibold transition-all">Chat</button>
         </div>
-    </div>
+    </header>
 
-    <!-- APLICATIVO PRINCIPAL -->
-    <div id="app-container" class="hidden flex-1 flex flex-col md:flex-row w-full min-h-screen">
-        
-        <!-- BARRA LATERAL (DESKTOP) -->
-        <aside class="hidden md:flex flex-col w-64 border-r border-slate-800 bg-slate-950 p-6 sticky top-0 h-screen justify-between">
-            <div>
-                <div class="flex items-center gap-3 mb-10">
-                    <img src="logo-icon.png" alt="Logo" class="h-8 w-auto object-contain rounded-lg" onerror="this.style.display='none'">
-                    <span class="text-2xl font-black tracking-wider bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Corse</span>
-                </div>
+    <!-- CONTEÚDO PRINCIPAL (ABAS) -->
+    <main class="flex-1 overflow-y-auto p-4 space-y-4 pb-20">
 
-                <nav class="space-y-2">
-                    <button onclick="switchTab('feed')" id="nav-feed" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl font-medium text-slate-300 hover:bg-slate-900 hover:text-white transition-all bg-violet-600/10 text-violet-400 border border-violet-500/20 cursor-pointer">
-                        <i data-lucide="home" class="w-5 h-5"></i>
-                        <span>Feed</span>
-                    </button>
-                    <button onclick="switchTab('profile')" id="nav-profile" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl font-medium text-slate-300 hover:bg-slate-900 hover:text-white transition-all cursor-pointer">
-                        <i data-lucide="user" class="w-5 h-5"></i>
-                        <span>Meu Perfil</span>
-                    </button>
-                    <button onclick="switchTab('friends')" id="nav-friends" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl font-medium text-slate-300 hover:bg-slate-900 hover:text-white transition-all cursor-pointer">
-                        <i data-lucide="users" class="w-5 h-5"></i>
-                        <span>Amigos & Chat</span>
-                    </button>
-                    <button onclick="switchTab('communities')" id="nav-communities" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl font-medium text-slate-300 hover:bg-slate-900 hover:text-white transition-all cursor-pointer">
-                        <i data-lucide="compass" class="w-5 h-5"></i>
-                        <span>Comunidades</span>
-                    </button>
-                    <button onclick="switchTab('games')" id="nav-games" class="w-full flex items-center gap-4 px-4 py-3 rounded-xl font-medium text-slate-300 hover:bg-slate-900 hover:text-white transition-all cursor-pointer">
-                        <i data-lucide="gamepad-2" class="w-5 h-5 text-amber-400"></i>
-                        <span>Jogos & Arcade</span>
-                    </button>
-                </nav>
-            </div>
-
-            <div class="space-y-4">
-                <div class="p-3 rounded-xl bg-slate-900 border border-slate-800 flex items-center justify-between text-xs">
-                    <span class="text-slate-400">Firebase DB:</span>
-                    <span id="db-status" class="text-emerald-400 font-semibold flex items-center gap-1.5">
-                        <span class="w-2 h-2 rounded-full bg-emerald-400"></span> Conectado
-                    </span>
-                </div>
-                
-                <div class="flex items-center justify-between px-2 py-3 border-t border-slate-800/80">
-                    <div class="flex items-center gap-3 overflow-hidden cursor-pointer" onclick="switchTab('profile')">
-                        <img id="sidebar-user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" alt="Avatar" class="w-10 h-10 rounded-full object-cover border border-violet-500/40">
-                        <div class="overflow-hidden">
-                            <h4 id="user-display-name" class="text-sm font-semibold truncate">Usuário</h4>
-                            <p class="text-xs text-emerald-400 flex items-center gap-1.5 mt-0.5">
-                                <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span> Online
-                            </p>
-                        </div>
-                    </div>
-                    <button onclick="logoutUser()" title="Sair da Conta" class="text-slate-400 hover:text-red-400 p-2 transition-colors cursor-pointer">
-                        <i data-lucide="log-out" class="w-5 h-5"></i>
-                    </button>
+        <!-- ABA 1: FEED DE PUBLICAÇÕES & POSTS -->
+        <div id="tab-feed" class="tab-content space-y-4">
+            <!-- Criar Post -->
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 shadow-lg">
+                <textarea id="post-input" placeholder="No que você está pensando hoje?" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-amber-500 resize-none h-20"></textarea>
+                <div class="flex justify-between items-center">
+                    <span class="text-[10px] text-slate-500">Compartilhe com a rede</span>
+                    <button onclick="createPost()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-1.5 rounded-xl text-xs transition-all cursor-pointer">Publicar</button>
                 </div>
             </div>
-        </aside>
 
-        <!-- NAVEGAÇÃO MOBILE -->
-        <div class="md:hidden fixed bottom-0 left-0 right-0 bg-slate-950/90 backdrop-blur-md border-t border-slate-800 z-40 flex justify-around p-3">
-            <button onclick="switchTab('feed')" id="mob-nav-feed" class="p-2 text-violet-400 cursor-pointer"><i data-lucide="home" class="w-6 h-6"></i></button>
-            <button onclick="switchTab('profile')" id="mob-nav-profile" class="p-2 text-slate-400 cursor-pointer"><i data-lucide="user" class="w-6 h-6"></i></button>
-            <button onclick="switchTab('friends')" id="mob-nav-friends" class="p-2 text-slate-400 cursor-pointer"><i data-lucide="users" class="w-6 h-6"></i></button>
-            <button onclick="switchTab('communities')" id="mob-nav-communities" class="p-2 text-slate-400 cursor-pointer"><i data-lucide="compass" class="w-6 h-6"></i></button>
-            <button onclick="switchTab('games')" id="mob-nav-games" class="p-2 text-slate-400 cursor-pointer"><i data-lucide="gamepad-2" class="w-6 h-6 text-amber-400"></i></button>
-            <button onclick="logoutUser()" class="p-2 text-red-400 cursor-pointer"><i data-lucide="log-out" class="w-6 h-6"></i></button>
-        </div>
-
-        <!-- CONTEÚDO PRINCIPAL -->
-        <main class="flex-1 max-w-3xl mx-auto p-4 md:p-8 pb-24 md:pb-8 w-full">
-            
-            <!-- TOPO MOBILE LOGO -->
-            <div class="md:hidden flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
-                <div class="flex items-center gap-2">
-                    <img src="logo-icon.png" alt="Logo" class="h-7 w-auto object-contain rounded-lg" onerror="this.style.display='none'">
-                    <span class="text-xl font-black bg-gradient-to-r from-violet-400 to-fuchsia-400 bg-clip-text text-transparent">Corse</span>
-                </div>
-                <span id="mob-db-status" class="text-xs text-emerald-400 font-medium">Firebase Online</span>
-            </div>
-
-            <!-- ABA 1: FEED -->
-            <section id="tab-feed" class="space-y-6">
-                <div class="bg-slate-900/80 backdrop-blur border border-slate-800 rounded-2xl p-4 shadow-xl">
-                    <div class="flex gap-3">
-                        <img id="feed-user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="w-11 h-11 rounded-full object-cover">
-                        <div class="flex-1">
-                            <textarea id="post-content" placeholder="O que está rolando no Corse hoje?" rows="3" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-slate-100 placeholder-slate-500 focus:outline-none focus:border-violet-500 transition-all resize-none"></textarea>
-                            
-                            <div id="image-preview-container" class="hidden relative mb-3 rounded-xl overflow-hidden max-h-60 bg-slate-950 border border-slate-800">
-                                <img id="image-preview" src="" class="w-full h-full object-cover">
-                                <button onclick="removeImage()" class="absolute top-2 right-2 bg-slate-900/80 hover:bg-red-600 text-white p-1.5 rounded-full transition-all cursor-pointer">
-                                    <i data-lucide="x" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-
-                            <div class="flex items-center justify-between pt-3 border-t border-slate-800/60">
-                                <div class="flex gap-2">
-                                    <label class="cursor-pointer p-2 hover:bg-slate-800 rounded-xl text-violet-400 transition-all flex items-center gap-1.5 text-sm font-medium">
-                                        <i data-lucide="image" class="w-5 h-5"></i>
-                                        <span class="hidden sm:inline">Galeria</span>
-                                        <input type="file" id="image-input" accept="image/*" class="hidden" onchange="handleImageSelect(event)">
-                                    </label>
-                                    <label class="cursor-pointer p-2 hover:bg-slate-800 rounded-xl text-fuchsia-400 transition-all flex items-center gap-1.5 text-sm font-medium">
-                                        <i data-lucide="camera" class="w-5 h-5"></i>
-                                        <span class="hidden sm:inline">Câmera</span>
-                                        <input type="file" id="camera-input" accept="image/*" capture="environment" class="hidden" onchange="handleImageSelect(event)">
-                                    </label>
-                                </div>
-                                <button onclick="createPost()" class="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white px-5 py-2 rounded-xl font-semibold shadow-lg shadow-violet-600/20 transition-all flex items-center gap-2 cursor-pointer">
-                                    <span>Publicar</span>
-                                    <i data-lucide="send" class="w-4 h-4"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="posts-feed" class="space-y-6">
-                    <div class="text-center py-8 text-slate-500 text-sm">Carregando posts...</div>
-                </div>
-            </section>
-
-            <!-- ABA 2: MEU PERFIL -->
-            <section id="tab-profile" class="space-y-6 hidden">
-                <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-                    <div id="profile-banner-container" class="h-36 bg-gradient-to-r from-violet-600 via-fuchsia-600 to-indigo-600 relative bg-cover bg-center">
-                        <div class="absolute -bottom-10 left-6">
-                            <img id="profile-avatar-img" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="w-24 h-24 rounded-2xl object-cover border-4 border-slate-900 shadow-xl">
-                        </div>
-                    </div>
-                    <div class="pt-12 p-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+            <!-- Lista de Feed -->
+            <div id="feed-container" class="space-y-4">
+                <!-- Post de Exemplo 1 -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
+                    <div class="flex items-center gap-3 cursor-pointer" onclick="openUserProfile('Carlos Mendes', 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150', 'Criador de conteúdo e entusiasta de tecnologia.')">
+                        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150" class="w-10 h-10 rounded-full object-cover border border-amber-500/40">
                         <div>
-                            <h2 id="profile-name" class="text-2xl font-bold text-slate-100">Usuário</h2>
-                            <p id="profile-email" class="text-xs text-violet-400 font-medium mt-0.5">email@exemplo.com</p>
-                            <p id="profile-bio-text" class="text-sm text-slate-300 mt-2 max-w-md">Conectado e construindo o futuro das redes sociais no Corse.</p>
+                            <h4 class="font-bold text-xs text-slate-200">Carlos Mendes</h4>
+                            <span class="text-[10px] text-slate-500">Há 15 minutos</span>
                         </div>
-                        <button onclick="openEditProfileModal()" class="bg-slate-800 hover:bg-slate-700 text-white px-4 py-2 rounded-xl text-sm font-semibold transition-all border border-slate-700 flex items-center gap-2 cursor-pointer">
-                            <i data-lucide="edit-3" class="w-4 h-4"></i>
-                            <span>Editar Perfil & Banner</span>
-                        </button>
                     </div>
-                    <div class="grid grid-cols-3 gap-4 p-6 border-t border-slate-800 bg-slate-950/40 text-center">
-                        <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
-                            <p class="text-xs text-slate-400 font-medium">Fazendeiro</p>
-                            <p id="stat-farm-score" class="text-lg font-bold text-emerald-400 mt-1">🌾 0 Colheitas</p>
-                        </div>
-                        <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
-                            <p class="text-xs text-slate-400 font-medium">Quiz Venceu</p>
-                            <p id="stat-quiz-score" class="text-lg font-bold text-amber-400 mt-1">🏆 0 Vitórias</p>
-                        </div>
-                        <div class="p-3 rounded-xl bg-slate-900/60 border border-slate-800">
-                            <p class="text-xs text-slate-400 font-medium">Status</p>
-                            <p class="text-lg font-bold text-fuchsia-400 mt-1">⭐ VIP</p>
-                        </div>
+                    <p class="text-xs text-slate-300 leading-relaxed">Galera, acabei de atualizar o sistema da fazenda por aqui. A integração de estoque via PDF ficou fantástica! 🚜💨</p>
+                    <div class="flex gap-4 border-t border-slate-800/80 pt-3 text-xs text-slate-400 font-semibold">
+                        <button class="hover:text-amber-400 transition-all flex items-center gap-1">❤️ 12</button>
+                        <button class="hover:text-amber-400 transition-all flex items-center gap-1">💬 Comentar</button>
+                        <button onclick="repost('Carlos Mendes', 'Galera, acabei de atualizar o sistema da fazenda por aqui...')" class="hover:text-amber-400 transition-all flex items-center gap-1">🔄 Repostar</button>
                     </div>
                 </div>
-            </section>
+            </div>
+        </div>
 
-            <!-- ABA 3: AMIGOS & CHAT -->
-            <section id="tab-friends" class="space-y-6 hidden">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="space-y-6">
-                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-                            <h3 class="font-bold text-sm text-slate-200 flex items-center gap-2">
-                                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                                <span>Membros Disponíveis</span>
-                            </h3>
-                            <div id="online-users-list" class="space-y-3">
-                                <div class="text-sm text-slate-500">Procurando membros...</div>
-                            </div>
-                        </div>
-
-                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-                            <h3 class="font-bold text-sm text-slate-200">Pedidos de Amizade Pendentes</h3>
-                            <div id="friend-requests-list" class="space-y-3">
-                                <div class="text-sm text-slate-500">Nenhum pedido pendente.</div>
-                            </div>
-                        </div>
-
-                        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-                            <h3 class="font-bold text-sm text-slate-200">Meus Amigos</h3>
-                            <div id="my-friends-list" class="space-y-3">
-                                <div class="text-sm text-slate-500">Nenhum amigo adicionado ainda.</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Chat Privado -->
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col h-[550px]">
-                        <div class="border-b border-slate-800 pb-3 mb-3 flex items-center justify-between">
-                            <div class="flex items-center gap-3">
-                                <div class="w-3 h-3 rounded-full bg-violet-500 animate-pulse"></div>
-                                <h3 id="chat-title" class="font-bold text-sm text-slate-100">Selecione um amigo para conversar</h3>
-                            </div>
-                            <button id="call-btn" onclick="startAudioCall()" disabled class="hidden bg-emerald-600/20 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 disabled:opacity-50 cursor-pointer">
-                                <i data-lucide="phone-call" class="w-4 h-4"></i>
-                                <span>Ligar</span>
-                            </button>
-                        </div>
-                        
-                        <div id="chat-messages" class="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-2 mb-3">
-                            <div class="text-center text-xs text-slate-500 py-24">Clique em "Conversar" em um amigo ao lado.</div>
-                        </div>
-
-                        <div id="typing-indicator" class="hidden text-[11px] text-violet-400 italic mb-2 flex items-center gap-1.5 px-2">
-                            <span>Digitando</span>
-                            <span class="flex gap-0.5">
-                                <span class="w-1 h-1 bg-violet-400 rounded-full typing-dot"></span>
-                                <span class="w-1 h-1 bg-violet-400 rounded-full typing-dot"></span>
-                                <span class="w-1 h-1 bg-violet-400 rounded-full typing-dot"></span>
-                            </span>
-                        </div>
-
-                        <div class="space-y-2 pt-2 border-t border-slate-800">
-                            <div class="flex gap-1 flex-wrap">
-                                <button onclick="insertEmoji('😊')" class="bg-slate-800 hover:bg-slate-700 text-xs px-2 py-1 rounded-lg">😊</button>
-                                <button onclick="insertEmoji('🔥')" class="bg-slate-800 hover:bg-slate-700 text-xs px-2 py-1 rounded-lg">🔥</button>
-                                <button onclick="insertEmoji('🚀')" class="bg-slate-800 hover:bg-slate-700 text-xs px-2 py-1 rounded-lg">🚀</button>
-                                <button onclick="insertEmoji('❤️')" class="bg-slate-800 hover:bg-slate-700 text-xs px-2 py-1 rounded-lg">❤️</button>
-                                <button onclick="insertEmoji('👍')" class="bg-slate-800 hover:bg-slate-700 text-xs px-2 py-1 rounded-lg">👍</button>
-                                <label class="cursor-pointer bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-2 py-1 rounded-lg flex items-center gap-1">
-                                    <i data-lucide="image" class="w-3.5 h-3.5"></i>
-                                    <span>Foto</span>
-                                    <input type="file" accept="image/*" class="hidden" onchange="sendChatImage(event)">
-                                </label>
-                            </div>
-                            <div class="flex gap-2">
-                                <input type="text" id="chat-input" placeholder="Digite sua mensagem..." disabled oninput="handleTypingInput()" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-violet-500 disabled:opacity-50">
-                                <button id="chat-send-btn" onclick="sendChatMessage()" disabled class="bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white px-4 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer">Enviar</button>
-                            </div>
-                        </div>
-                    </div>
+        <!-- ABA 2: BATE-PAPO / CHAT (Com Rolagem Automática para Baixo) -->
+        <div id="tab-chat" class="tab-content hidden flex flex-col h-[calc(100vh-140px)]">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-3 mb-2 flex items-center gap-3">
+                <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="w-8 h-8 rounded-full object-cover cursor-pointer" onclick="openUserProfile('Mariana Souza', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150', 'Administradora de comunidades.')">
+                <div>
+                    <h4 class="font-bold text-xs text-slate-200">Mariana Souza</h4>
+                    <span class="text-[9px] text-emerald-400">Online agora</span>
                 </div>
-            </section>
+            </div>
 
-            <!-- ABA 4: COMUNIDADES & BATE-PAPO EM GRUPO -->
-            <section id="tab-communities" class="space-y-6 hidden">
-                <div id="communities-list-view" class="space-y-6">
-                    <div class="flex justify-between items-center">
+            <!-- Caixa de Mensagens com Rolagem Automática -->
+            <div id="chat-messages" class="flex-1 overflow-y-auto space-y-3 pr-1 hide-scrollbar">
+                <div class="flex justify-start">
+                    <div class="bg-slate-800 text-slate-200 p-2.5 rounded-2xl text-xs max-w-[80%]">Oi! Tudo bem com o projeto novo?</div>
+                </div>
+                <div class="flex justify-end">
+                    <div class="bg-amber-600 text-white p-2.5 rounded-2xl text-xs max-w-[80%]">Tudo ótimo! Rodando perfeitamente por aqui.</div>
+                </div>
+            </div>
+
+            <!-- Input do Chat -->
+            <div class="mt-3 flex gap-2">
+                <input type="text" id="chat-input" placeholder="Escreva sua mensagem..." class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
+                <button onclick="sendMessage()" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition-all cursor-pointer">Enviar</button>
+            </div>
+        </div>
+
+        <!-- ABA 3: COMUNIDADES / GRUPOS -->
+        <div id="tab-communities" class="tab-content hidden space-y-4">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
+                <div class="flex justify-between items-start">
+                    <div class="flex items-center gap-3">
+                        <div id="comm-avatar" class="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xl font-bold text-amber-400 overflow-hidden">
+                            🌾
+                        </div>
                         <div>
-                            <h2 class="text-xl font-bold text-slate-100">Grupos & Comunidades</h2>
-                            <p class="text-sm text-slate-400">Participe de conversas em grupo sobre seus interesses.</p>
+                            <h3 id="comm-name" class="font-bold text-sm text-slate-100">AgroTech Brasil</h3>
+                            <p class="text-[10px] text-slate-400"><span id="comm-members-count">1.420</span> membros ativos</p>
                         </div>
-                        <button onclick="openCreateGroupModal()" class="bg-violet-600 hover:bg-violet-500 text-white text-xs px-4 py-2 rounded-xl font-semibold transition-all shadow-lg shadow-violet-600/25 cursor-pointer">+ Criar Grupo</button>
                     </div>
-                    <div id="communities-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                        <div class="text-sm text-slate-500">Carregando comunidades...</div>
-                    </div>
+                    <button onclick="openCommSettings()" class="text-xs bg-slate-800 hover:bg-slate-700 px-3 py-1.5 rounded-xl font-semibold transition-all text-amber-400">⚙️ Configurações</button>
                 </div>
-
-                <div id="community-chat-view" class="hidden space-y-4">
-                    <div class="flex items-center justify-between bg-slate-900 border border-slate-800 p-4 rounded-2xl shadow-xl">
-                        <div class="flex items-center gap-3">
-                            <button onclick="backToCommunitiesList()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 p-2 rounded-xl cursor-pointer">
-                                <i data-lucide="arrow-left" class="w-5 h-5"></i>
-                            </button>
-                            <div>
-                                <h3 id="community-chat-title" class="font-bold text-slate-100 text-base">Nome do Grupo</h3>
-                                <p id="community-chat-desc" class="text-xs text-slate-400">Descrição da comunidade</p>
-                            </div>
-                        </div>
-                        <span class="text-xs px-3 py-1 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20">Bate-papo em Grupo</span>
-                    </div>
-
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col h-[500px]">
-                        <div id="community-messages" class="flex-1 overflow-y-auto custom-scrollbar space-y-3 pr-2 mb-3">
-                            <div class="text-center text-xs text-slate-500 py-24">Carregando conversa do grupo...</div>
-                        </div>
-
-                        <div class="space-y-2 pt-2 border-t border-slate-800">
-                            <div class="flex gap-1 flex-wrap">
-                                <button onclick="insertCommunityEmoji('😊')" class="bg-slate-800 hover:bg-slate-700 text-xs px-2 py-1 rounded-lg">😊</button>
-                                <button onclick="insertCommunityEmoji('🔥')" class="bg-slate-800 hover:bg-slate-700 text-xs px-2 py-1 rounded-lg">🔥</button>
-                                <button onclick="insertCommunityEmoji('🚀')" class="bg-slate-800 hover:bg-slate-700 text-xs px-2 py-1 rounded-lg">🚀</button>
-                                <button onclick="insertCommunityEmoji('❤️')" class="bg-slate-800 hover:bg-slate-700 text-xs px-2 py-1 rounded-lg">❤️</button>
-                                <label class="cursor-pointer bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs px-2 py-1 rounded-lg flex items-center gap-1">
-                                    <i data-lucide="image" class="w-3.5 h-3.5"></i>
-                                    <span>Foto</span>
-                                    <input type="file" accept="image/*" class="hidden" onchange="sendCommunityImage(event)">
-                                </label>
-                            </div>
-                            <div class="flex gap-2">
-                                <input type="text" id="community-input" placeholder="Envie uma mensagem para a comunidade..." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-violet-500">
-                                <button onclick="sendCommunityMessage()" class="bg-violet-600 hover:bg-violet-500 text-white px-4 py-2.5 rounded-xl text-xs font-semibold transition-all cursor-pointer">Enviar</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </section>
-
-            <!-- ABA 5: JOGOS & ARCADE (MINI FAZENDA ANIMADA + QUIZ SIMULTÂNEO) -->
-            <section id="tab-games" class="space-y-6 hidden">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- MINI FAZENDA ANIMADA -->
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl space-y-4">
-                        <div class="flex items-center gap-3 border-b border-slate-800 pb-3">
-                            <div class="p-2.5 rounded-xl bg-emerald-600/20 text-emerald-400">
-                                <i data-lucide="sprout" class="w-6 h-6"></i>
-                            </div>
-                            <div>
-                                <h3 class="font-bold text-slate-100 text-base">Mini Fazenda Corse</h3>
-                                <p class="text-xs text-slate-400">Plante, veja crescer com animações e colha!</p>
-                            </div>
-                        </div>
-
-                        <div id="farm-plots" class="grid grid-cols-2 gap-3 py-2">
-                            <!-- Canteiros gerados dinamicamente com animação -->
-                        </div>
-                    </div>
-
-                    <!-- QUIZ SIMULTÂNEO EM TEMPO REAL -->
-                    <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl flex flex-col justify-between">
-                        <div class="space-y-4">
-                            <div class="flex items-center gap-3 border-b border-slate-800 pb-3">
-                                <div class="p-2.5 rounded-xl bg-amber-600/20 text-amber-400">
-                                    <i data-lucide="help-circle" class="w-6 h-6"></i>
-                                </div>
-                                <div>
-                                    <h3 class="font-bold text-slate-100 text-base">Quiz Relâmpago Simultâneo</h3>
-                                    <p class="text-xs text-slate-400">História, Matemática & Cultura Geral</p>
-                                </div>
-                            </div>
-
-                            <div id="quiz-lobby" class="py-8 text-center space-y-4">
-                                <div class="w-16 h-16 bg-violet-600/20 rounded-full flex items-center justify-center mx-auto text-violet-400 animate-pulse">
-                                    <i data-lucide="users" class="w-8 h-8"></i>
-                                </div>
-                                <div>
-                                    <h4 class="font-bold text-slate-200 text-sm">Batalha de Conhecimento</h4>
-                                    <p class="text-xs text-slate-400 mt-1 max-w-xs mx-auto">Ao buscar partida, o convite será enviado para todos os usuários online no Corse!</p>
-                                </div>
-                                <button onclick="startQuizMatchmaking()" class="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white px-6 py-3 rounded-xl font-semibold text-xs shadow-lg shadow-violet-600/25 transition-all cursor-pointer">
-                                    🔍 Procurar Oponente Online
-                                </button>
-                            </div>
-
-                            <div id="quiz-arena" class="hidden space-y-4 py-2">
-                                <div class="flex justify-between items-center text-xs text-slate-400 font-semibold">
-                                    <span id="quiz-question-counter">Pergunta 1/3</span>
-                                    <span id="quiz-timer" class="text-amber-400">⏱️ 15s</span>
-                                </div>
-                                <h4 id="quiz-question-text" class="font-bold text-slate-100 text-sm min-h-[40px]">Carregando pergunta...</h4>
-                                <div id="quiz-options" class="space-y-2">
-                                    <!-- Opções -->
-                                </div>
-                            </div>
-                        </div>
-
-                        <div id="quiz-footer-status" class="text-center text-xs text-slate-500 pt-4 border-t border-slate-800">
-                            Pronto para o duelo simultâneo?
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </main>
-    </div>
-
-    <!-- MODAL CONVITE DE QUIZ (TRANSMITIDO A TODOS) -->
-    <div id="quiz-invite-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-violet-500/50 rounded-2xl w-full max-w-sm p-6 shadow-2xl text-center space-y-4">
-            <div class="w-14 h-14 bg-violet-600/20 rounded-full flex items-center justify-center mx-auto text-violet-400 animate-bounce">
-                <i data-lucide="zap" class="w-7 h-7"></i>
+                <p class="text-xs text-slate-300">Comunidade dedicada a automação, máquinas e gestão agrícola moderna.</p>
             </div>
+        </div>
+
+    </main>
+
+    <!-- MODAL DE PERFIL DE OUTRO USUÁRIO -->
+    <div id="user-profile-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4 text-center">
+            <img id="modal-user-avatar" src="" class="w-20 h-20 rounded-full object-cover mx-auto border-2 border-amber-500 shadow-lg">
             <div>
-                <h3 id="quiz-invite-title" class="font-bold text-slate-100 text-base">Alguém quer jogar Quiz!</h3>
-                <p id="quiz-invite-desc" class="text-xs text-slate-400 mt-1">Um oponente iniciou uma busca aberta por partida.</p>
+                <h3 id="modal-user-name" class="font-bold text-amber-400 text-base">Nome do Usuário</h3>
+                <p id="modal-user-bio" class="text-xs text-slate-300 mt-2">Biografia do usuário aparece aqui...</p>
             </div>
-            <div class="flex gap-2 pt-2">
-                <button onclick="rejectQuizInvite()" class="flex-1 bg-slate-800 hover:bg-slate-700 text-slate-300 py-2.5 rounded-xl text-xs font-semibold cursor-pointer">Ignorar</button>
-                <button onclick="acceptQuizInvite()" class="flex-1 bg-violet-600 hover:bg-violet-500 text-white py-2.5 rounded-xl text-xs font-semibold cursor-pointer">Aceitar Duelo!</button>
+            <button onclick="closeUserProfile()" class="w-full bg-slate-800 hover:bg-slate-700 text-white font-semibold py-2 rounded-xl text-xs transition-all cursor-pointer">Fechar Perfil</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIGURAÇÕES DO GRUPO / COMUNIDADE -->
+    <div id="comm-settings-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-amber-400 text-sm">⚙️ Configurações da Comunidade</h3>
+                <button onclick="closeCommSettings()" class="text-slate-400 hover:text-white text-xs cursor-pointer">✕</button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="text-[10px] text-slate-400 font-bold block mb-1">Nome do Grupo</label>
+                    <input type="text" id="edit-comm-name" value="AgroTech Brasil" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-200">
+                </div>
+                <div>
+                    <label class="text-[10px] text-slate-400 font-bold block mb-1">Ícone / Emoji do Grupo</label>
+                    <input type="text" id="edit-comm-icon" value="🌾" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-2.5 text-xs text-slate-200">
+                </div>
+                <button onclick="saveCommSettings()" class="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold py-2.5 rounded-xl text-xs transition-all cursor-pointer">Salvar Alterações</button>
             </div>
         </div>
     </div>
 
-    <!-- MODAL EDITAR PERFIL & BANNER -->
-    <div id="edit-profile-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-4 max-h-[90vh] overflow-y-auto custom-scrollbar">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 class="font-bold text-slate-100 flex items-center gap-2">
-                    <i data-lucide="user-pen" class="w-5 h-5 text-violet-400"></i>
-                    <span>Editar Perfil & Visual</span>
-                </h3>
-                <button onclick="closeEditProfileModal()" class="text-slate-400 hover:text-white cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            
-            <div class="space-y-4">
-                <div class="flex flex-col items-center gap-2">
-                    <span class="text-xs font-semibold text-slate-300">Foto de Perfil</span>
-                    <img id="modal-avatar-preview" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="w-20 h-20 rounded-full object-cover border-2 border-violet-500">
-                    <label class="cursor-pointer bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all">
-                        <span>Alterar Foto</span>
-                        <input type="file" accept="image/*" class="hidden" onchange="handleProfileAvatarSelect(event)">
-                    </label>
-                </div>
+    <!-- RODAPÉ DE NAVEGAÇÃO DA REDE SOCIAL -->
+    <nav class="sticky bottom-0 bg-slate-900/90 backdrop-blur border-t border-slate-800 p-3 flex justify-around items-center text-xs font-semibold text-slate-400">
+        <button onclick="switchTab('feed')" id="nav-feed" class="hover:text-amber-400 transition-all text-amber-400">🏠 Feed</button>
+        <button onclick="switchTab('chat')" id="nav-chat" class="hover:text-amber-400 transition-all">💬 Chat</button>
+        <button onclick="switchTab('communities')" id="nav-communities" class="hover:text-amber-400 transition-all">👥 Comunidades</button>
+    </nav>
 
-                <div class="space-y-2">
-                    <span class="text-xs font-semibold text-slate-300 block">Banner de Fundo do Perfil</span>
-                    <div id="modal-banner-preview" class="h-20 rounded-xl bg-gradient-to-r from-violet-600 via-fuchsia-600 to-indigo-600 bg-cover bg-center border border-slate-700"></div>
-                    <label class="cursor-pointer block text-center bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all">
-                        <span>Alterar Banner de Fundo</span>
-                        <input type="file" accept="image/*" class="hidden" onchange="handleProfileBannerSelect(event)">
-                    </label>
-                </div>
+    <script>
+        // Função para alternar abas de navegação
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
 
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Seu Nome</label>
-                    <input type="text" id="edit-name-input" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-violet-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Biografia</label>
-                    <textarea id="edit-bio-input" rows="2" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-violet-500 resize-none"></textarea>
-                </div>
-            </div>
-
-            <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
-                <button onclick="closeEditProfileModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white cursor-pointer">Cancelar</button>
-                <button onclick="saveProfileChanges()" class="bg-violet-600 hover:bg-violet-500 text-white px-4 py-2 rounded-xl text-xs font-semibold transition-all shadow-lg shadow-violet-600/20 cursor-pointer">Salvar Alterações</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- MODAL CRIAR GRUPO -->
-    <div id="create-group-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <h3 class="font-bold text-slate-100 flex items-center gap-2">
-                    <i data-lucide="users" class="w-5 h-5 text-violet-400"></i>
-                    <span>Criar Novo Grupo</span>
-                </h3>
-                <button onclick="closeCreateGroupModal()" class="text-slate-400 hover:text-white cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
-            </div>
-            <div class="space-y-4">
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Nome do Grupo</label>
-                    <input type="text" id="group-name-input" placeholder="Ex: Desenvolvedores Brasil" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-violet-500">
-                </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Descrição</label>
-                    <textarea id="group-desc-input" rows="2" placeholder="Sobre o que é este grupo?" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-violet-500 resize-none"></textarea>
-                </div>
-            </div>
-            <div class="flex justify-end gap-2 pt-3 border-t border-slate-800">
-                <button onclick="closeCreateGroupModal()" class="px-4 py-2 rounded-xl text-xs font-semibold text-slate-400 hover:text-white cursor-pointer">Cancelar</button>
-                <button onclick="submitCreateGroup()" class="bg-violet-600 hover:bg-violet-500 text-white px-4 py-2 rounded-xl text-xs font-semibold transition-all shadow-lg shadow-violet-600/20 cursor-pointer">Criar Grupo</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- FIREBASE SDKs & LÓGICA -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-analytics.js";
-        import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getDatabase, ref, push, set, onValue, update, remove, get } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
-
-        const firebaseConfig = {
-          apiKey: "AIzaSyDtNh6DX5NZNzJdoTWN9Dklu97munmJf1w",
-          authDomain: "gestaofazenda-106ec.firebaseapp.com",
-          databaseURL: "https://gestaofazenda-106ec-default-rtdb.firebaseio.com",
-          projectId: "gestaofazenda-106ec",
-          storageBucket: "gestaofazenda-106ec.firebasestorage.app",
-          messagingSenderId: "241491924291",
-          appId: "1:241491924291:web:5d7825b174d235a66d0bf6",
-          measurementId: "G-147QY6PKN5"
-        };
-
-        const app = initializeApp(firebaseConfig);
-        const analytics = getAnalytics(app);
-        const auth = getAuth(app);
-        const db = getDatabase(app);
-
-        let isRegistering = false;
-        let currentUser = null;
-        let uploadedImageUrl = "";
-        let newAvatarBase64 = "";
-        let newBannerBase64 = "";
-        let activeChatFriendUid = null;
-        let activeCommunityId = null;
-        let initialPostsLoaded = false;
-        let initialChatsLoaded = {}; 
-        let typingTimeout = null;
-
-        // Quiz Simultâneo States
-        let currentQuizMatchId = null;
-        let currentQuestionIndex = 0;
-        let myQuizScore = 0;
-        let quizTimerInterval = null;
-        const quizQuestions = [
-            { q: "Qual foi o império responsável pela construção do Coliseu em Roma?", options: ["Império Persa", "Império Romano", "Império Grego", "Império Otomano"], correct: 1 },
-            { q: "Quanto é 7 x 8 + 4?", options: ["56", "60", "64", "52"], correct: 1 },
-            { q: "Em que ano ocorreu a proclamação da independência do Brasil?", options: ["1500", "1822", "1889", "1930"], correct: 1 },
-            { q: "Qual o planeta mais próximo do Sol no sistema solar?", options: ["Vênus", "Terra", "Mercúrio", "Marte"], correct: 2 },
-            { q: "Quem pintou a Mona Lisa?", options: ["Van Gogh", "Pablo Picasso", "Leonardo da Vinci", "Michelangelo"], correct: 2 }
-        ];
-
-        window.playNotificationSound = function() {
-            try {
-                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.type = 'sine';
-                osc.frequency.setValueAtTime(587.33, audioCtx.currentTime);
-                osc.frequency.setValueAtTime(880, audioCtx.currentTime + 0.1);
-                gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-                gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.3);
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
-                osc.start();
-                osc.stop(audioCtx.currentTime + 0.3);
-            } catch(e) {}
+            // Se abrir o chat, rola automaticamente para o final da conversa
+            if(tabName === 'chat') {
+                scrollToBottomChat();
+            }
         }
 
-        window.showToast = function(message, type = 'info') {
-            const container = document.getElementById('toast-container');
-            const toastId = 'toast-' + Date.now();
-            let bgClass = 'bg-slate-900/95 border-violet-500/40 text-slate-100';
-            let iconName = 'bell';
-            
-            if(type === 'success') { bgClass = 'bg-slate-900/95 border-emerald-500/40 text-emerald-300'; iconName = 'check-circle-2'; playNotificationSound(); }
-            else if(type === 'post') { bgClass = 'bg-slate-900/95 border-fuchsia-500/40 text-fuchsia-300'; iconName = 'zap'; playNotificationSound(); }
-            else if(type === 'chat') { bgClass = 'bg-slate-900/95 border-violet-500/50 text-violet-300'; iconName = 'message-square'; playNotificationSound(); }
-            else if(type === 'game') { bgClass = 'bg-slate-900/95 border-amber-500/50 text-amber-300'; iconName = 'gamepad-2'; playNotificationSound(); }
-
-            container.insertAdjacentHTML('beforeend', `
-                <div id="${toastId}" class="toast-notification pointer-events-auto flex items-center gap-3 p-4 rounded-2xl border ${bgClass} backdrop-blur-md shadow-2xl transition-all">
-                    <i data-lucide="${iconName}" class="w-5 h-5 flex-shrink-0"></i>
-                    <p class="text-xs font-semibold flex-1">${escapeHtml(message)}</p>
-                </div>
-            `);
-            lucide.createIcons();
-
+        // Função de Rolagem Automática do Chat
+        function scrollToBottomChat() {
+            const chatBox = document.getElementById('chat-messages');
             setTimeout(() => {
-                const el = document.getElementById(toastId);
-                if(el) { el.style.opacity = '0'; el.style.transform = 'translateY(-20px)'; setTimeout(() => el.remove(), 300); }
-            }, 3500);
+                chatBox.scrollTop = chatBox.scrollHeight;
+            }, 50);
         }
 
-        window.toggleAuthMode = function() {
-            isRegistering = !isRegistering;
-            const title = document.getElementById('auth-subtitle');
-            const nameContainer = document.getElementById('name-field-container');
-            const submitBtn = document.getElementById('auth-submit-btn');
-            const switchText = document.getElementById('auth-switch-text');
-            const switchBtn = document.getElementById('auth-switch-btn');
-            const errorDiv = document.getElementById('auth-error');
-            errorDiv.classList.add('hidden');
-
-            if(isRegistering) {
-                title.innerText = "Crie sua conta gratuita no Corse";
-                nameContainer.classList.remove('hidden');
-                submitBtn.innerText = "Cadastrar Conta";
-                switchText.innerText = "Já tem uma conta?";
-                switchBtn.innerText = "Fazer login";
-            } else {
-                title.innerText = "Entre na sua conta para acessar o feed";
-                nameContainer.classList.add('hidden');
-                submitBtn.innerText = "Entrar na Conta";
-                switchText.innerText = "Não tem uma conta?";
-                switchBtn.innerText = "Criar conta";
-            }
-        }
-
-        window.handleAuthSubmit = async function() {
-            const email = document.getElementById('auth-email').value.trim();
-            const password = document.getElementById('auth-password').value.trim();
-            const name = document.getElementById('auth-name').value.trim();
-            const errorDiv = document.getElementById('auth-error');
-            const submitBtn = document.getElementById('auth-submit-btn');
-            errorDiv.classList.add('hidden');
-
-            if(!email || !password) { errorDiv.innerText = "Preencha o e-mail e a senha."; errorDiv.classList.remove('hidden'); return; }
-
-            try {
-                submitBtn.disabled = true;
-                submitBtn.innerText = "Processando...";
-
-                if(isRegistering) {
-                    if(!name) {
-                        errorDiv.innerText = "Informe seu nome para o cadastro.";
-                        errorDiv.classList.remove('hidden');
-                        submitBtn.disabled = false; submitBtn.innerText = "Cadastrar Conta";
-                        return;
-                    }
-                    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-                    await set(ref(db, `users/${userCredential.user.uid}`), {
-                        name: name, email: email,
-                        bio: "Conectado e construindo o futuro das redes sociais no Corse.",
-                        avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150",
-                        banner: "", online: true, farmScore: 0, quizWins: 0
-                    });
-                } else {
-                    await signInWithEmailAndPassword(auth, email, password);
-                }
-            } catch (error) {
-                console.error(error);
-                errorDiv.innerText = "Erro: " + error.message;
-                errorDiv.classList.remove('hidden');
-                submitBtn.disabled = false;
-                submitBtn.innerText = isRegistering ? "Cadastrar Conta" : "Entrar na Conta";
-            }
-        }
-
-        onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user;
-                document.getElementById('auth-screen').classList.add('hidden');
-                document.getElementById('app-container').classList.remove('hidden');
-                
-                const defaultName = user.email.split('@')[0];
-                document.getElementById('profile-email').innerText = user.email;
-
-                set(ref(db, `users/${user.uid}/online`), true);
-
-                loadUserProfileData(user.uid, defaultName);
-                listenToPosts();
-                listenToFriendsAndUsers();
-                listenToFriendRequests();
-                listenToCommunities();
-                listenToAllGlobalChats();
-                listenToGlobalQuizBroadcast();
-                loadMiniFarm(user.uid);
-            } else {
-                if(currentUser) set(ref(db, `users/${currentUser.uid}/online`), false);
-                currentUser = null;
-                initialPostsLoaded = false;
-                initialChatsLoaded = {};
-                document.getElementById('app-container').classList.add('hidden');
-                document.getElementById('auth-screen').classList.remove('hidden');
-                
-                const submitBtn = document.getElementById('auth-submit-btn');
-                submitBtn.disabled = false;
-                submitBtn.innerText = isRegistering ? "Cadastrar Conta" : "Entrar na Conta";
-            }
-            lucide.createIcons();
-        });
-
-        window.logoutUser = async function() {
-            if(currentUser) await set(ref(db, `users/${currentUser.uid}/online`), false);
-            await signOut(auth);
-        }
-
-        window.switchTab = function(tabId) {
-            document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
-            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-
-            if(tabId !== 'friends' && activeChatFriendUid) {
-                activeChatFriendUid = null;
-                document.getElementById('chat-title').innerText = "Selecione um amigo para conversar";
-                document.getElementById('chat-input').setAttribute('disabled', 'true');
-                document.getElementById('chat-send-btn').setAttribute('disabled', 'true');
-                document.getElementById('call-btn').classList.add('hidden');
-                document.getElementById('chat-messages').innerHTML = `<div class="text-center text-xs text-slate-500 py-24">Clique em "Conversar" em um amigo ao lado.</div>`;
-            }
-
-            document.querySelectorAll('aside nav button').forEach(btn => {
-                btn.classList.remove('bg-violet-600/10', 'text-violet-400', 'border', 'border-violet-500/20');
-                btn.classList.add('text-slate-300');
-            });
-            const activeBtn = document.getElementById(`nav-${tabId}`);
-            if(activeBtn) {
-                activeBtn.classList.add('bg-violet-600/10', 'text-violet-400', 'border', 'border-violet-500/20');
-                activeBtn.classList.remove('text-slate-300');
-            }
-
-            document.querySelectorAll('.md\\:hidden.fixed button').forEach(btn => {
-                if(!btn.classList.contains('text-red-400')) btn.classList.replace('text-violet-400', 'text-slate-400');
-            });
-            const mobBtn = document.getElementById(`mob-nav-${tabId}`);
-            if(mobBtn) mobBtn.classList.replace('text-slate-400', 'text-violet-400');
-        }
-
-        window.handleImageSelect = function(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    uploadedImageUrl = e.target.result;
-                    document.getElementById('image-preview').src = uploadedImageUrl;
-                    document.getElementById('image-preview-container').classList.remove('hidden');
-                }
-                reader.readAsDataURL(file);
-            }
-        }
-
-        window.removeImage = function() {
-            uploadedImageUrl = "";
-            document.getElementById('image-input').value = "";
-            document.getElementById('camera-input').value = "";
-            document.getElementById('image-preview-container').classList.add('hidden');
-        }
-
-        window.openEditProfileModal = function() {
-            document.getElementById('edit-name-input').value = document.getElementById('profile-name').innerText;
-            document.getElementById('edit-bio-input').value = document.getElementById('profile-bio-text').innerText;
-            document.getElementById('modal-avatar-preview').src = document.getElementById('profile-avatar-img').src;
-            newAvatarBase64 = ""; newBannerBase64 = "";
-            document.getElementById('edit-profile-modal').classList.remove('hidden');
-        }
-
-        window.closeEditProfileModal = function() {
-            document.getElementById('edit-profile-modal').classList.add('hidden');
-        }
-
-        window.handleProfileAvatarSelect = function(event) {
-            const file = event.target.files[0];
-            if(file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        canvas.width = 250; canvas.height = 250;
-                        ctx.drawImage(img, 0, 0, 250, 250);
-                        newAvatarBase64 = canvas.toDataURL('image/jpeg', 0.8);
-                        document.getElementById('modal-avatar-preview').src = newAvatarBase64;
-                    }
-                    img.src = e.target.result;
-                }
-                reader.readAsDataURL(file);
-            }
-        }
-
-        window.handleProfileBannerSelect = function(event) {
-            const file = event.target.files[0];
-            if(file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const img = new Image();
-                    img.onload = function() {
-                        const canvas = document.createElement('canvas');
-                        const ctx = canvas.getContext('2d');
-                        canvas.width = 600; canvas.height = 200;
-                        ctx.drawImage(img, 0, 0, 600, 200);
-                        newBannerBase64 = canvas.toDataURL('image/jpeg', 0.8);
-                        document.getElementById('modal-banner-preview').style.backgroundImage = `url(${newBannerBase64})`;
-                    }
-                    img.src = e.target.result;
-                }
-                reader.readAsDataURL(file);
-            }
-        }
-
-        window.saveProfileChanges = async function() {
-            const newName = document.getElementById('edit-name-input').value.trim();
-            const newBio = document.getElementById('edit-bio-input').value.trim();
-            const currentAvatar = document.getElementById('profile-avatar-img').src;
-            const finalAvatar = newAvatarBase64 || currentAvatar;
-
-            if(!newName) { alert("O nome não pode ficar vazio."); return; }
-
-            try {
-                const userRef = ref(db, `users/${currentUser.uid}`);
-                const updateData = { name: newName, bio: newBio, avatar: finalAvatar };
-                if(newBannerBase64) updateData.banner = newBannerBase64;
-
-                await update(userRef, updateData);
-
-                document.getElementById('user-display-name').innerText = newName;
-                document.getElementById('profile-name').innerText = newName;
-                document.getElementById('profile-bio-text').innerText = newBio || "Sem biografia.";
-                document.getElementById('sidebar-user-avatar').src = finalAvatar;
-                document.getElementById('feed-user-avatar').src = finalAvatar;
-                document.getElementById('profile-avatar-img').src = finalAvatar;
-                if(newBannerBase64) document.getElementById('profile-banner-container').style.backgroundImage = `url(${newBannerBase64})`;
-
-                closeEditProfileModal();
-                showToast("Perfil atualizado com sucesso!", "success");
-            } catch (error) { console.error(error); }
-        }
-
-        function loadUserProfileData(uid, defaultName) {
-            onValue(ref(db, `users/${uid}`), (snapshot) => {
-                const data = snapshot.val() || {};
-                const name = data.name || defaultName;
-                const bio = data.bio || "Conectado e construindo o futuro das redes sociais no Corse.";
-                const avatar = data.avatar || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150";
-                const banner = data.banner || "";
-
-                document.getElementById('profile-name').innerText = name;
-                document.getElementById('user-display-name').innerText = name;
-                document.getElementById('profile-bio-text').innerText = bio;
-                document.getElementById('profile-avatar-img').src = avatar;
-                document.getElementById('sidebar-user-avatar').src = avatar;
-                document.getElementById('feed-user-avatar').src = avatar;
-                if(banner) document.getElementById('profile-banner-container').style.backgroundImage = `url(${banner})`;
-
-                document.getElementById('stat-farm-score').innerText = `🌾 ${data.farmScore || 0} Colheitas`;
-                document.getElementById('stat-quiz-score').innerText = `🏆 ${data.quizWins || 0} Vitórias`;
-            });
-        }
-
-        // --- MINI FAZENDA VISUAL E ANIMADA ---
-        function loadMiniFarm(uid) {
-            const plotsContainer = document.getElementById('farm-plots');
-            onValue(ref(db, `farms/${uid}`), (snapshot) => {
-                const plots = snapshot.val() || { 1: { crop: null, plantedAt: 0 }, 2: { crop: null, plantedAt: 0 }, 3: { crop: null, plantedAt: 0 }, 4: { crop: null, plantedAt: 0 } };
-                plotsContainer.innerHTML = "";
-
-                Object.keys(plots).forEach(plotId => {
-                    const plot = plots[plotId];
-                    const now = Date.now();
-                    const growTime = 8000; // 8 segundos para crescer
-                    let statusHtml = '';
-                    let actionBtn = '';
-                    let iconState = '🟫';
-                    let animClass = '';
-
-                    if(!plot.crop) {
-                        statusHtml = `<span class="text-[11px] text-slate-400">Terra fértil</span>`;
-                        actionBtn = `<button onclick="plantCrop('${plotId}', '🌽 Milho')" class="mt-2 bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-[11px] font-semibold transition-all cursor-pointer shadow-md shadow-emerald-600/30">Plantar Milho</button>`;
-                    } else {
-                        const elapsed = now - plot.plantedAt;
-                        if(elapsed >= growTime) {
-                            iconState = '🌽';
-                            animClass = 'animate-plant';
-                            statusHtml = `<span class="text-[11px] text-amber-400 font-bold">✨ Pronto p/ colher!</span>`;
-                            actionBtn = `<button onclick="harvestCrop('${plotId}')" class="mt-2 bg-amber-500 hover:bg-amber-400 text-slate-950 px-3 py-1.5 rounded-xl text-[11px] font-bold transition-all cursor-pointer shadow-md shadow-amber-500/30 animate-bounce">Colher Agora</button>`;
-                        } else {
-                            iconState = '🌱';
-                            const remaining = Math.ceil((growTime - elapsed) / 1000);
-                            statusHtml = `<span class="text-[11px] text-violet-400">Crescendo... (${remaining}s)</span>`;
-                            actionBtn = `<div class="mt-2 text-[10px] text-slate-500 font-medium">Cultivando</div>`;
-                        }
-                    }
-
-                    plotsContainer.insertAdjacentHTML('beforeend', `
-                        <div class="bg-slate-950/70 border border-slate-800 p-4 rounded-2xl flex flex-col items-center justify-center text-center shadow-inner relative overflow-hidden">
-                            <span class="text-3xl mb-1 ${animClass}">${iconState}</span>
-                            <span class="text-xs font-bold text-slate-300 mt-1">Canteiro #${plotId}</span>
-                            ${statusHtml}
-                            ${actionBtn}
-                        </div>
-                    `);
-                });
-            });
-        }
-
-        window.plantCrop = async function(plotId, cropName) {
-            await set(ref(db, `farms/${currentUser.uid}/${plotId}`), {
-                crop: cropName,
-                plantedAt: Date.now()
-            });
-            showToast("Semente plantada! Veja a planta crescer. 🌱", "game");
-        }
-
-        window.harvestCrop = async function(plotId) {
-            await set(ref(db, `farms/${currentUser.uid}/${plotId}`), {
-                crop: null,
-                plantedAt: 0
-            });
-            
-            const userRef = ref(db, `users/${currentUser.uid}`);
-            const userSnap = await get(userRef);
-            const currentScore = userSnap.val().farmScore || 0;
-            await update(userRef, { farmScore: currentScore + 1 });
-
-            showToast("Colheita realizada com sucesso! +1 Ponto 🌾", "success");
-        }
-
-        // --- QUIZ SIMULTÂNEO EM TEMPO REAL COM TRANSMISSÃO A TODOS ---
-        window.startQuizMatchmaking = async function() {
-            showToast("Procurando oponente online...", "game");
-            document.getElementById('quiz-lobby').innerHTML = `
-                <div class="w-16 h-16 bg-amber-600/20 rounded-full flex items-center justify-center mx-auto text-amber-400 animate-spin">
-                    <i data-lucide="loader" class="w-8 h-8"></i>
-                </div>
-                <h4 class="font-bold text-slate-200 text-sm">Buscando na rede...</h4>
-                <p class="text-xs text-slate-400 mt-1">Transmitindo convite de quiz para todos os usuários online.</p>
-            `;
-            lucide.createIcons();
-
-            const matchId = push(ref(db, 'quizBroadcasts')).key;
-            currentQuizMatchId = matchId;
-
-            // Publicar transmissão global para qualquer usuário online aceitar
-            await set(ref(db, `quizBroadcasts/${matchId}`), {
-                hostUid: currentUser.uid,
-                hostName: document.getElementById('profile-name').innerText,
-                status: 'waiting',
-                createdAt: Date.now()
-            });
-
-            document.getElementById('quiz-footer-status').innerText = `Transmitindo partida... Aguardando oponente aceitar.`;
-        }
-
-        function listenToGlobalQuizBroadcast() {
-            onValue(ref(db, 'quizBroadcasts'), (snapshot) => {
-                const broadcasts = snapshot.val() || {};
-                Object.keys(broadcasts).forEach(matchId => {
-                    const b = broadcasts[matchId];
-                    // Se houver uma partida aberta por outro usuário e você não for o host
-                    if(b.status === 'waiting' && b.hostUid !== currentUser.uid) {
-                        // Evita spam exibindo apenas se não estiver jogando
-                        window.activeBroadcastId = matchId;
-                        window.activeHostName = b.hostName;
-                        document.getElementById('quiz-invite-title').innerText = `${b.hostName} desafiou para um Quiz!`;
-                        document.getElementById('quiz-invite-modal').classList.remove('hidden');
-                        playNotificationSound();
-                    }
-                });
-            });
-        }
-
-        window.rejectQuizInvite = async function() {
-            document.getElementById('quiz-invite-modal').classList.add('hidden');
-        }
-
-        window.acceptQuizInvite = async function() {
-            const matchId = window.activeBroadcastId;
-            if(!matchId) return;
-
-            currentQuizMatchId = matchId;
-            document.getElementById('quiz-invite-modal').classList.add('hidden');
-
-            // Atualiza a transmissão para iniciada
-            await update(ref(db, `quizBroadcasts/${matchId}`), { status: 'started', guestUid: currentUser.uid, guestName: document.getElementById('profile-name').innerText });
-
-            startSimultaneousQuiz();
-        }
-
-        function startSimultaneousQuiz() {
-            document.getElementById('quiz-lobby').classList.add('hidden');
-            document.getElementById('quiz-arena').classList.remove('hidden');
-            currentQuestionIndex = 0;
-            myQuizScore = 0;
-            loadSimultaneousQuestion();
-        }
-
-        function loadSimultaneousQuestion() {
-            if(currentQuestionIndex >= quizQuestions.length) {
-                finishSimultaneousQuiz();
-                return;
-            }
-
-            const q = quizQuestions[currentQuestionIndex];
-            document.getElementById('quiz-question-counter').innerText = `Pergunta ${currentQuestionIndex + 1}/${quizQuestions.length}`;
-            document.getElementById('quiz-question-text').innerText = q.q;
-
-            const optionsContainer = document.getElementById('quiz-options');
-            optionsContainer.innerHTML = "";
-
-            q.options.forEach((opt, idx) => {
-                optionsContainer.insertAdjacentHTML('beforeend', `
-                    <button onclick="submitSimultaneousAnswer(${idx}, ${q.correct})" class="w-full text-left bg-slate-950 hover:bg-violet-600/20 border border-slate-800 hover:border-violet-500/50 p-3.5 rounded-xl text-xs font-semibold text-slate-200 transition-all cursor-pointer">
-                        ${opt}
-                    </button>
-                `);
-            });
-
-            startQuizTimer();
-        }
-
-        function startQuizTimer() {
-            let timeLeft = 12;
-            document.getElementById('quiz-timer').innerText = `⏱️ ${timeLeft}s`;
-            clearInterval(quizTimerInterval);
-
-            quizTimerInterval = setInterval(() => {
-                timeLeft--;
-                document.getElementById('quiz-timer').innerText = `⏱️ ${timeLeft}s`;
-                if(timeLeft <= 0) {
-                    clearInterval(quizTimerInterval);
-                    currentQuestionIndex++;
-                    loadSimultaneousQuestion();
-                }
-            }, 1000);
-        }
-
-        window.submitSimultaneousAnswer = async function(selectedIdx, correctIdx) {
-            clearInterval(quizTimerInterval);
-            if(selectedIdx === correctIdx) {
-                myQuizScore += 10;
-                showToast("Resposta registrada! ✅", "success");
-            } else {
-                showToast("Resposta registrada! ❌", "info");
-            }
-
-            // Salva a pontuação parcial no banco sem o oponente ver até o final
-            if(currentQuizMatchId) {
-                await set(ref(db, `quizScores/${currentQuizMatchId}/${currentUser.uid}`), myQuizScore);
-            }
-
-            currentQuestionIndex++;
-            loadSimultaneousQuestion();
-        }
-
-        async function finishSimultaneousQuiz() {
-            clearInterval(quizTimerInterval);
-            document.getElementById('quiz-arena').classList.add('hidden');
-            document.getElementById('quiz-lobby').classList.remove('hidden');
-
-            // Busca os placares finais para comparar simultaneamente
-            let opponentScore = 0;
-            if(currentQuizMatchId) {
-                const scoresSnap = await get(ref(db, `quizScores/${currentQuizMatchId}`));
-                const scores = scoresSnap.val() || {};
-                Object.keys(scores).forEach(uid => {
-                    if(uid !== currentUser.uid) opponentScore = scores[uid];
-                });
-            }
-
-            let resultMsg = "Empate técnico!";
-            let badgeColor = "text-amber-400";
-            if(myQuizScore > opponentScore) {
-                resultMsg = "🎉 Parabéns, você VENCEU o duelo!";
-                badgeColor = "text-emerald-400";
-                const userRef = ref(db, `users/${currentUser.uid}`);
-                const snap = await get(userRef);
-                const wins = snap.val().quizWins || 0;
-                await update(userRef, { quizWins: wins + 1 });
-            } else if(myQuizScore < opponentScore) {
-                resultMsg = "Fica para a próxima! O oponente pontuou mais.";
-                badgeColor = "text-red-400";
-            }
-
-            document.getElementById('quiz-lobby').innerHTML = `
-                <div class="w-16 h-16 bg-violet-600/20 rounded-full flex items-center justify-center mx-auto text-violet-400">
-                    <i data-lucide="award" class="w-8 h-8"></i>
-                </div>
-                <h4 class="font-bold text-slate-100 text-base">Resultado Simultâneo Revelado!</h4>
-                <div class="space-y-1 text-xs text-slate-300 py-2">
-                    <p>Sua Pontuação: <strong class="text-violet-400">${myQuizScore} pts</strong></p>
-                    <p>Pontuação Oponente: <strong class="text-slate-400">${opponentScore} pts</strong></p>
-                </div>
-                <p class="font-bold text-sm ${badgeColor}">${resultMsg}</p>
-                <button onclick="resetQuizLobby()" class="mt-4 bg-violet-600 hover:bg-violet-500 text-white px-6 py-2.5 rounded-xl font-semibold text-xs cursor-pointer shadow-lg shadow-violet-600/30">Jogar Novamente</button>
-            `;
-            lucide.createIcons();
-        }
-
-        window.resetQuizLobby = function() {
-            document.getElementById('quiz-lobby').innerHTML = `
-                <div class="w-16 h-16 bg-violet-600/20 rounded-full flex items-center justify-center mx-auto text-violet-400 animate-pulse">
-                    <i data-lucide="users" class="w-8 h-8"></i>
-                </div>
-                <div>
-                    <h4 class="font-bold text-slate-200 text-sm">Batalha de Conhecimento</h4>
-                    <p class="text-xs text-slate-400 mt-1 max-w-xs mx-auto">Ao buscar partida, o convite será enviado para todos os usuários online no Corse!</p>
-                </div>
-                <button onclick="startQuizMatchmaking()" class="bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:from-violet-500 hover:to-fuchsia-500 text-white px-6 py-3 rounded-xl font-semibold text-xs shadow-lg shadow-violet-600/25 transition-all cursor-pointer">
-                    🔍 Procurar Oponente Online
-                </button>
-            `;
-            lucide.createIcons();
-        }
-
-        function listenToAllGlobalChats() {
-            const friendsRef = ref(db, `friends/${currentUser.uid}`);
-            onValue(friendsRef, (friendsSnap) => {
-                const friends = friendsSnap.val() || {};
-                Object.keys(friends).forEach(friendUid => {
-                    const roomId = getChatRoomId(currentUser.uid, friendUid);
-                    onValue(ref(db, `chats/${roomId}`), (chatSnap) => {
-                        const chatData = chatSnap.val();
-                        if(!chatData) return;
-
-                        const messages = Object.keys(chatData).map(k => ({ id: k, ...chatData[k] }));
-                        const latestMsg = messages[messages.length - 1];
-
-                        if(!initialChatsLoaded[roomId]) {
-                            initialChatsLoaded[roomId] = true;
-                            return;
-                        }
-
-                        if(latestMsg.senderUid !== currentUser.uid && !latestMsg.read) {
-                            if(activeChatFriendUid !== friendUid) {
-                                showToast(`Nova mensagem de ${escapeHtml(latestMsg.senderName)}: "${escapeHtml(latestMsg.text || 'Foto enviada')}"`, "chat");
-                            }
-                        }
-                    });
-                });
-            });
-        }
-
-        function listenToFriendsAndUsers() {
-            const onlineContainer = document.getElementById('online-users-list');
-            const friendsContainer = document.getElementById('my-friends-list');
-            const usersRef = ref(db, 'users');
-            const friendsRef = ref(db, `friends/${currentUser.uid}`);
-            const requestsRef = ref(db, `friendRequests/${currentUser.uid}`);
-
-            onValue(usersRef, (usersSnap) => {
-                const usersData = usersSnap.val() || {};
-                onValue(friendsRef, (friendsSnap) => {
-                    const friendsData = friendsSnap.val() || {};
-                    onValue(requestsRef, (reqSnap) => {
-                        const requestsData = reqSnap.val() || {};
-
-                        onlineContainer.innerHTML = "";
-                        friendsContainer.innerHTML = "";
-                        let hasOnline = false; let hasFriends = false;
-
-                        Object.keys(usersData).forEach(uid => {
-                            if(uid === currentUser.uid) return;
-                            const user = usersData[uid];
-                            const isOnline = user.online === true;
-                            const isAlreadyFriend = friendsData[uid] !== undefined;
-                            const hasRequested = requestsData[uid] !== undefined;
-
-                            if(isAlreadyFriend) {
-                                hasFriends = true;
-                                friendsContainer.insertAdjacentHTML('beforeend', `
-                                    <div class="flex items-center justify-between bg-slate-950/60 p-3 rounded-xl border border-slate-800">
-                                        <div class="flex items-center gap-3">
-                                            <div class="relative">
-                                                <img src="${user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" class="w-10 h-10 rounded-full object-cover">
-                                                <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-slate-950 ${isOnline ? 'bg-emerald-400' : 'bg-slate-500'}"></span>
-                                            </div>
-                                            <div>
-                                                <h4 class="font-semibold text-sm text-slate-100">${escapeHtml(user.name || 'Usuário')}</h4>
-                                                <p class="text-xs ${isOnline ? 'text-emerald-400 font-medium' : 'text-slate-500'}">${isOnline ? 'Online' : 'Offline'}</p>
-                                            </div>
-                                        </div>
-                                        <button onclick="openChat('${uid}', '${escapeHtml(user.name || 'Usuário')}')" class="bg-violet-600 hover:bg-violet-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer">
-                                            Conversar
-                                        </button>
-                                    </div>
-                                `);
-                            } else if(!hasRequested) {
-                                hasOnline = true;
-                                onlineContainer.insertAdjacentHTML('beforeend', `
-                                    <div class="flex items-center justify-between bg-slate-950/60 p-3 rounded-xl border border-slate-800">
-                                        <div class="flex items-center gap-3">
-                                            <div class="relative">
-                                                <img src="${user.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" class="w-10 h-10 rounded-full object-cover">
-                                                <span class="absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-slate-950 ${isOnline ? 'bg-emerald-400' : 'bg-slate-500'}"></span>
-                                            </div>
-                                            <div>
-                                                <h4 class="font-semibold text-sm text-slate-100">${escapeHtml(user.name || 'Usuário')}</h4>
-                                                <p class="text-xs ${isOnline ? 'text-emerald-400 font-medium' : 'text-slate-500'}">${isOnline ? 'Online agora' : 'Offline'}</p>
-                                            </div>
-                                        </div>
-                                        <button onclick="sendFriendRequest('${uid}', '${escapeHtml(user.name || 'Usuário')}')" class="bg-violet-600/20 hover:bg-violet-600/30 text-violet-400 border border-violet-500/30 px-3 py-1.5 rounded-xl text-xs font-semibold transition-all cursor-pointer">
-                                            Adicionar
-                                        </button>
-                                    </div>
-                                `);
-                            }
-                        });
-
-                        if(!hasOnline) onlineContainer.innerHTML = `<div class="text-sm text-slate-500">Nenhum membro disponível.</div>`;
-                        if(!hasFriends) friendsContainer.innerHTML = `<div class="text-sm text-slate-500">Nenhum amigo adicionado ainda.</div>`;
-                    });
-                });
-            });
-        }
-
-        window.sendFriendRequest = async function(targetUid, targetName) {
-            try {
-                await set(ref(db, `friendRequests/${targetUid}/${currentUser.uid}`), {
-                    fromUid: currentUser.uid,
-                    fromName: document.getElementById('profile-name').innerText,
-                    fromAvatar: document.getElementById('profile-avatar-img').src,
-                    createdAt: Date.now()
-                });
-                showToast(`Pedido enviado para ${targetName}!`, "success");
-            } catch(e) { console.error(e); }
-        }
-
-        function listenToFriendRequests() {
-            const container = document.getElementById('friend-requests-list');
-            onValue(ref(db, `friendRequests/${currentUser.uid}`), (snapshot) => {
-                const data = snapshot.val();
-                if(!data) { container.innerHTML = `<div class="text-sm text-slate-500">Nenhum pedido pendente.</div>`; return; }
-
-                container.innerHTML = "";
-                Object.keys(data).forEach(fromUid => {
-                    const req = data[fromUid];
-                    container.insertAdjacentHTML('beforeend', `
-                        <div class="flex items-center justify-between bg-slate-950/60 p-3 rounded-xl border border-slate-800">
-                            <div class="flex items-center gap-3">
-                                <img src="${req.fromAvatar}" class="w-10 h-10 rounded-full object-cover">
-                                <div>
-                                    <h4 class="font-semibold text-sm text-slate-100">${escapeHtml(req.fromName)}</h4>
-                                    <p class="text-xs text-slate-400">Quer ser seu amigo</p>
-                                </div>
-                            </div>
-                            <div class="flex gap-2">
-                                <button onclick="acceptFriend('${fromUid}', '${escapeHtml(req.fromName)}', '${req.fromAvatar}')" class="bg-emerald-600 hover:bg-emerald-500 text-white px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer">Aceitar</button>
-                                <button onclick="rejectFriend('${fromUid}')" class="bg-slate-800 text-slate-300 px-3 py-1.5 rounded-xl text-xs font-semibold cursor-pointer">Recusar</button>
-                            </div>
-                        </div>
-                    `);
-                });
-            });
-        }
-
-        window.acceptFriend = async function(fromUid, fromName, fromAvatar) {
-            const myName = document.getElementById('profile-name').innerText;
-            const myAvatar = document.getElementById('profile-avatar-img').src;
-            await set(ref(db, `friends/${currentUser.uid}/${fromUid}`), { name: fromName, avatar: fromAvatar });
-            await set(ref(db, `friends/${fromUid}/${currentUser.uid}`), { name: myName, avatar: myAvatar });
-            await remove(ref(db, `friendRequests/${currentUser.uid}/${fromUid}`));
-            showToast("Amizade aceita!", "success");
-        }
-
-        window.rejectFriend = async function(fromUid) {
-            await remove(ref(db, `friendRequests/${currentUser.uid}/${fromUid}`));
-        }
-
-        window.openChat = function(friendUid, friendName) {
-            activeChatFriendUid = friendUid;
-            document.getElementById('chat-title').innerText = `Conversando com ${friendName}`;
-            document.getElementById('chat-input').removeAttribute('disabled');
-            document.getElementById('chat-send-btn').removeAttribute('disabled');
-            document.getElementById('call-btn').classList.remove('hidden');
-            listenToChatMessages(friendUid);
-            listenToTypingStatus(friendUid);
-        }
-
-        function getChatRoomId(uid1, uid2) {
-            return uid1 < uid2 ? `${uid1}_${uid2}` : `${uid2}_${uid1}`;
-        }
-
-        window.insertEmoji = function(emoji) {
+        // Enviar mensagem no chat e rolar automaticamente para baixo
+        function sendMessage() {
             const input = document.getElementById('chat-input');
-            input.value += emoji;
-            input.focus();
-        }
-
-        window.handleTypingInput = function() {
-            if(!activeChatFriendUid) return;
-            const roomId = getChatRoomId(currentUser.uid, activeChatFriendUid);
-            set(ref(db, `typing/${roomId}/${currentUser.uid}`), true);
-            clearTimeout(typingTimeout);
-            typingTimeout = setTimeout(() => { set(ref(db, `typing/${roomId}/${currentUser.uid}`), false); }, 1500);
-        }
-
-        function listenToTypingStatus(friendUid) {
-            const roomId = getChatRoomId(currentUser.uid, friendUid);
-            onValue(ref(db, `typing/${roomId}/${friendUid}`), (snapshot) => {
-                const isTyping = snapshot.val();
-                const indicator = document.getElementById('typing-indicator');
-                if(isTyping && activeChatFriendUid === friendUid) indicator.classList.remove('hidden');
-                else indicator.classList.add('hidden');
-            });
-        }
-
-        window.sendChatImage = function(event) {
-            const file = event.target.files[0];
-            if(file && activeChatFriendUid) {
-                const reader = new FileReader();
-                reader.onload = async function(e) {
-                    const roomId = getChatRoomId(currentUser.uid, activeChatFriendUid);
-                    await push(ref(db, `chats/${roomId}`), {
-                        senderUid: currentUser.uid,
-                        senderName: document.getElementById('profile-name').innerText,
-                        image: e.target.result, read: false, createdAt: Date.now()
-                    });
-                    playNotificationSound();
-                }
-                reader.readAsDataURL(file);
-            }
-        }
-
-        window.startAudioCall = function() {
-            alert("📞 Ligação de voz iniciada no Corse!");
-        }
-
-        function listenToChatMessages(friendUid) {
-            const chatContainer = document.getElementById('chat-messages');
-            const roomId = getChatRoomId(currentUser.uid, friendUid);
-            onValue(ref(db, `chats/${roomId}`), (snapshot) => {
-                if(activeChatFriendUid !== friendUid) return;
-
-                const data = snapshot.val();
-                if(!data) { chatContainer.innerHTML = `<div class="text-center text-xs text-slate-500 py-24">Nenhuma mensagem ainda.</div>`; return; }
-
-                chatContainer.innerHTML = "";
-                Object.keys(data).forEach(key => {
-                    const msg = data[key];
-                    const isMe = msg.senderUid === currentUser.uid;
-
-                    if(!isMe && !msg.read && activeChatFriendUid === friendUid) {
-                        update(ref(db, `chats/${roomId}/${key}`), { read: true });
-                    }
-
-                    let contentHtml = msg.text ? `<p>${escapeHtml(msg.text)}</p>` : '';
-                    if(msg.image) contentHtml += `<img src="${msg.image}" class="mt-2 rounded-xl max-h-48 object-cover">`;
-                    const readStatus = isMe ? (msg.read ? '<span class="text-[9px] text-violet-300">✓✓ Lido</span>' : '<span class="text-[9px] text-slate-400">✓ Enviado</span>') : '';
-
-                    chatContainer.insertAdjacentHTML('beforeend', `
-                        <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
-                            <div class="max-w-[75%] px-3 py-2 rounded-2xl text-xs ${isMe ? 'bg-violet-600 text-white rounded-br-none' : 'bg-slate-800 text-slate-200 rounded-bl-none'}">
-                                ${contentHtml}
-                            </div>
-                            <div class="flex items-center gap-1 mt-1 px-1">
-                                <span class="text-[10px] text-slate-500">${isMe ? 'Você' : escapeHtml(msg.senderName)}</span>
-                                ${readStatus}
-                            </div>
-                        </div>
-                    `);
-                });
-                chatContainer.scrollTop = chatContainer.scrollHeight;
-            });
-        }
-
-        window.sendChatMessage = async function() {
-            const input = document.getElementById('chat-input');
-            const text = input.value.trim();
-            if(!text || !activeChatFriendUid) return;
-
-            try {
-                const roomId = getChatRoomId(currentUser.uid, activeChatFriendUid);
-                await push(ref(db, `chats/${roomId}`), {
-                    senderUid: currentUser.uid,
-                    senderName: document.getElementById('profile-name').innerText,
-                    text: text, read: false, createdAt: Date.now()
-                });
-                input.value = "";
-                playNotificationSound();
-            } catch(e) { console.error(e); }
-        }
-
-        function listenToPosts() {
-            const feed = document.getElementById('posts-feed');
-            onValue(ref(db, 'posts'), (snapshot) => {
-                const data = snapshot.val();
-                if(!data) { feed.innerHTML = `<div class="text-center py-8 text-slate-500 text-sm">Nenhum post no banco ainda.</div>`; return; }
-
-                feed.innerHTML = "";
-                const postsArray = Object.keys(data).map(key => ({ id: key, ...data[key] })).reverse();
-                if(initialPostsLoaded) showToast(`Novo post publicado por ${postsArray[0].author}!`, "post");
-                else initialPostsLoaded = true;
-
-                postsArray.forEach(post => renderPostCard(post));
-            });
-        }
-
-        function renderPostCard(post) {
-            const feed = document.getElementById('posts-feed');
-            let imageHtml = post.image ? `<div class="mt-3"><img src="${post.image}" class="w-full object-cover max-h-96"></div>` : '';
-            let repostHtml = post.repostContent ? `
-                <div class="mt-3 p-3 bg-slate-950/60 border border-slate-800 rounded-xl space-y-2">
-                    <p class="text-xs text-violet-400 font-semibold">🔄 Repostado de ${escapeHtml(post.repostAuthor)}</p>
-                    <p class="text-xs text-slate-300">${escapeHtml(post.repostContent)}</p>
-                </div>
-            ` : '';
-
-            let commentsHtml = '';
-            let commentCount = 0;
-            if(post.comments) {
-                const commentKeys = Object.keys(post.comments);
-                commentCount = commentKeys.length;
-                commentKeys.forEach(cKey => {
-                    const com = post.comments[cKey];
-                    commentsHtml += `
-                        <div class="bg-slate-950/40 p-2.5 rounded-xl border border-slate-800/60 text-xs space-y-1">
-                            <span class="font-semibold text-violet-400">${escapeHtml(com.author)}</span>
-                            <p class="text-slate-300">${escapeHtml(com.text)}</p>
-                        </div>
-                    `;
-                });
-            }
-
-            feed.insertAdjacentHTML('beforeend', `
-                <div class="bg-slate-900/85 backdrop-blur border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
-                    <div class="p-4 flex items-center justify-between">
-                        <div class="flex items-center gap-3">
-                            <img src="${post.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" class="w-10 h-10 rounded-full object-cover">
-                            <div>
-                                <h3 class="font-semibold text-slate-100 text-sm">${escapeHtml(post.author)}</h3>
-                                <p class="text-xs text-slate-400">Postado no Corse</p>
-                            </div>
-                        </div>
-                        <span class="text-xs px-2.5 py-1 rounded-full bg-violet-500/10 text-violet-400 border border-violet-500/20">Geral</span>
-                    </div>
-                    <p class="px-4 text-slate-300 text-sm leading-relaxed">${escapeHtml(post.content)}</p>
-                    ${imageHtml}
-                    ${repostHtml}
-                    
-                    <div class="p-4 flex items-center justify-between border-t border-slate-800/60 text-slate-400 text-sm">
-                        <button onclick="likePost('${post.id}', ${post.likes || 0})" class="flex items-center gap-2 hover:text-violet-400 transition-colors cursor-pointer">
-                            <i data-lucide="heart" class="w-5 h-5"></i>
-                            <span>${post.likes || 0}</span>
-                        </button>
-                        <button onclick="toggleComments('${post.id}')" class="flex items-center gap-2 hover:text-violet-400 transition-colors cursor-pointer">
-                            <i data-lucide="message-circle" class="w-5 h-5"></i>
-                            <span>Comentários (${commentCount})</span>
-                        </button>
-                        <button onclick="repostPost('${escapeHtml(post.author)}', '${escapeHtml(post.content || 'Foto')}')" class="flex items-center gap-2 hover:text-violet-400 transition-colors cursor-pointer" title="Repostar">
-                            <i data-lucide="repeat" class="w-5 h-5"></i>
-                            <span>Repost</span>
-                        </button>
-                    </div>
-
-                    <div id="comments-section-${post.id}" class="hidden p-4 bg-slate-950/40 border-t border-slate-800/60 space-y-3">
-                        <div class="space-y-2 max-h-40 overflow-y-auto custom-scrollbar">${commentsHtml || '<p class="text-xs text-slate-500">Nenhum comentário ainda.</p>'}</div>
-                        <div class="flex gap-2">
-                            <input type="text" id="comment-input-${post.id}" placeholder="Escreva um comentário..." class="flex-1 bg-slate-900 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-violet-500">
-                            <button onclick="addComment('${post.id}')" class="bg-violet-600 hover:bg-violet-500 text-white px-3 py-2 rounded-xl text-xs font-semibold cursor-pointer">Enviar</button>
-                        </div>
-                    </div>
-                </div>
-            `);
-            lucide.createIcons();
-        }
-
-        window.createPost = async function() {
-            const content = document.getElementById('post-content').value.trim();
-            if(!content && !uploadedImageUrl) return alert("Escreva alguma coisa ou adicione uma foto!");
-
-            await push(ref(db, 'posts'), {
-                author: document.getElementById('profile-name').innerText,
-                avatar: document.getElementById('profile-avatar-img').src,
-                content: content, image: uploadedImageUrl || "", likes: 0, createdAt: Date.now()
-            });
-            document.getElementById('post-content').value = "";
-            window.removeImage();
-            showToast("Publicado com sucesso!", "success");
-        }
-
-        window.likePost = async function(postId, currentLikes) {
-            await set(ref(db, `posts/${postId}/likes`), currentLikes + 1);
-            showToast("Você curtiu a publicação!", "info");
-        }
-
-        window.toggleComments = function(postId) {
-            document.getElementById(`comments-section-${postId}`).classList.toggle('hidden');
-        }
-
-        window.addComment = async function(postId) {
-            const input = document.getElementById(`comment-input-${postId}`);
             const text = input.value.trim();
             if(!text) return;
 
-            await push(ref(db, `posts/${postId}/comments`), {
-                author: document.getElementById('profile-name').innerText,
-                text: text, createdAt: Date.now()
-            });
-            input.value = "";
-            showToast("Comentário enviado!", "success");
+            const chatBox = document.getElementById('chat-messages');
+            chatBox.insertAdjacentHTML('beforeend', `
+                <div class="flex justify-end">
+                    <div class="bg-amber-600 text-white p-2.5 rounded-2xl text-xs max-w-[80%]">${text}</div>
+                </div>
+            `);
+            input.value = '';
+            scrollToBottomChat();
         }
 
-        window.repostPost = async function(originalAuthor, originalContent) {
-            const comment = prompt(`Repostar de @${originalAuthor}\nDeseja adicionar um comentário?`);
-            if(comment === null) return;
-
-            await push(ref(db, 'posts'), {
-                author: document.getElementById('profile-name').innerText,
-                avatar: document.getElementById('profile-avatar-img').src,
-                content: comment || `Repostou de @${originalAuthor}`,
-                repostAuthor: originalAuthor, repostContent: originalContent, likes: 0, createdAt: Date.now()
-            });
-            showToast("Publicação repostada!", "success");
+        // Abrir Perfil de Outro Usuário
+        function openUserProfile(name, avatar, bio) {
+            document.getElementById('modal-user-name').innerText = name;
+            document.getElementById('modal-user-avatar').src = avatar;
+            document.getElementById('modal-user-bio').innerText = bio;
+            document.getElementById('user-profile-modal').classList.remove('hidden');
+        }
+        function closeUserProfile() {
+            document.getElementById('user-profile-modal').classList.add('hidden');
         }
 
-        window.openCreateGroupModal = function() {
-            document.getElementById('create-group-modal').classList.remove('hidden');
-        }
-        window.closeCreateGroupModal = function() {
-            document.getElementById('create-group-modal').classList.add('hidden');
-        }
-
-        window.submitCreateGroup = async function() {
-            const name = document.getElementById('group-name-input').value.trim();
-            const desc = document.getElementById('group-desc-input').value.trim();
-            if(!name) { alert("Dê um nome ao grupo."); return; }
-
-            const newGroupRef = push(ref(db, 'communities'));
-            const groupId = newGroupRef.key;
-
-            await set(newGroupRef, {
-                name: name,
-                description: desc,
-                creatorUid: currentUser.uid,
-                creatorName: document.getElementById('profile-name').innerText,
-                createdAt: Date.now()
-            });
-
-            await set(ref(db, `communityMembers/${groupId}/${currentUser.uid}`), true);
-
-            closeCreateGroupModal();
-            showToast("Comunidade criada! Você já entrou nela.", "success");
-            openCommunityChat(groupId, name, desc);
+        // Configurações do Grupo / Comunidade
+        function openCommSettings() { document.getElementById('comm-settings-modal').classList.remove('hidden'); }
+        function closeCommSettings() { document.getElementById('comm-settings-modal').classList.add('hidden'); }
+        function saveCommSettings() {
+            const newName = document.getElementById('edit-comm-name').value;
+            const newIcon = document.getElementById('edit-comm-icon').value;
+            document.getElementById('comm-name').innerText = newName;
+            document.getElementById('comm-avatar').innerText = newIcon;
+            closeCommSettings();
         }
 
-        function listenToCommunities() {
-            const grid = document.getElementById('communities-grid');
-            onValue(ref(db, 'communities'), (snapshot) => {
-                const comData = snapshot.val() || {};
-                
-                onValue(ref(db, 'communityMembers'), (memSnapshot) => {
-                    const membersData = memSnapshot.val() || {};
-                    grid.innerHTML = "";
+        // Criar Publicação no Feed
+        function createPost() {
+            const text = document.getElementById('post-input').value.trim();
+            if(!text) return;
 
-                    const keys = Object.keys(comData);
-                    if(keys.length === 0) { grid.innerHTML = `<div class="text-sm text-slate-500">Nenhuma comunidade criada ainda.</div>`; return; }
-
-                    keys.forEach(key => {
-                        const com = comData[key];
-                        const groupMembers = membersData[key] || {};
-                        const isMember = groupMembers[currentUser.uid] === true;
-
-                        grid.insertAdjacentHTML('beforeend', `
-                            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 flex flex-col justify-between shadow-xl space-y-3">
-                                <div class="space-y-1">
-                                    <h4 class="font-bold text-slate-100 text-base">${escapeHtml(com.name)}</h4>
-                                    <p class="text-xs text-slate-400">${escapeHtml(com.description || 'Sem descrição')}</p>
-                                </div>
-                                <div class="flex items-center justify-between pt-2 border-t border-slate-800">
-                                    <span class="text-[10px] text-violet-400">Criado por ${escapeHtml(com.creatorName || 'Membro')}</span>
-                                    ${isMember ? 
-                                        `<button onclick="openCommunityChat('${key}', '${escapeHtml(com.name)}', '${escapeHtml(com.description || '')}')" class="bg-violet-600 hover:bg-violet-500 text-white text-xs px-3 py-1.5 rounded-xl font-semibold transition-all cursor-pointer">Acessar Chat</button>` :
-                                        `<button onclick="joinCommunity('${key}', '${escapeHtml(com.name)}')" class="bg-violet-600/20 hover:bg-violet-600/30 text-violet-400 border border-violet-500/30 text-xs px-3 py-1.5 rounded-xl font-semibold transition-all cursor-pointer">Participar</button>`
-                                    }
-                                </div>
-                            </div>
-                        `);
-                    });
-                });
-            });
-        }
-
-        window.joinCommunity = async function(groupId, groupName) {
-            await set(ref(db, `communityMembers/${groupId}/${currentUser.uid}`), true);
-            showToast(`Você entrou na comunidade ${groupName}!`, "success");
-        }
-
-        window.openCommunityChat = function(groupId, groupName, groupDesc) {
-            activeCommunityId = groupId;
-            document.getElementById('community-chat-title').innerText = groupName;
-            document.getElementById('community-chat-desc').innerText = groupDesc;
-            document.getElementById('communities-list-view').classList.add('hidden');
-            document.getElementById('community-chat-view').classList.remove('hidden');
-            listenToCommunityMessages(groupId);
-        }
-
-        window.backToCommunitiesList = function() {
-            activeCommunityId = null;
-            document.getElementById('community-chat-view').classList.add('hidden');
-            document.getElementById('communities-list-view').classList.remove('hidden');
-        }
-
-        window.insertCommunityEmoji = function(emoji) {
-            const input = document.getElementById('community-input');
-            input.value += emoji;
-            input.focus();
-        }
-
-        window.sendCommunityImage = function(event) {
-            const file = event.target.files[0];
-            if(file && activeCommunityId) {
-                const reader = new FileReader();
-                reader.onload = async function(e) {
-                    await push(ref(db, `communityMessages/${activeCommunityId}`), {
-                        senderUid: currentUser.uid,
-                        senderName: document.getElementById('profile-name').innerText,
-                        image: e.target.result, createdAt: Date.now()
-                    });
-                    playNotificationSound();
-                }
-                reader.readAsDataURL(file);
-            }
-        }
-
-        function listenToCommunityMessages(groupId) {
-            const container = document.getElementById('community-messages');
-            onValue(ref(db, `communityMessages/${groupId}`), (snapshot) => {
-                const data = snapshot.val();
-                if(!data) { container.innerHTML = `<div class="text-center text-xs text-slate-500 py-24">Nenhuma mensagem neste grupo ainda. Seja o primeiro a falar!</div>`; return; }
-
-                container.innerHTML = "";
-                Object.keys(data).forEach(key => {
-                    const msg = data[key];
-                    const isMe = msg.senderUid === currentUser.uid;
-
-                    let contentHtml = msg.text ? `<p>${escapeHtml(msg.text)}</p>` : '';
-                    if(msg.image) contentHtml += `<img src="${msg.image}" class="mt-2 rounded-xl max-h-48 object-cover">`;
-
-                    container.insertAdjacentHTML('beforeend', `
-                        <div class="flex flex-col ${isMe ? 'items-end' : 'items-start'}">
-                            <div class="max-w-[75%] px-3 py-2 rounded-2xl text-xs ${isMe ? 'bg-violet-600 text-white rounded-br-none' : 'bg-slate-800 text-slate-200 rounded-bl-none'}">
-                                ${contentHtml}
-                            </div>
-                            <span class="text-[10px] text-slate-500 mt-1 px-1">${isMe ? 'Você' : escapeHtml(msg.senderName)}</span>
+            const feed = document.getElementById('feed-container');
+            feed.insertAdjacentHTML('afterbegin', `
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3">
+                    <div class="flex items-center gap-3 cursor-pointer" onclick="openUserProfile('Você', 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150', 'Usuário ativo na plataforma Corse.')">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="w-10 h-10 rounded-full object-cover border border-amber-500/40">
+                        <div>
+                            <h4 class="font-bold text-xs text-slate-200">Você</h4>
+                            <span class="text-[10px] text-slate-500">Agora mesmo</span>
                         </div>
-                    `);
-                });
-                container.scrollTop = container.scrollHeight;
-            });
+                    </div>
+                    <p class="text-xs text-slate-300 leading-relaxed">${text}</p>
+                    <div class="flex gap-4 border-t border-slate-800/80 pt-3 text-xs text-slate-400 font-semibold">
+                        <button class="hover:text-amber-400 transition-all flex items-center gap-1">❤️ 0</button>
+                        <button class="hover:text-amber-400 transition-all flex items-center gap-1">💬 Comentar</button>
+                    </div>
+                </div>
+            `);
+            document.getElementById('post-input').value = '';
         }
 
-        window.sendCommunityMessage = async function() {
-            const input = document.getElementById('community-input');
-            const text = input.value.trim();
-            if(!text || !activeCommunityId) return;
-
-            try {
-                await push(ref(db, `communityMessages/${activeCommunityId}`), {
-                    senderUid: currentUser.uid,
-                    senderName: document.getElementById('profile-name').innerText,
-                    text: text, createdAt: Date.now()
-                });
-                input.value = "";
-                playNotificationSound();
-            } catch(e) { console.error(e); }
+        // Sistema de Repost
+        function repost(author, content) {
+            const feed = document.getElementById('feed-container');
+            feed.insertAdjacentHTML('afterbegin', `
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 space-y-3 border-l-4 border-l-amber-500">
+                    <div class="flex items-center gap-3">
+                        <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="w-8 h-8 rounded-full object-cover">
+                        <div>
+                            <h4 class="font-bold text-xs text-slate-200">Você repostou de <span class="text-amber-400">${author}</span></h4>
+                            <span class="text-[10px] text-slate-500">Agora mesmo</span>
+                        </div>
+                    </div>
+                    <div class="bg-slate-950 p-3 rounded-xl border border-slate-800/60 text-xs text-slate-300 italic">
+                        "${content}"
+                    </div>
+                </div>
+            `);
         }
-
-        function escapeHtml(text) {
-            return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#039;");
-        }
-
-        lucide.createIcons();
     </script>
 </body>
 </html>
