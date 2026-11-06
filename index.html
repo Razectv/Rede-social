@@ -66,8 +66,10 @@
         <!-- CABEÇALHO DO APP -->
         <header class="sticky top-0 z-40 bg-[#0b0f19]/90 backdrop-blur-md px-4 py-3 flex justify-between items-center border-b border-slate-900/60">
             <div class="flex items-center gap-2">
-                <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-600 to-fuchsia-600 flex items-center justify-center shadow-md shadow-violet-600/30">
-                    <i data-lucide="zap" class="w-5 h-5 text-white"></i>
+                <!-- CLICAR NA FOTO DO PERFIL NO TOPO ABRE OS PRÓPRIOS STORIES -->
+                <div class="relative cursor-pointer" onclick="openMyStories()">
+                    <img id="header-my-avatar" src="" class="w-9 h-9 rounded-xl object-cover border-2 border-violet-500 shadow-md">
+                    <button onclick="event.stopPropagation(); triggerCreatePost();" class="absolute -bottom-1 -right-1 w-4 h-4 bg-violet-600 text-white rounded-full flex items-center justify-center text-[10px] font-bold border border-[#0b0f19]">+</button>
                 </div>
                 <span class="text-2xl font-black tracking-tight text-white">Corse</span>
             </div>
@@ -91,15 +93,9 @@
 
             <!-- ABA 1: INÍCIO / FEED -->
             <section id="tab-feed" class="space-y-4">
-                <!-- CARROSSEL DE STORIES -->
+                <!-- CARROSSEL DE STORIES (APENAS DE OUTROS USUÁRIOS/AMIGOS) -->
                 <div class="w-full overflow-x-auto hide-scrollbar px-4 py-3 flex gap-3.5 custom-scrollbar" id="stories-tray">
-                    <div class="flex flex-col items-center gap-1 flex-shrink-0 cursor-pointer" onclick="triggerCreatePost()">
-                        <div class="w-16 h-16 rounded-full p-[2.5px] bg-gradient-to-tr from-violet-600 to-fuchsia-600 relative">
-                            <img id="story-my-avatar" src="" class="w-full h-full rounded-full object-cover border-2 border-[#0b0f19]">
-                            <div class="absolute bottom-0 right-0 w-5 h-5 bg-violet-600 text-white rounded-full flex items-center justify-center border-2 border-[#0b0f19] text-xs font-bold">+</div>
-                        </div>
-                        <span class="text-[11px] text-slate-300 font-medium truncate w-16 text-center">Seu story</span>
-                    </div>
+                    <div class="text-center py-2 text-slate-500 text-xs w-full">Nenhum story de amigos no momento.</div>
                 </div>
 
                 <div id="posts-feed" class="space-y-4 px-4">
@@ -133,7 +129,6 @@
                             <span class="text-[10px] text-violet-400 truncate">Imagem pronta para envio</span>
                             <button onclick="clearChatImage()" class="text-red-400 text-xs font-bold">Remover</button>
                         </div>
-                        <!-- BARRA DE CHAT BLINDADA E RESPONSIVA -->
                         <div class="flex items-center gap-1.5 pt-2 border-t border-slate-800 bg-slate-900 w-full">
                             <label class="cursor-pointer text-slate-400 hover:text-violet-400 p-1 flex-shrink-0"><i data-lucide="image" class="w-5 h-5"></i><input type="file" accept="image/*" class="hidden" onchange="handleChatImageSelect(event)"></label>
                             <input type="text" id="chat-input" placeholder="Digite sua mensagem..." disabled oninput="notifyTyping()" class="flex-1 min-w-0 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-violet-500 disabled:opacity-50">
@@ -208,7 +203,7 @@
     <!-- INPUT INVISÍVEL PARA CAPTURAR CÂMERA/GALERIA -->
     <input type="file" id="global-media-input" accept="image/*" capture="environment" class="hidden" onchange="handleNewMediaSelected(event)">
 
-    <!-- MODAL DE CRIAR POST / STORY -->
+    <!-- MODAL DE CRIAR POST / STORY (COM TRAVA ANTICLIQUE DUPLO) -->
     <div id="create-post-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
         <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
@@ -223,8 +218,8 @@
                 <div>
                     <label class="block text-xs font-semibold text-slate-300 mb-1.5">Onde deseja publicar?</label>
                     <div class="grid grid-cols-2 gap-2">
-                        <button onclick="submitNewPost('feed')" class="bg-violet-600 hover:bg-violet-500 text-white py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer">Publicar no Feed</button>
-                        <button onclick="submitNewPost('story')" class="bg-fuchsia-600 hover:bg-fuchsia-500 text-white py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer">Publicar nos Stories</button>
+                        <button id="btn-submit-feed" onclick="submitNewPost('feed')" class="bg-violet-600 hover:bg-violet-500 text-white py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer">Publicar no Feed</button>
+                        <button id="btn-submit-story" onclick="submitNewPost('story')" class="bg-fuchsia-600 hover:bg-fuchsia-500 text-white py-2.5 rounded-xl text-xs font-bold transition-all cursor-pointer">Publicar nos Stories</button>
                     </div>
                 </div>
             </div>
@@ -348,6 +343,7 @@
         let isRegistering = false, currentUser = null, activeMediaBase64 = "", chatImageBase64 = "", activeChatFriendUid = null;
         let globalUsersCache = {}, globalFriendsCache = {}, openCommentSections = new Set();
         let typingTimeout = null, portalTimer = null, activeViewingStoryId = null;
+        let isSubmittingPost = false; // TRAVA ANTICLIQUE DUPLO
 
         window.escapeHtml = text => (text || '').replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
         window.showToast = function(msg, type = 'info') {
@@ -358,7 +354,7 @@
         }
 
         // ==========================
-        // 1. CORSE NOTÍCIA (API APITube)
+        // PORTAIS DE NOTÍCIAS AUTOMATIZADOS (A CADA 1 MINUTO)
         // ==========================
         window.fetchCorseNews = async function(isAutomatic = false) {
             try {
@@ -399,9 +395,6 @@
             } catch (err) { console.error(err); }
         }
 
-        // ==========================
-        // 2. FOFOCALIZA (API API-Ninjas)
-        // ==========================
         window.fetchFofocalizaNews = async function(isAutomatic = false) {
             try {
                 const response = await fetch("https://api.api-ninjas.com/v1/stockprice?ticker=AAPL", {
@@ -454,7 +447,7 @@
         }
 
         // ==========================
-        // FLUXO DE CÂMERA / GALERIA (BOTÃO +)
+        // FLUXO DE CÂMERA / GALERIA E TRAVA ANTICLIQUE DUPLO
         // ==========================
         window.triggerCreatePost = () => {
             document.getElementById('global-media-input').click();
@@ -467,6 +460,9 @@
                     activeMediaBase64 = ev.target.result;
                     document.getElementById('new-post-image-preview').src = activeMediaBase64;
                     document.getElementById('new-post-title-input').value = "";
+                    isSubmittingPost = false;
+                    document.getElementById('btn-submit-feed').innerText = "Publicar no Feed";
+                    document.getElementById('btn-submit-story').innerText = "Publicar nos Stories";
                     document.getElementById('create-post-modal').classList.remove('hidden');
                 }
                 r.readAsDataURL(e.target.files[0]);
@@ -475,35 +471,50 @@
         window.closeCreatePostModal = () => document.getElementById('create-post-modal').classList.add('hidden');
 
         window.submitNewPost = async function(destination) {
+            if (isSubmittingPost) return; // Impede múltiplos cliques
             const title = document.getElementById('new-post-title-input').value.trim();
             if(!activeMediaBase64) return;
 
-            if(destination === 'feed') {
-                await push(ref(db, 'posts'), {
-                    uid: currentUser.uid,
-                    author: document.getElementById('profile-name').innerText,
-                    avatar: document.getElementById('profile-avatar-img').src,
-                    content: title || "Nova publicação",
-                    image: activeMediaBase64,
-                    timestamp: Date.now()
-                });
-                showToast("Publicado no Feed com sucesso!", "success");
-            } else {
-                await push(ref(db, 'stories'), {
-                    uid: currentUser.uid,
-                    author: document.getElementById('profile-name').innerText,
-                    avatar: document.getElementById('profile-avatar-img').src,
-                    title: title || "Meu Story",
-                    image: activeMediaBase64,
-                    timestamp: Date.now()
-                });
-                showToast("Publicado nos Stories!", "success");
+            isSubmittingPost = true;
+            const btnFeed = document.getElementById('btn-submit-feed');
+            const btnStory = document.getElementById('btn-submit-story');
+            btnFeed.innerText = "Publicando...";
+            btnStory.innerText = "Publicando...";
+
+            try {
+                if(destination === 'feed') {
+                    await push(ref(db, 'posts'), {
+                        uid: currentUser.uid,
+                        author: document.getElementById('profile-name').innerText,
+                        avatar: document.getElementById('profile-avatar-img').src,
+                        content: title || "Nova publicação",
+                        image: activeMediaBase64,
+                        timestamp: Date.now()
+                    });
+                    showToast("Publicado no Feed com sucesso!", "success");
+                } else {
+                    await push(ref(db, 'stories'), {
+                        uid: currentUser.uid,
+                        author: document.getElementById('profile-name').innerText,
+                        avatar: document.getElementById('profile-avatar-img').src,
+                        title: title || "Meu Story",
+                        image: activeMediaBase64,
+                        timestamp: Date.now()
+                    });
+                    showToast("Publicado nos Stories!", "success");
+                }
+                closeCreatePostModal();
+            } catch (err) {
+                showToast("Erro ao publicar. Tente novamente.", "info");
+            } finally {
+                isSubmittingPost = false;
+                btnFeed.innerText = "Publicar no Feed";
+                btnStory.innerText = "Publicar nos Stories";
             }
-            closeCreatePostModal();
         }
 
         // ==========================
-        // STORIES (NEON E VISTO)
+        // STORIES (EXCLUI O PRÓPRIO DA TRAY E EXIBE SÓ AMIGOS)
         // ==========================
         function listenStories() {
             const tray = document.getElementById('stories-tray');
@@ -514,23 +525,18 @@
                     onValue(ref(db, `storyViews/${currentUser.uid}`), (vSnap) => {
                         const viewedMap = vSnap.val() || {};
 
-                        let html = `
-                            <div class="flex flex-col items-center gap-1 flex-shrink-0 cursor-pointer" onclick="triggerCreatePost()">
-                                <div class="w-16 h-16 rounded-full p-[2.5px] bg-gradient-to-tr from-violet-600 to-fuchsia-600 relative">
-                                    <img id="story-my-avatar" src="${document.getElementById('profile-avatar-img')?.src || ''}" class="w-full h-full rounded-full object-cover border-2 border-[#0b0f19]">
-                                    <div class="absolute bottom-0 right-0 w-5 h-5 bg-violet-600 text-white rounded-full flex items-center justify-center border-2 border-[#0b0f19] text-xs font-bold">+</div>
-                                </div>
-                                <span class="text-[11px] text-slate-300 font-medium truncate w-16 text-center">Seu story</span>
-                            </div>
-                        `;
+                        let html = "";
+                        let hasStories = false;
 
                         Object.keys(storiesData).forEach(sId => {
                             const s = storiesData[sId];
                             const isMyStory = s.uid === currentUser.uid;
                             const isFriend = friends[s.uid];
 
-                            if(!isMyStory && !isFriend) return;
+                            // Exibe APENAS stories de amigos (o próprio usuário vê os seus clicando na foto do topo)
+                            if (isMyStory || !isFriend) return;
 
+                            hasStories = true;
                             const isViewed = viewedMap[sId];
                             const ringClass = isViewed ? 'p-[2.5px] bg-slate-700' : 'p-[2.5px] bg-gradient-to-tr from-fuchsia-500 via-violet-500 to-pink-500 animate-pulse';
 
@@ -543,10 +549,30 @@
                                 </div>
                             `;
                         });
-                        tray.innerHTML = html;
+
+                        if (!hasStories) {
+                            tray.innerHTML = `<div class="text-center py-2 text-slate-500 text-xs w-full">Nenhum story de amigos no momento.</div>`;
+                        } else {
+                            tray.innerHTML = html;
+                        }
                     });
                 });
             });
+        }
+
+        // VISUALIZAR OS PRÓPRIOS STORIES CLICANDO NO AVATAR DO TOPO
+        window.openMyStories = function() {
+            onValue(ref(db, 'stories'), (snap) => {
+                const storiesData = snap.val() || {};
+                const myStories = Object.keys(storiesData).filter(id => storiesData[id].uid === currentUser.uid);
+                if (myStories.length === 0) {
+                    showToast("Você ainda não publicou nenhum story. Clique no + para criar!", "info");
+                    return;
+                }
+                const latestId = myStories[myStories.length - 1];
+                const s = storiesData[latestId];
+                openStoryViewer(latestId, currentUser.uid, s.author, s.avatar, s.image, s.title);
+            }, { onlyOnce: true });
         }
 
         window.openStoryViewer = async function(storyId, authorUid, authorName, authorAvatar, storyImg, storyTitle) {
@@ -645,7 +671,7 @@
                 document.getElementById('profile-name').innerText = name;
                 document.getElementById('profile-email').innerText = d.email || currentUser.email;
                 document.getElementById('profile-bio-text').innerText = d.bio || "Biografia...";
-                if(document.getElementById('story-my-avatar')) document.getElementById('story-my-avatar').src = av;
+                if(document.getElementById('header-my-avatar')) document.getElementById('header-my-avatar').src = av;
                 document.getElementById('profile-avatar-img').src = av;
                 if(d.banner) document.getElementById('profile-banner-container').style.backgroundImage = `url('${d.banner}')`;
             });
@@ -683,7 +709,7 @@
         }
 
         // ==========================
-        // FEED DE POSTS E MINHAS PUBLICAÇÕES
+        // FEED DE POSTS
         // ==========================
         function listenPosts() {
             const feed = document.getElementById('posts-feed');
