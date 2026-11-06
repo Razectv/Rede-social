@@ -44,9 +44,6 @@
         @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .toast-notification { animation: slideDown 0.3s ease-out forwards; }
         
-        @keyframes progressAnimation { from { width: 0%; } to { width: 100%; } }
-        .story-progress-bar { animation: progressAnimation 4s linear forwards; }
-        
         @keyframes pulseGlow { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: 0.8; } }
         .unread-glow { animation: pulseGlow 2s infinite ease-in-out; }
 
@@ -86,7 +83,7 @@
             </div>
             <div class="space-y-4">
                 <div id="name-field-container" class="hidden">
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Seu Nome / Apelido</label>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Seu Nome / Apelido (Único)</label>
                     <input type="text" id="auth-name" placeholder="Ex: Cezar" class="w-full bg-[#000000] border border-[#262626] rounded-2xl px-4 py-3 text-slate-100 focus:outline-none focus:border-violet-500 transition-all">
                 </div>
                 <div>
@@ -147,7 +144,7 @@
                     <div class="flex flex-col items-center gap-1.5 flex-shrink-0 cursor-pointer" onclick="openMyStories()">
                         <div class="w-16 h-16 rounded-full p-[2.5px] bg-gradient-to-tr from-violet-600 to-fuchsia-600 relative shadow-lg">
                             <img id="story-my-avatar" src="" class="w-full h-full rounded-full object-cover border-2 border-black">
-                            <button onclick="event.stopPropagation(); triggerCreatePost();" class="absolute bottom-0 right-0 w-5 h-5 bg-violet-600 text-white rounded-full flex items-center justify-center border-2 border-black text-xs font-bold shadow-md cursor-pointer">+</button>
+                            <button onclick="event.stopPropagation(); openMediaSourceModal();" class="absolute bottom-0 right-0 w-5 h-5 bg-violet-600 text-white rounded-full flex items-center justify-center border-2 border-black text-xs font-bold shadow-md cursor-pointer">+</button>
                         </div>
                         <span class="text-[11px] text-slate-300 font-medium truncate w-16 text-center">Seu story</span>
                     </div>
@@ -175,14 +172,30 @@
                 </div>
             </section>
 
-            <!-- ABA 3: EXPLORAR -->
+            <!-- ABA 3: EXPLORAR & PESQUISA DE USUÁRIOS -->
             <section id="tab-communities" class="space-y-4 px-4 hidden">
-                <div class="py-2">
-                    <h2 class="text-lg font-bold text-white">Explorar</h2>
-                    <p class="text-xs text-slate-400">Descubra publicações da comunidade.</p>
+                <div class="py-2 space-y-3">
+                    <div>
+                        <h2 class="text-lg font-bold text-white">Explorar & Pesquisar</h2>
+                        <p class="text-xs text-slate-400">Encontre usuários pelo nome ou descubra conteúdos.</p>
+                    </div>
+                    <div class="relative">
+                        <i data-lucide="search" class="absolute left-3.5 top-3 w-4 h-4 text-slate-400"></i>
+                        <input type="text" id="explore-user-search" placeholder="Pesquisar usuário (ex: Pedro)..." oninput="handleExploreSearch(this.value)" class="w-full bg-[#121212] border border-[#262626] rounded-2xl pl-10 pr-4 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-violet-500">
+                    </div>
                 </div>
-                <div id="explore-grid" class="grid grid-cols-2 gap-2.5">
-                    <div class="text-center py-8 text-slate-500 text-xs col-span-2">Carregando conteúdos...</div>
+
+                <!-- RESULTADOS DA PESQUISA DE USUÁRIOS -->
+                <div id="explore-user-results" class="space-y-2 hidden">
+                    <h3 class="text-xs font-bold text-violet-400 px-1">Usuários Encontrados</h3>
+                    <div id="explore-users-list" class="space-y-2"></div>
+                </div>
+
+                <div class="space-y-2 pt-2">
+                    <h3 class="text-xs font-bold text-slate-300 px-1">Publicações em Destaque</h3>
+                    <div id="explore-grid" class="grid grid-cols-2 gap-2.5">
+                        <div class="text-center py-8 text-slate-500 text-xs col-span-2">Carregando conteúdos...</div>
+                    </div>
                 </div>
             </section>
 
@@ -251,7 +264,7 @@
                     <button onclick="closeActiveChat()" class="text-white p-1 hover:opacity-80 cursor-pointer">
                         <i data-lucide="arrow-left" class="w-6 h-6"></i>
                     </button>
-                    <div class="flex items-center gap-2.5">
+                    <div class="flex items-center gap-2.5 cursor-pointer" onclick="openChatHeaderSettings()">
                         <img id="active-chat-avatar" src="" class="w-10 h-10 rounded-full object-cover border border-[#262626]" onerror="this.src='https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'">
                         <div>
                             <h3 id="chat-title" class="font-bold text-sm text-white flex items-center gap-1">Conversa <span class="text-slate-400">›</span></h3>
@@ -264,6 +277,11 @@
                     <button class="hover:opacity-80 cursor-pointer"><i data-lucide="phone" class="w-5 h-5"></i></button>
                     <button class="hover:opacity-80 cursor-pointer"><i data-lucide="video" class="w-5 h-5"></i></button>
                 </div>
+            </div>
+
+            <!-- AVISO DE AMIZADE NECESSÁRIA -->
+            <div id="chat-friendship-warning" class="bg-violet-950/60 border border-violet-800/60 p-3 rounded-2xl text-xs text-violet-200 text-center mb-2 hidden">
+                ⚠️ Vocês ainda não são amigos. Envie ou aceite uma solicitação de amizade para conversar.
             </div>
 
             <!-- MENSAGENS -->
@@ -287,7 +305,7 @@
             </div>
 
             <!-- BARRA INFERIOR DE INPUT -->
-            <div class="flex items-center gap-2 pt-2 pb-1 bg-black w-full flex-shrink-0">
+            <div id="chat-input-bar-container" class="flex items-center gap-2 pt-2 pb-1 bg-black w-full flex-shrink-0">
                 <label class="cursor-pointer bg-[#262626] hover:bg-[#333] text-white p-2.5 rounded-full flex-shrink-0 flex items-center justify-center">
                     <i data-lucide="camera" class="w-5 h-5"></i>
                     <input type="file" accept="image/*" class="hidden" onchange="handleChatImageSelect(event)">
@@ -301,7 +319,6 @@
                 <div id="chat-action-buttons" class="flex items-center gap-2 flex-shrink-0 text-white">
                     <button onclick="startAudioRecording()" title="Gravar Áudio" class="cursor-pointer hover:text-violet-400 p-1"><i data-lucide="mic" class="w-5 h-5"></i></button>
                     <label class="cursor-pointer hover:text-violet-400 p-1"><i data-lucide="image" class="w-5 h-5"></i><input type="file" accept="image/*" class="hidden" onchange="handleChatImageSelect(event)"></label>
-                    <button class="cursor-pointer hover:text-violet-400 p-1"><i data-lucide="heart" class="w-5 h-5"></i></button>
                 </div>
 
                 <div id="chat-send-container" class="hidden flex-shrink-0">
@@ -324,7 +341,7 @@
             </button>
             
             <div class="flex items-center justify-center">
-                <button onclick="triggerCreatePost()" class="w-12 h-12 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 text-white flex items-center justify-center shadow-lg shadow-violet-600/40 hover:scale-105 transition-all cursor-pointer">
+                <button onclick="openMediaSourceModal()" class="w-12 h-12 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 text-white flex items-center justify-center shadow-lg shadow-violet-600/40 hover:scale-105 transition-all cursor-pointer">
                     <i data-lucide="plus" class="w-6 h-6"></i>
                 </button>
             </div>
@@ -339,6 +356,48 @@
                 <span class="text-[10px]">Mensagens</span>
             </button>
         </nav>
+    </div>
+
+    <!-- MODAL DE ESCOLHA DE FONTE DE MÍDIA (CÂMERA OU GALERIA) -->
+    <div id="media-source-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-[60] hidden flex items-center justify-center p-4">
+        <div class="bg-[#121212] border border-[#262626] rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4 text-center">
+            <h3 class="font-bold text-slate-100 text-sm">Criar Publicação ou Story</h3>
+            <p class="text-xs text-slate-400">Como você deseja adicionar a imagem?</p>
+            <div class="grid grid-cols-2 gap-2.5 pt-2">
+                <label class="bg-violet-600 hover:bg-violet-500 text-white py-3.5 rounded-2xl text-xs font-bold cursor-pointer flex flex-col items-center justify-center gap-1.5 shadow-lg shadow-violet-600/30">
+                    <i data-lucide="camera" class="w-6 h-6"></i> Tirar Foto
+                    <input type="file" accept="image/*" capture="environment" class="hidden" onchange="handleNewMediaSelected(event)">
+                </label>
+                <label class="bg-[#262626] hover:bg-[#333] text-white py-3.5 rounded-2xl text-xs font-bold cursor-pointer flex flex-col items-center justify-center gap-1.5">
+                    <i data-lucide="image" class="w-6 h-6"></i> Galeria
+                    <input type="file" accept="image/*" class="hidden" onchange="handleNewMediaSelected(event)">
+                </label>
+            </div>
+            <button onclick="document.getElementById('media-source-modal').classList.add('hidden')" class="w-full bg-transparent text-slate-400 hover:text-white py-2 text-xs font-semibold cursor-pointer">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- MODAL DE CONFIGURAÇÕES / ADIÇÃO DE AMIGOS NO GRUPO -->
+    <div id="group-settings-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-[#121212] border border-[#262626] rounded-3xl w-full max-w-md p-6 shadow-2xl space-y-4 max-h-[85vh] flex flex-col">
+            <div class="flex justify-between items-center border-b border-[#262626] pb-3 flex-shrink-0">
+                <h3 id="group-settings-title" class="font-bold text-slate-100 text-sm">Configurações do Grupo</h3>
+                <button onclick="document.getElementById('group-settings-modal').classList.add('hidden')" class="text-slate-400 cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="space-y-4 flex-1 overflow-y-auto custom-scrollbar pr-1">
+                <div class="space-y-2">
+                    <h4 class="text-xs font-bold text-violet-400">📢 Enviar Convite para Todos os Usuários</h4>
+                    <p class="text-[11px] text-slate-400">Envie uma recomendação deste grupo para todos os membros cadastrados na rede Corse.</p>
+                    <button onclick="broadcastGroupInvite()" class="w-full bg-gradient-to-r from-violet-600 to-fuchsia-600 hover:opacity-90 text-white py-2.5 rounded-xl text-xs font-bold shadow-md cursor-pointer">Enviar Convite Global para Todos</button>
+                </div>
+                <div class="border-t border-[#262626] pt-3 space-y-2">
+                    <h4 class="text-xs font-bold text-violet-400">👥 Adicionar Amigos ao Grupo</h4>
+                    <p class="text-[11px] text-slate-400">Selecione um amigo da sua lista para convidar diretamente:</p>
+                    <div id="group-friends-invite-list" class="space-y-2 max-h-56 overflow-y-auto custom-scrollbar"></div>
+                </div>
+            </div>
+            <button onclick="document.getElementById('group-settings-modal').classList.add('hidden')" class="w-full bg-[#262626] text-white py-2.5 rounded-xl text-xs font-bold cursor-pointer flex-shrink-0">Fechar</button>
+        </div>
     </div>
 
     <!-- MODAL DE VISUALIZAR STORY -->
@@ -472,38 +531,31 @@
         </div>
     </div>
 
-    <!-- INPUT GLOBAL PARA GALERIA -->
-    <input type="file" id="global-media-input" accept="image/*" class="hidden" onchange="handleNewMediaSelected(event)">
-
-    <!-- MODAL DE CRIAR POST / STORY (COM BOTÃO DE PUBLICAR GARANTIDO) -->
+    <!-- MODAL DE CRIAR POST / STORY -->
     <div id="create-post-modal" class="fixed inset-0 bg-black z-50 hidden flex flex-col justify-between p-4">
-        <!-- BARRA SUPERIOR FIXA COM BOTÕES DE FECHAR, SELETOR E PUBLICAR -->
         <div class="absolute top-4 inset-x-4 z-40 flex justify-between items-center bg-black/85 backdrop-blur-md p-3 rounded-2xl border border-white/20 shadow-2xl">
             <button onclick="closeCreatePostModal()" class="text-white p-2 cursor-pointer bg-[#262626] rounded-full"><i data-lucide="x" class="w-5 h-5"></i></button>
             
             <div class="flex bg-[#1a1a1a] p-1 rounded-full border border-[#262626]">
-                <button id="btn-mode-story" onclick="setPublishMode('story')" class="px-3 py-1.5 rounded-full text-xs font-bold bg-violet-600 text-white transition-all cursor-pointer">Story</button>
+                <button id="btn-mode-story" onclick="setPublishMode('story')" class="px-3 py-1.5 rounded-full text-xs font-bold bg-violet-600 text-white transition-all cursor-pointer">Story (15s)</button>
                 <button id="btn-mode-feed" onclick="setPublishMode('feed')" class="px-3 py-1.5 rounded-full text-xs font-bold text-slate-400 hover:text-white transition-all cursor-pointer">Feed</button>
             </div>
 
             <button onclick="submitNewPost()" id="submit-post-btn" class="bg-gradient-to-r from-violet-600 to-fuchsia-600 text-white px-4 py-2 rounded-full text-xs font-bold cursor-pointer shadow-lg hover:opacity-90 transition-all">Publicar</button>
         </div>
 
-        <!-- TELA CHEIA DA FOTO -->
         <div class="absolute inset-0 z-10 flex items-center justify-center bg-black overflow-hidden">
             <img id="new-post-image-preview" src="" class="w-full h-full object-cover">
             
-            <!-- EMOJIS E STICKERS ARRASTÁVEIS -->
             <div id="story-stickers-canvas" class="absolute inset-0 pointer-events-none"></div>
 
-            <!-- PLAYER DE MÚSICA SELECIONADA NA PRÉVIA -->
             <div id="story-selected-music-preview" class="absolute bottom-28 left-4 right-4 z-20 hidden">
                 <div class="bg-black/70 backdrop-blur-md border border-white/20 p-3 rounded-2xl flex items-center justify-between shadow-2xl">
                     <div class="flex items-center gap-3">
                         <img id="preview-music-img" src="" class="w-10 h-10 rounded-xl object-cover">
                         <div>
                             <h4 id="preview-music-title" class="text-xs font-bold text-white">Música</h4>
-                            <span id="preview-music-artist" class="text-[10px] text-slate-300">Artista</span>
+                            <span id="preview-music-artist" class="text-[10px] text-slate-300">Artista (Refrão - 15s)</span>
                         </div>
                     </div>
                     <button onclick="removeStoryMusic()" class="text-red-400 text-xs font-bold px-2 py-1 cursor-pointer">Remover</button>
@@ -511,7 +563,6 @@
             </div>
         </div>
 
-        <!-- MENU LATERAL DIREITO -->
         <div class="absolute right-4 top-24 z-30 flex flex-col gap-3">
             <button onclick="openEmojiPicker()" class="w-12 h-12 rounded-full bg-black/60 backdrop-blur-md border border-white/20 text-white flex items-center justify-center shadow-lg hover:scale-105 transition-all cursor-pointer" title="Adicionar Emoji">
                 <i data-lucide="smile" class="w-6 h-6 text-fuchsia-400"></i>
@@ -550,13 +601,13 @@
         </div>
     </div>
 
-    <!-- MODAL DE SELEÇÃO DE MÚSICA (REFRÃO AUTOMÁTICO) -->
+    <!-- MODAL DE SELEÇÃO DE MÚSICA -->
     <div id="music-picker-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[60] hidden flex flex-col justify-end sm:items-center sm:justify-center p-0 sm:p-4">
         <div class="bg-[#121212] border border-[#262626] rounded-t-3xl sm:rounded-3xl w-full max-w-md h-[80vh] sm:h-[550px] flex flex-col shadow-2xl overflow-hidden">
             
             <div class="p-4 border-b border-[#262626] flex justify-between items-center bg-black">
                 <h3 class="font-bold text-slate-100 text-sm flex items-center gap-2">
-                    <i data-lucide="music" class="w-4 h-4 text-violet-400"></i> Adicionar Música (Direto no Refrão)
+                    <i data-lucide="music" class="w-4 h-4 text-violet-400"></i> Escolher Música (Refrão)
                 </h3>
                 <button onclick="closeMusicPickerModal()" class="text-slate-400 cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
@@ -564,12 +615,12 @@
             <div class="p-4 bg-black/40 border-b border-[#262626]">
                 <div class="relative flex items-center">
                     <i data-lucide="search" class="absolute left-3 w-4 h-4 text-slate-400"></i>
-                    <input type="text" id="music-search-input" placeholder="Pesquisar música ou artista (ex: Sertanejo, Agro)..." oninput="searchMusicLocal(this.value)" class="w-full bg-[#1a1a1a] border border-[#262626] rounded-2xl pl-10 pr-4 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-violet-500">
+                    <input type="text" id="music-search-input" placeholder="Pesquisar música ou artista..." oninput="searchMusicLocal(this.value)" class="w-full bg-[#1a1a1a] border border-[#262626] rounded-2xl pl-10 pr-4 py-2.5 text-xs text-slate-100 focus:outline-none focus:border-violet-500">
                 </div>
             </div>
 
             <div class="flex-1 overflow-y-auto custom-scrollbar p-4 space-y-3" id="music-results-container">
-                <div class="text-xs font-bold text-violet-400 mb-2">🔥 Mais Usadas & Sugestões Agro/Sertanejo (Refrão)</div>
+                <div class="text-xs font-bold text-violet-400 mb-2">🔥 Catálogo Sertanejo & Agro (Refrão)</div>
                 <div id="default-agro-music-list" class="space-y-2"></div>
             </div>
         </div>
@@ -592,7 +643,7 @@
                     <input type="text" id="edit-banner-input" placeholder="URL da imagem de fundo" class="w-full bg-black border border-[#262626] rounded-xl px-4 py-2.5 text-xs text-slate-100">
                 </div>
                 <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Seu Nome</label>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Seu Nome (Único)</label>
                     <input type="text" id="edit-name-input" class="w-full bg-black border border-[#262626] rounded-xl px-4 py-2.5 text-xs text-slate-100">
                 </div>
                 <div>
@@ -623,7 +674,7 @@
         </div>
     </div>
 
-    <!-- LÓGICA DO SITE PRINCIPAL -->
+    <!-- LÓGICA DO APLICATIVO -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -680,6 +731,8 @@
             setTimeout(() => { const el = document.getElementById(id); if(el) el.remove(); }, 3000);
         }
 
+        window.openMediaSourceModal = () => document.getElementById('media-source-modal').classList.remove('hidden');
+
         window.listenExploreGrid = function() {
             const grid = document.getElementById('explore-grid');
             onValue(ref(db, 'posts'), (snap) => {
@@ -707,6 +760,46 @@
             });
         }
 
+        window.handleExploreSearch = function(query) {
+            const q = query.toLowerCase().trim();
+            const resultsContainer = document.getElementById('explore-user-results');
+            const listContainer = document.getElementById('explore-users-list');
+            
+            if(!q) {
+                resultsContainer.classList.add('hidden');
+                listContainer.innerHTML = "";
+                return;
+            }
+
+            resultsContainer.classList.remove('hidden');
+            listContainer.innerHTML = "";
+            let foundCount = 0;
+
+            Object.keys(globalUsersCache).forEach(uid => {
+                const u = globalUsersCache[uid];
+                if(u.name && u.name.toLowerCase().includes(q)) {
+                    foundCount++;
+                    const isFriend = !!globalFriendsCache[uid];
+                    listContainer.insertAdjacentHTML('beforeend', `
+                        <div class="flex items-center justify-between bg-[#121212] border border-[#262626] p-3 rounded-2xl">
+                            <div class="flex items-center gap-3 cursor-pointer" onclick="openUserProfile('${uid}')">
+                                <img src="${u.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" class="w-10 h-10 rounded-full object-cover">
+                                <div>
+                                    <h4 class="font-bold text-xs text-slate-100">${escapeHtml(u.name)}</h4>
+                                    <p class="text-[10px] text-slate-400">Toque para ver perfil</p>
+                                </div>
+                            </div>
+                            ${uid === currentUser.uid ? '<span class="text-[10px] text-violet-400 font-bold">Você</span>' : (isFriend ? '<span class="text-[10px] text-emerald-400 font-bold">Amigo</span>' : `<button onclick="sendFriendRequest('${uid}', '${escapeHtml(u.name)}')" class="bg-violet-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer">Adicionar</button>`)}
+                        </div>
+                    `);
+                }
+            });
+
+            if(foundCount === 0) {
+                listContainer.innerHTML = `<div class="text-xs text-slate-500 text-center py-4">Nenhum usuário encontrado com "${escapeHtml(q)}".</div>`;
+            }
+        }
+
         window.openExplorePost = function(postId) {
             switchTab('feed');
             setTimeout(() => {
@@ -715,8 +808,8 @@
             }, 200);
         }
 
-        window.triggerCreatePost = () => document.getElementById('global-media-input').click();
         window.handleNewMediaSelected = e => {
+            document.getElementById('media-source-modal').classList.add('hidden');
             if(e.target.files[0]) {
                 const r = new FileReader();
                 r.onload = ev => {
@@ -745,7 +838,7 @@
             if(mode === 'story') {
                 btnStory.className = "px-3 py-1.5 rounded-full text-xs font-bold bg-violet-600 text-white transition-all cursor-pointer";
                 btnFeed.className = "px-3 py-1.5 rounded-full text-xs font-bold text-slate-400 hover:text-white transition-all cursor-pointer";
-                submitBtn.innerText = "Publicar Story";
+                submitBtn.innerText = "Publicar Story (15s)";
             } else {
                 btnFeed.className = "px-3 py-1.5 rounded-full text-xs font-bold bg-violet-600 text-white transition-all cursor-pointer";
                 btnStory.className = "px-3 py-1.5 rounded-full text-xs font-bold text-slate-400 hover:text-white transition-all cursor-pointer";
@@ -865,7 +958,7 @@
                 audio.currentTime = chorusTime;
                 audio.play();
                 activeAudioPreviewElement = audio;
-                showToast("Tocando direto no refrão... 🎶", "info");
+                showToast("Tocando refrão (15s prévia)... 🎶", "info");
             }
         }
 
@@ -875,11 +968,11 @@
             
             document.getElementById('preview-music-img').src = cover;
             document.getElementById('preview-music-title').innerText = title;
-            document.getElementById('preview-music-artist').innerText = artist + " (Refrão)";
+            document.getElementById('preview-music-artist').innerText = artist + " (Refrão - 15s)";
             document.getElementById('story-selected-music-preview').classList.remove('hidden');
 
             closeMusicPickerModal();
-            showToast("Música adicionada no refrão! 🤠", "success");
+            showToast("Música adicionada no refrão! Story com 15s 🤠", "success");
         }
 
         window.removeStoryMusic = function() {
@@ -902,7 +995,7 @@
                         image: activeMediaBase64, stickers: storyStickersList, music: storySelectedMusic || null,
                         timestamp: Date.now()
                     });
-                    showToast("Story publicado com sucesso!", "success");
+                    showToast("Story publicado com sucesso (15s)!", "success");
                 } else {
                     let fullContent = title || "Nova publicação";
                     if(storySelectedMusic) fullContent += `\n🎵 Tocando: ${storySelectedMusic.title} - ${storySelectedMusic.artist}`;
@@ -1132,7 +1225,7 @@
                             <div class="flex flex-col items-center gap-1.5 flex-shrink-0 cursor-pointer" onclick="openMyStories()">
                                 <div class="w-16 h-16 rounded-full p-[2.5px] bg-gradient-to-tr from-violet-600 to-fuchsia-600 relative shadow-lg">
                                     <img id="story-my-avatar" src="${document.getElementById('profile-avatar-img')?.src || ''}" class="w-full h-full rounded-full object-cover border-2 border-black">
-                                    <button onclick="event.stopPropagation(); triggerCreatePost();" class="absolute bottom-0 right-0 w-5 h-5 bg-violet-600 text-white rounded-full flex items-center justify-center border-2 border-black text-xs font-bold shadow-md cursor-pointer">+</button>
+                                    <button onclick="event.stopPropagation(); openMediaSourceModal();" class="absolute bottom-0 right-0 w-5 h-5 bg-violet-600 text-white rounded-full flex items-center justify-center border-2 border-black text-xs font-bold shadow-md cursor-pointer">+</button>
                                 </div>
                                 <span class="text-[11px] text-slate-300 font-medium truncate w-16 text-center">Seu story</span>
                             </div>
@@ -1192,13 +1285,15 @@
             }
 
             const musicPlayerContainer = document.getElementById('viewer-music-player-container');
+            let storyDurationMs = 4000; // 4 segundos padrão para foto sem música
             if(s.music && s.music.previewUrl) {
+                storyDurationMs = 15000; // 15 segundos para story com música
                 musicPlayerContainer.innerHTML = `
                     <div class="bg-black/80 backdrop-blur-md border border-white/20 p-3 rounded-2xl flex items-center gap-3 shadow-2xl">
                         <img src="${s.music.cover}" class="w-10 h-10 rounded-xl object-cover animate-spin" style="animation-duration: 4s;">
                         <div>
                             <h4 class="text-xs font-bold text-white truncate max-w-[180px]">${escapeHtml(s.music.title)}</h4>
-                            <span class="text-[10px] text-violet-300 truncate max-w-[180px] block">${escapeHtml(s.music.artist)} (Refrão)</span>
+                            <span class="text-[10px] text-violet-300 truncate max-w-[180px] block">${escapeHtml(s.music.artist)} (Refrão - 15s)</span>
                         </div>
                     </div>
                 `;
@@ -1213,8 +1308,8 @@
             const barsContainer = document.getElementById('story-bars-container');
             let barsHtml = '';
             currentAuthor.items.forEach((item, idx) => {
-                let barStyle = idx < currentStoryIndex ? 'bg-white' : (idx === currentStoryIndex ? 'bg-white story-progress-bar' : 'bg-white/30');
-                barsHtml += `<div class="h-1 flex-1 rounded-full bg-slate-700/80 overflow-hidden"><div class="${barStyle} h-full w-full"></div></div>`;
+                let barStyle = idx < currentStoryIndex ? 'bg-white' : (idx === currentStoryIndex ? 'bg-white' : 'bg-white/30');
+                barsHtml += `<div class="h-1 flex-1 rounded-full bg-slate-700/80 overflow-hidden"><div class="${barStyle} h-full w-full" ${idx === currentStoryIndex ? `style="animation: progressAnimation ${storyDurationMs/1000}s linear forwards;"` : ''}></div></div>`;
             });
             barsContainer.innerHTML = barsHtml;
 
@@ -1229,7 +1324,7 @@
             }, { onlyOnce: true });
 
             if (storyTimer) clearTimeout(storyTimer);
-            storyTimer = setTimeout(() => nextStoryIndex(), 4000);
+            storyTimer = setTimeout(() => nextStoryIndex(), storyDurationMs);
 
             await set(ref(db, `storyViews/${currentUser.uid}/${s.id}`), true);
             document.getElementById('story-viewer-modal').classList.remove('hidden');
@@ -1370,6 +1465,19 @@
                         btn.innerText = btnOriginalText;
                         return;
                     }
+
+                    // Verificar se nome já existe no banco de dados para garantir unicidade
+                    const usersSnap = await get(ref(db, 'users'));
+                    const allUsers = usersSnap.val() || {};
+                    const nameExists = Object.values(allUsers).some(u => u.name && u.name.toLowerCase() === name.toLowerCase());
+                    
+                    if(nameExists) {
+                        errorBox.innerText = "Erro: Este nome de usuário já está em uso. Escolha outro.";
+                        errorBox.classList.remove('hidden');
+                        btn.innerText = btnOriginalText;
+                        return;
+                    }
+
                     const cred = await createUserWithEmailAndPassword(auth, email, pass);
                     await set(ref(db, `users/${cred.user.uid}`), { 
                         name, email, avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150", 
@@ -1486,6 +1594,17 @@
             const bio = document.getElementById('edit-bio-input').value.trim();
             const banner = document.getElementById('edit-banner-input').value.trim();
             if(!name) return;
+
+            // Verificar se o nome alterado já existe em outro usuário
+            const usersSnap = await get(ref(db, 'users'));
+            const allUsers = usersSnap.val() || {};
+            const nameTaken = Object.keys(allUsers).some(uid => uid !== currentUser.uid && allUsers[uid].name && allUsers[uid].name.toLowerCase() === name.toLowerCase());
+            
+            if(nameTaken) {
+                showToast("Este nome de usuário já está em uso por outra pessoa.", "info");
+                return;
+            }
+
             let data = { name, bio };
             if(banner) data.banner = banner;
             await update(ref(db, `users/${currentUser.uid}`), data);
@@ -1742,6 +1861,8 @@
             document.getElementById('chat-title').innerHTML = `${escapeHtml(chatName)} <span class="text-slate-400">›</span>`;
 
             currentChatPeerAvatar = "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150";
+            let isUserFriendOrGroup = true;
+
             if (rId.startsWith('group_')) {
                 const gId = rId.replace('group_', '');
                 if (globalGroupsCache[gId] && globalGroupsCache[gId].avatar) {
@@ -1753,7 +1874,22 @@
                 if (globalUsersCache[otherUid] && globalUsersCache[otherUid].avatar) {
                     currentChatPeerAvatar = globalUsersCache[otherUid].avatar;
                 }
+                // Verificar amizade
+                if(!globalFriendsCache[otherUid]) {
+                    isUserFriendOrGroup = false;
+                }
             }
+
+            const warningBox = document.getElementById('chat-friendship-warning');
+            const inputBar = document.getElementById('chat-input-bar-container');
+            if(!isUserFriendOrGroup) {
+                warningBox.classList.remove('hidden');
+                inputBar.classList.add('opacity-40', 'pointer-events-none');
+            } else {
+                warningBox.classList.add('hidden');
+                inputBar.classList.remove('opacity-40', 'pointer-events-none');
+            }
+
             document.getElementById('active-chat-avatar').src = currentChatPeerAvatar;
             document.getElementById('active-chat-view').classList.remove('hidden');
             
@@ -1775,41 +1911,12 @@
                     const m = msgs[k], isMe = m.senderUid === currentUser.uid;
                     if (!isMe && !m.read) unreadUpdates[`${k}/read`] = true;
 
-                    if (m.text && m.text.startsWith('data:audio')) {
-                        let firstPlayed = m.firstPlayedTime || 0;
-                        let now = Date.now();
-                        if (firstPlayed > 0 && (now - firstPlayed > 5 * 60 * 1000)) {
-                            remove(ref(db, `chats/${activeChatId}/${k}`));
-                            return;
-                        }
-                    }
-
                     let checkmarks = isMe ? (m.read ? '<span class="text-[10px] text-emerald-400">✓✓</span>' : '<span class="text-[10px] text-slate-400">✓</span>') : '';
                     let imgHtml = m.image ? `<img src="${m.image}" class="mt-2 rounded-2xl max-w-full h-32 object-cover" loading="lazy">` : '';
                     let senderLabel = !isMe && rId.startsWith('group_') ? `<span class="text-[10px] font-bold text-violet-400 block mb-0.5">${escapeHtml(m.senderName || 'Membro')}</span>` : '';
-
                     let deleteBtn = isMe ? `<button onclick="deleteChatMessage('${activeChatId}', '${k}')" class="text-[10px] text-red-400 hover:text-red-300 ml-2 cursor-pointer font-semibold">🗑️ Apagar</button>` : '';
 
-                    let contentHtml = '';
-                    if (m.text && m.text.startsWith('data:audio')) {
-                        let playCount = m.playCount || 0;
-                        let firstPlayed = m.firstPlayedTime || 0;
-                        contentHtml = `
-                            <div class="flex flex-col gap-2 min-w-[180px]">
-                                <div class="flex items-center justify-between gap-2">
-                                    <span class="text-[10px] font-bold text-violet-300">🎤 Áudio (${playCount}/2 ouvidos)</span>
-                                    <div class="flex items-center gap-1 bg-black/40 rounded-lg p-0.5 border border-white/10">
-                                        <button onclick="setAudioSpeed(this, '${k}', 1)" class="px-1.5 py-0.5 text-[9px] font-bold rounded bg-violet-600 text-white cursor-pointer speed-btn-${k}">1x</button>
-                                        <button onclick="setAudioSpeed(this, '${k}', 1.5)" class="px-1.5 py-0.5 text-[9px] font-bold rounded text-slate-300 cursor-pointer speed-btn-${k}">1.5x</button>
-                                        <button onclick="setAudioSpeed(this, '${k}', 2)" class="px-1.5 py-0.5 text-[9px] font-bold rounded text-slate-300 cursor-pointer speed-btn-${k}">2x</button>
-                                    </div>
-                                </div>
-                                <audio id="audio-el-${k}" src="${m.text}" controls class="w-full h-7" onplay="handleAudioPlay('${activeChatId}', '${k}', ${playCount}, ${firstPlayed})"></audio>
-                            </div>
-                        `;
-                    } else {
-                        contentHtml = `${escapeHtml(m.text)}${imgHtml}`;
-                    }
+                    let contentHtml = `${escapeHtml(m.text)}${imgHtml}`;
 
                     if (isMe) {
                         box.insertAdjacentHTML('beforeend', `
@@ -1836,6 +1943,67 @@
             });
         }
 
+        window.openChatHeaderSettings = function() {
+            if (!activeChatId || !activeChatId.startsWith('group_')) return;
+            const gId = activeChatId.replace('group_', '');
+            const g = globalGroupsCache[gId];
+            if(!g) return;
+
+            document.getElementById('group-settings-title').innerText = `Grupo: ${g.name}`;
+            const list = document.getElementById('group-friends-invite-list');
+            list.innerHTML = "";
+
+            let friendsHtml = "";
+            Object.keys(globalFriendsCache).forEach(fUid => {
+                const friendUser = globalUsersCache[fUid];
+                if(friendUser) {
+                    friendsHtml += `
+                        <div class="flex items-center justify-between bg-black p-2.5 rounded-xl border border-[#262626]">
+                            <div class="flex items-center gap-2">
+                                <img src="${friendUser.avatar || 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150'}" class="w-8 h-8 rounded-full object-cover">
+                                <span class="font-bold text-xs text-slate-100">${escapeHtml(friendUser.name)}</span>
+                            </div>
+                            <button onclick="inviteFriendToGroup('${gId}', '${fUid}', '${escapeHtml(friendUser.name)}')" class="bg-violet-600 hover:bg-violet-500 text-white px-3 py-1.5 rounded-lg text-xs font-bold cursor-pointer">Adicionar</button>
+                        </div>
+                    `;
+                }
+            });
+
+            list.innerHTML = friendsHtml || `<div class="text-xs text-slate-500 text-center py-2">Nenhum amigo disponível para adicionar.</div>`;
+            document.getElementById('group-settings-modal').classList.remove('hidden');
+        }
+
+        window.inviteFriendToGroup = async function(gId, friendUid, friendName) {
+            await push(ref(db, `chats/group_${gId}`), {
+                senderUid: "system", senderName: "Sistema",
+                text: `➕ ${friendName} foi adicionado(a) ao grupo por ${document.getElementById('profile-name').innerText}.`,
+                image: "", read: true, timestamp: Date.now()
+            });
+            showToast(`${friendName} convidado para o grupo!`, "success");
+        }
+
+        window.broadcastGroupInvite = async function() {
+            if (!activeChatId || !activeChatId.startsWith('group_')) return;
+            const gId = activeChatId.replace('group_', '');
+            const g = globalGroupsCache[gId];
+            if(!g) return;
+
+            const inviteText = `📢 *Convite de Grupo / Canal:* Venha participar do grupo "${g.name}" no Corse!`;
+            
+            // Enviar mensagem para todos os chats dos usuários ou criar notificação global
+            Object.keys(globalUsersCache).forEach(async (uid) => {
+                if(uid === currentUser.uid) return;
+                const rId = currentUser.uid < uid ? `${currentUser.uid}_${uid}` : `${uid}_${currentUser.uid}`;
+                await push(ref(db, `chats/${rId}`), {
+                    senderUid: currentUser.uid, senderName: document.getElementById('profile-name').innerText,
+                    text: inviteText, image: g.avatar || "", read: false, timestamp: Date.now()
+                });
+            });
+
+            document.getElementById('group-settings-modal').classList.add('hidden');
+            showToast("Convite enviado para todos os usuários da rede!", "success");
+        }
+
         window.deleteChatMessage = async function(chatId, msgKey) {
             try {
                 await remove(ref(db, `chats/${chatId}/${msgKey}`));
@@ -1845,109 +2013,10 @@
             }
         }
 
-        window.handleAudioPlay = async function(chatId, msgKey, currentCount, currentFirstPlayed) {
-            const newCount = currentCount + 1;
-            let updates = { playCount: newCount };
-            if (currentFirstPlayed === 0) updates.firstPlayedTime = Date.now();
-            await update(ref(db, `chats/${chatId}/${msgKey}`), updates);
-            
-            if (newCount >= 2) {
-                showToast("Este áudio foi ouvido 2 vezes e vai ser apagado.", "info");
-                setTimeout(async () => { await remove(ref(db, `chats/${chatId}/${msgKey}`)); }, 3000);
-            }
-        }
-
-        window.setAudioSpeed = function(btnEl, msgKey, speed) {
-            const audio = document.getElementById(`audio-el-${msgKey}`);
-            if (audio) {
-                audio.playbackRate = speed;
-                const parentContainer = btnEl.parentElement;
-                parentContainer.querySelectorAll('button').forEach(b => {
-                    b.className = "px-1.5 py-0.5 text-[9px] font-bold rounded text-slate-300 cursor-pointer";
-                });
-                btnEl.className = "px-1.5 py-0.5 text-[9px] font-bold rounded bg-violet-600 text-white cursor-pointer";
-            }
-        }
-
         window.closeActiveChat = function() {
             activeChatId = null;
             if(activeChatUnsubscribe) { activeChatUnsubscribe(); activeChatUnsubscribe = null; }
             document.getElementById('active-chat-view').classList.add('hidden');
-        }
-
-        window.startAudioRecording = async function() {
-            try {
-                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-                    showToast("O seu navegador não suporta gravação de áudio.", "info");
-                    return;
-                }
-
-                const stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: true, noiseSuppression: true } });
-                let mimeType = 'audio/webm';
-                if (MediaRecorder.isTypeSupported('audio/webm;codecs=opus')) mimeType = 'audio/webm;codecs=opus';
-                else if (MediaRecorder.isTypeSupported('audio/mp4')) mimeType = 'audio/mp4';
-
-                mediaRecorder = new MediaRecorder(stream, mimeType ? { mimeType } : {});
-                audioChunks = [];
-
-                mediaRecorder.ondataavailable = event => { if (event.data && event.data.size > 0) audioChunks.push(event.data); };
-
-                mediaRecorder.onstop = async () => {
-                    const audioBlob = new Blob(audioChunks, { type: mediaRecorder.mimeType || 'audio/webm' });
-                    if (audioBlob.size < 50) {
-                        showToast("Áudio muito curto ou vazio.", "info");
-                        stream.getTracks().forEach(track => track.stop());
-                        return;
-                    }
-
-                    const reader = new FileReader();
-                    reader.readAsDataURL(audioBlob);
-                    reader.onloadend = async () => {
-                        const base64Audio = reader.result;
-                        if (activeChatId) {
-                            await push(ref(db, `chats/${activeChatId}`), {
-                                senderUid: currentUser.uid, senderName: document.getElementById('profile-name').innerText,
-                                text: base64Audio, image: "", read: false, playCount: 0, firstPlayedTime: 0, timestamp: Date.now()
-                            });
-                            showToast("Áudio enviado com sucesso!", "success");
-                        }
-                    };
-                    stream.getTracks().forEach(track => track.stop());
-                };
-
-                mediaRecorder.start(100);
-                recordingSeconds = 0;
-                document.getElementById('audio-recording-bar').classList.remove('hidden');
-                document.getElementById('chat-action-buttons').classList.add('hidden');
-                
-                recordingTimerInterval = setInterval(() => {
-                    recordingSeconds++;
-                    const mins = Math.floor(recordingSeconds / 60);
-                    const secs = recordingSeconds % 60;
-                    document.getElementById('recording-timer').innerText = `Gravando áudio (${mins}:${secs < 10 ? '0' : ''}${secs})...`;
-                }, 1000);
-            } catch (err) {
-                showToast("Erro: Permissão de microfone negada.", "info");
-            }
-        }
-
-        window.stopAndSendAudioRecording = function() {
-            if (mediaRecorder && mediaRecorder.state !== "inactive") mediaRecorder.stop();
-            clearInterval(recordingTimerInterval);
-            document.getElementById('audio-recording-bar').classList.add('hidden');
-            document.getElementById('chat-action-buttons').classList.remove('hidden');
-        }
-
-        window.cancelAudioRecording = function() {
-            if (mediaRecorder && mediaRecorder.state !== "inactive") {
-                mediaRecorder.ondataavailable = null;
-                mediaRecorder.onstop = null;
-                mediaRecorder.stop();
-            }
-            clearInterval(recordingTimerInterval);
-            document.getElementById('audio-recording-bar').classList.add('hidden');
-            document.getElementById('chat-action-buttons').classList.remove('hidden');
-            showToast("Gravação cancelada.", "info");
         }
 
         window.notifyTyping = function() {
