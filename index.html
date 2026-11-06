@@ -44,10 +44,24 @@
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #334155; border-radius: 2px; }
         @keyframes slideDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .toast-notification { animation: slideDown 0.3s ease-out forwards; }
+        
+        /* DURAÇÃO DE 4 SEGUNDOS PARA OS STORIES */
         @keyframes progressAnimation { from { width: 0%; } to { width: 100%; } }
-        .story-progress-bar { animation: progressAnimation 5s linear forwards; }
+        .story-progress-bar { animation: progressAnimation 4s linear forwards; }
+        
         @keyframes pulseGlow { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: 0.8; } }
         .unread-glow { animation: pulseGlow 2s infinite ease-in-out; }
+
+        /* SNAP SCROLL PARA OS REELS */
+        .reels-container-snap {
+            scroll-snap-type: y mandatory;
+            overflow-y: scroll;
+            height: calc(100vh - 140px);
+        }
+        .reel-item-snap {
+            scroll-snap-align: start;
+            scroll-snap-stop: always;
+        }
     </style>
 </head>
 <body class="min-h-screen flex flex-col items-center justify-start relative pb-24">
@@ -144,20 +158,20 @@
                 </div>
             </section>
 
-            <!-- ABA 2: VÍDEOS / REELS -->
-            <section id="tab-reels" class="space-y-4 px-4 hidden">
-                <div class="flex items-center justify-between py-2">
+            <!-- ABA 2: VÍDEOS / REELS INTELIGENTE -->
+            <section id="tab-reels" class="space-y-2 px-4 hidden">
+                <div class="flex items-center justify-between py-1">
                     <div>
                         <h2 class="text-lg font-bold text-white">Vídeos & Shorts</h2>
-                        <p class="text-xs text-slate-400">Assista e compartilhe vídeos da comunidade.</p>
+                        <p class="text-[11px] text-slate-400">Deslize para ver os vídeos da comunidade.</p>
                     </div>
                     <button onclick="openCreateReelModal()" class="bg-violet-600 hover:bg-violet-500 text-white text-xs font-bold px-3.5 py-2 rounded-xl transition-all cursor-pointer flex items-center gap-1.5">
-                        <i data-lucide="plus" class="w-4 h-4"></i> Postar Vídeo
+                        <i data-lucide="plus" class="w-4 h-4"></i> Postar
                     </button>
                 </div>
                 
-                <!-- FEED DE VÍDEOS ESTILO REELS -->
-                <div id="reels-feed" class="space-y-4">
+                <!-- FEED DE VÍDEOS COM SNAP SCROLL (ESTILO APP NATIVO) -->
+                <div id="reels-feed" class="reels-container-snap space-y-6 custom-scrollbar pr-1">
                     <div class="text-center py-12 text-slate-500 text-xs">Carregando vídeos...</div>
                 </div>
             </section>
@@ -307,11 +321,12 @@
 
     <!-- MODAL DE VISUALIZAR STORY EM TELA CHEIA -->
     <div id="story-viewer-modal" class="fixed inset-0 bg-black z-50 hidden flex flex-col justify-between">
-        <div class="w-full bg-slate-800 h-1 absolute top-0 left-0 z-20">
-            <div id="story-progress-bar-fill" class="h-full bg-white w-0"></div>
+        <!-- BARRINHAS DE PROGRESSO MÚLTIPLAS NO ESTILO INSTAGRAM -->
+        <div id="story-bars-container" class="w-full flex gap-1 p-2 absolute top-0 left-0 z-20 bg-gradient-to-b from-black/80 to-transparent">
+            <!-- Gerado dinamicamente via JS -->
         </div>
 
-        <div class="flex justify-between items-center p-4 absolute top-2 inset-x-0 z-20 bg-gradient-to-b from-black/80 to-transparent">
+        <div class="flex justify-between items-center p-4 absolute top-6 inset-x-0 z-20">
             <div class="flex items-center gap-3">
                 <img id="viewer-author-avatar" src="" class="w-9 h-9 rounded-full object-cover border border-white/40">
                 <div>
@@ -772,7 +787,7 @@
             }
         }
 
-        // LÓGICA DE VÍDEOS / REELS (YOUTUBE SHORTS EMBED)
+        // LÓGICA DE VÍDEOS / REELS INTELIGENTES
         window.openCreateReelModal = () => {
             document.getElementById('reel-link-input').value = "";
             document.getElementById('reel-caption-input').value = "";
@@ -793,15 +808,15 @@
             if (rawLink.includes("shorts/")) {
                 const parts = rawLink.split("shorts/");
                 const videoId = parts[1].split("?")[0];
-                embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}`;
+                embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&loop=1&playlist=${videoId}`;
             } else if (rawLink.includes("youtu.be/")) {
                 const parts = rawLink.split("youtu.be/");
                 const videoId = parts[1].split("?")[0];
-                embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}`;
+                embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&loop=1&playlist=${videoId}`;
             } else if (rawLink.includes("watch?v=")) {
                 const urlParams = new URLSearchParams(rawLink.split('?')[1]);
                 const videoId = urlParams.get('v');
-                embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=1&loop=1&playlist=${videoId}`;
+                embedUrl = `https://www.youtube.com/embed/${videoId}?autoplay=1&mute=0&loop=1&playlist=${videoId}`;
             } else {
                 showToast("Link inválido. Use um link do YouTube Shorts.", "info");
                 return;
@@ -845,25 +860,28 @@
                     return;
                 }
 
-                keys.forEach(reelId => {
+                keys.forEach((reelId, index) => {
                     const r = data[reelId];
                     const likesObj = r.likes || {}, likesCount = Object.keys(likesObj).length, iLiked = !!likesObj[currentUser.uid];
 
+                    // O primeiro vídeo já inicia tocando com áudio ativo, os demais aguardam o scroll magnético
+                    const finalEmbedUrl = index === 0 ? r.embedUrl : r.embedUrl.replace('autoplay=1', 'autoplay=0');
+
                     container.insertAdjacentHTML('beforeend', `
-                        <div class="bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl relative">
-                            <!-- PLAYER DO YOUTUBE EMBUTIDO (VERTICAL / REELS) -->
-                            <div class="relative w-full h-[450px] bg-black">
-                                <iframe src="${r.embedUrl}" class="w-full h-full border-0 pointer-events-auto" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        <div class="reel-item-snap bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden shadow-xl relative flex flex-col h-[75vh]">
+                            <!-- PLAYER DO YOUTUBE (TELA ESTENDIDA COM SNAP) -->
+                            <div class="relative w-full flex-1 bg-black">
+                                <iframe src="${finalEmbedUrl}" class="w-full h-full border-0 pointer-events-auto" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                             </div>
 
                             <!-- INFORMAÇÕES E AUTOR -->
-                            <div class="p-4 space-y-3">
+                            <div class="p-4 space-y-2 bg-slate-900/90 backdrop-blur-md flex-shrink-0">
                                 <div class="flex items-center justify-between">
                                     <div class="flex items-center gap-3 cursor-pointer" onclick="openUserProfile('${r.uid}')">
                                         <img src="${r.avatar}" class="w-9 h-9 rounded-full object-cover border border-violet-500">
                                         <div>
                                             <h4 class="font-bold text-xs text-slate-100">${escapeHtml(r.author)}</h4>
-                                            <span class="text-[10px] text-slate-500">Corse Shorts</span>
+                                            <span class="text-[10px] text-slate-400">Corse Shorts</span>
                                         </div>
                                     </div>
                                     <button onclick="toggleReelLike('${reelId}')" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-950 border border-slate-800 ${iLiked ? 'text-fuchsia-500' : 'text-slate-300 hover:text-fuchsia-400'} cursor-pointer text-xs font-bold transition-all">
@@ -871,7 +889,7 @@
                                         <span>${likesCount}</span>
                                     </button>
                                 </div>
-                                <p class="text-xs text-slate-200 leading-relaxed">${escapeHtml(r.caption)}</p>
+                                <p class="text-xs text-slate-200 leading-relaxed truncate">${escapeHtml(r.caption)}</p>
                             </div>
                         </div>
                     `);
@@ -971,7 +989,7 @@
             showToast("Adicionado aos seus Stories!", "success");
         }
 
-        // STORIES
+        // STORIES COM BARRINHAS MÚLTIPLAS LADO A LADO E DURAÇÃO DE 4 SEGUNDOS
         function listenStories() {
             const tray = document.getElementById('stories-tray');
             onValue(ref(db, 'stories'), (snap) => {
@@ -1077,6 +1095,18 @@
             document.getElementById('viewer-story-img').src = s.image;
             document.getElementById('viewer-story-title').innerText = s.title || "";
 
+            // Renderiza as barrinhas de progresso no topo (quantos stories a pessoa postou)
+            const barsContainer = document.getElementById('story-bars-container');
+            let barsHtml = '';
+            currentAuthor.items.forEach((item, idx) => {
+                let barStyle = 'bg-white/30';
+                if (idx < currentStoryIndex) barStyle = 'bg-white';
+                else if (idx === currentStoryIndex) barStyle = 'bg-white story-progress-bar';
+
+                barsHtml += `<div class="h-1 flex-1 rounded-full bg-slate-700/80 overflow-hidden"><div class="${barStyle} h-full w-full"></div></div>`;
+            });
+            barsContainer.innerHTML = barsHtml;
+
             const deleteBtn = document.getElementById('story-delete-btn');
             if (s.uid === currentUser.uid) {
                 deleteBtn.classList.remove('hidden');
@@ -1094,15 +1124,11 @@
                 }
             }, { onlyOnce: true });
 
-            const barFill = document.getElementById('story-progress-bar-fill');
-            barFill.classList.remove('story-progress-bar');
-            void barFill.offsetWidth;
-            barFill.classList.add('story-progress-bar');
-
+            // Timer exato de 4 segundos por story
             if (storyTimer) clearTimeout(storyTimer);
             storyTimer = setTimeout(() => {
                 nextStoryIndex();
-            }, 5000);
+            }, 4000);
 
             await set(ref(db, `storyViews/${currentUser.uid}/${s.id}`), true);
             document.getElementById('story-viewer-modal').classList.remove('hidden');
@@ -1322,7 +1348,7 @@
             showToast("Você saiu da conta com sucesso.", "info");
         }
 
-        // FUNÇÃO DE TROCA DE ABAS COM LIMPEZA IMEDIATA DOS VÍDEOS (CORTA O ÁUDIO)
+        // TROCA DE ABAS COM LIMPEZA IMEDIATA DOS VÍDEOS
         window.switchTab = function(tabId) {
             if (activeChatId) {
                 closeActiveChat();
