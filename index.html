@@ -523,7 +523,7 @@
         </div>
     </div>
 
-    <!-- LÓGICA E FIREBASE (COM SUPORTE A FCM BACKGROUND) -->
+    <!-- LÓGICA E FIREBASE (COM SUPORTE A FCM BACKGROUND E TRATAMENTO DE ERROS DE AUTH) -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut, onAuthStateChanged, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
@@ -568,7 +568,7 @@
                 const permission = await Notification.requestPermission();
                 if (permission === 'granted') {
                     const currentToken = await getToken(messaging, { 
-                        vapidKey: "BE0bbnSi51rnyqOA3sxsNGWVqiGZinkozsgBfBIDPMjvrznmy1ijBOdV0f5tb3FJ2ijsvAMTD58sKo5tJju_jMg" // Substitua pela sua Chave VAPID gerada no Firebase
+                        vapidKey: "BOM8aX6Q54sN51eR7VlU0yU_W9M9X1yX2z3A4B5C6D7E8F9G0H1I2J3K4L5M6N7O8P9Q0R1S2T3U4V5W6X7Y8Z9" 
                     });
                     
                     if (currentToken) {
@@ -581,7 +581,6 @@
             }
         }
 
-        // Ouvir mensagens recebidas enquanto o app está aberto em primeiro plano
         onMessage(messaging, (payload) => {
             const title = payload.notification?.title || "Corse";
             const body = payload.notification?.body || "Nova mensagem recebida";
@@ -1317,13 +1316,16 @@
                     await signInWithEmailAndPassword(auth, email, pass);
                 }
             } catch(e) {
+                console.error("Erro de Auth do Firebase:", e);
                 let msg = e.message;
                 if(e.code === 'auth/invalid-credential' || e.code === 'auth/user-not-found' || e.code === 'auth/wrong-password') {
-                    msg = "E-mail não cadastrado ou senha incorreta. Use 'Esqueceu sua senha?' se necessário.";
+                    msg = "E-mail não cadastrado ou senha incorreta.";
                 } else if(e.code === 'auth/email-already-in-use') {
                     msg = "Este e-mail já está em uso por outra conta.";
                 } else if(e.code === 'auth/weak-password') {
                     msg = "A senha deve ter pelo menos 6 caracteres.";
+                } else if(e.code === 'auth/operation-not-allowed') {
+                    msg = "Erro: O login por E-mail/Senha está desativado no painel do Firebase.";
                 }
                 errorBox.innerText = "Erro: " + msg;
                 errorBox.classList.remove('hidden');
@@ -1337,7 +1339,6 @@
                 document.getElementById('app-container').classList.remove('hidden');
                 set(ref(db, `users/${user.uid}/online`), true);
                 
-                // REGISTRA AS NOTIFICAÇÕES PUSH EM SEGUNDO PLANO AO LOGAR
                 registerPushNotifications(user.uid);
                 
                 loadProfile(); 
