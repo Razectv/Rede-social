@@ -25,7 +25,7 @@
         .unread-glow { animation: pulseGlow 2s infinite ease-in-out; }
     </style>
 </head>
-<body class="min-h-screen flex flex-col items-center justify-start relative pb-28 md:pb-12">
+<body class="min-h-screen flex flex-col items-center justify-start relative pb-24">
 
     <!-- NOTIFICAÇÕES FLUTUANTES -->
     <div id="toast-container" class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50 w-full max-w-sm px-4 pointer-events-none space-y-2"></div>
@@ -74,30 +74,33 @@
     <div id="app-container" class="hidden w-full max-w-xl min-h-screen flex flex-col bg-[#0b0f19] border-x border-slate-900 shadow-2xl relative pb-24">
         
         <!-- CABEÇALHO DO APP -->
-        <header class="sticky top-0 z-40 bg-[#0b0f19]/90 backdrop-blur-md px-4 py-3 flex justify-between items-center border-b border-slate-900/60">
+        <header class="sticky top-0 z-40 bg-[#0b0f19]/95 backdrop-blur-md px-4 py-3 flex justify-between items-center border-b border-slate-900/60">
             <div class="flex items-center gap-2">
                 <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-violet-600 to-fuchsia-600 flex items-center justify-center shadow-md shadow-violet-600/30">
                     <i data-lucide="zap" class="w-5 h-5 text-white"></i>
                 </div>
                 <span class="text-2xl font-black tracking-tight text-white">Corse</span>
             </div>
-            <div class="flex items-center gap-2.5">
-                <button onclick="fetchAllPortalsNews()" title="Atualizar Portais" class="w-10 h-10 rounded-full bg-slate-900/80 border border-slate-800 flex items-center justify-center text-violet-400 hover:text-white transition-all cursor-pointer shadow-sm">
-                    <i data-lucide="globe" class="w-5 h-5"></i>
+            <div class="flex items-center gap-2">
+                <button onclick="fetchAllPortalsNews()" title="Atualizar Portais" class="w-9 h-9 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-violet-400 hover:text-white transition-all cursor-pointer">
+                    <i data-lucide="globe" class="w-4 h-4"></i>
                 </button>
-                <button onclick="switchTab('notifications')" class="relative w-10 h-10 rounded-full bg-slate-900/80 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white transition-all cursor-pointer">
-                    <i data-lucide="bell" class="w-5 h-5"></i>
-                    <span id="notif-badge" class="absolute top-2 right-2 w-2 h-2 rounded-full bg-fuchsia-500 hidden"></span>
+                <button onclick="switchTab('notifications')" class="relative w-9 h-9 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white transition-all cursor-pointer">
+                    <i data-lucide="bell" class="w-4 h-4"></i>
+                    <span id="notif-badge" class="absolute top-1.5 right-1.5 w-2 h-2 rounded-full bg-fuchsia-500 hidden"></span>
                 </button>
-                <button onclick="switchTab('friends')" class="relative w-10 h-10 rounded-full bg-slate-900/80 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white transition-all cursor-pointer">
-                    <i data-lucide="message-circle" class="w-5 h-5"></i>
-                    <span id="unread-chat-badge" class="absolute -top-1 -right-1 bg-violet-600 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
+                <button onclick="switchTab('friends')" class="relative w-9 h-9 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-300 hover:text-white transition-all cursor-pointer">
+                    <i data-lucide="message-circle" class="w-4 h-4"></i>
+                    <span id="unread-chat-badge" class="absolute -top-1 -right-1 bg-violet-600 text-white text-[9px] font-bold w-4 h-4 rounded-full flex items-center justify-center hidden">0</span>
+                </button>
+                <button onclick="switchTab('profile')" id="nav-profile-btn" class="relative w-9 h-9 rounded-full bg-slate-900 border border-slate-800 overflow-hidden flex items-center justify-center text-slate-300 hover:text-white transition-all cursor-pointer">
+                    <img id="header-user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150" class="w-full h-full object-cover">
                 </button>
             </div>
         </header>
 
         <!-- CONTEÚDO DINÂMICO (ABAS) -->
-        <main class="flex-1 w-full">
+        <main class="flex-1 w-full pb-6">
 
             <!-- ABA 1: INÍCIO / FEED -->
             <section id="tab-feed" class="space-y-4">
@@ -127,7 +130,7 @@
                 </div>
             </section>
 
-            <!-- ABA 3: CHAT, AMIGOS, GRUPOS E COMUNIDADES -->
+            <!-- ABA 3: CHAT, AMIGOS, GRUPOS E COMUNIDADES (OTIMIZADO MOBILE) -->
             <section id="tab-friends" class="space-y-4 px-4 hidden">
                 <div id="chat-container-view" class="space-y-4">
                     <div class="bg-slate-900 border border-slate-800 rounded-3xl p-4 shadow-xl space-y-3">
@@ -139,17 +142,17 @@
                                 + Novo Grupo
                             </button>
                         </div>
-                        <div id="unified-chats-list" class="space-y-2 max-h-[75vh] overflow-y-auto custom-scrollbar">
+                        <div id="unified-chats-list" class="space-y-2 max-h-[70vh] overflow-y-auto custom-scrollbar">
                             <div class="text-center py-6 text-slate-500 text-xs">Carregando conversas...</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- TELA DA CONVERSA ABERTA -->
+                <!-- TELA DA CONVERSA ABERTA (FIXADA COM ROLAGEM PERFEITA) -->
                 <div id="active-chat-view" class="bg-slate-900 border border-slate-800 rounded-2xl p-3 shadow-xl flex flex-col h-[75vh] hidden">
-                    <div class="border-b border-slate-800 pb-2 mb-2 flex items-center justify-between">
+                    <div class="border-b border-slate-800 pb-2 mb-2 flex items-center justify-between flex-shrink-0">
                         <div class="flex items-center gap-2.5">
-                            <button onclick="closeActiveChat()" class="text-slate-400 hover:text-white"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
+                            <button onclick="closeActiveChat()" class="text-slate-400 hover:text-white cursor-pointer"><i data-lucide="arrow-left" class="w-5 h-5"></i></button>
                             <img id="active-chat-avatar" src="" class="w-8 h-8 rounded-full object-cover">
                             <div>
                                 <h3 id="chat-title" class="font-bold text-xs text-slate-100">Conversa</h3>
@@ -158,16 +161,22 @@
                         </div>
                         <span id="chat-typing-indicator" class="text-[10px] text-violet-400 italic hidden">digitando...</span>
                     </div>
+
+                    <!-- CAIXA DE MENSAGENS COM ROLAGEM AUTOMÁTICA -->
                     <div id="chat-messages" class="flex-1 overflow-y-auto custom-scrollbar space-y-2.5 pr-1 mb-2"></div>
-                    <div id="chat-image-preview-bar" class="hidden relative mb-2 p-2 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between">
+
+                    <!-- BARRA DE PREVIEW DE IMAGEM -->
+                    <div id="chat-image-preview-bar" class="hidden relative mb-2 p-2 bg-slate-950 rounded-xl border border-slate-800 flex items-center justify-between flex-shrink-0">
                         <span class="text-[10px] text-violet-400 truncate">Imagem pronta para envio</span>
-                        <button onclick="clearChatImage()" class="text-red-400 text-xs font-bold">Remover</button>
+                        <button onclick="clearChatImage()" class="text-red-400 text-xs font-bold cursor-pointer">Remover</button>
                     </div>
-                    <div class="flex items-center gap-1.5 pt-2 border-t border-slate-800 bg-slate-900 w-full">
+
+                    <!-- CAMPO DE DIGITAÇÃO FIXO NA PARTE INFERIOR -->
+                    <div class="flex items-center gap-1.5 pt-2 border-t border-slate-800 bg-slate-900 w-full flex-shrink-0">
                         <label class="cursor-pointer text-slate-400 hover:text-violet-400 p-1 flex-shrink-0"><i data-lucide="image" class="w-5 h-5"></i><input type="file" accept="image/*" class="hidden" onchange="handleChatImageSelect(event)"></label>
                         <input type="text" id="chat-input" placeholder="Digite sua mensagem..." oninput="notifyTyping()" class="flex-1 min-w-0 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-violet-500">
-                        <button onclick="insertChatEmoji('😊')" class="text-sm p-1 flex-shrink-0">😊</button>
-                        <button onclick="insertChatEmoji('👍')" class="text-sm p-1 flex-shrink-0">👍</button>
+                        <button onclick="insertChatEmoji('😊')" class="text-sm p-1 flex-shrink-0 cursor-pointer">😊</button>
+                        <button onclick="insertChatEmoji('👍')" class="text-sm p-1 flex-shrink-0 cursor-pointer">👍</button>
                         <button id="chat-send-btn" onclick="sendChatMessage()" class="bg-violet-600 hover:bg-violet-500 text-white px-3 py-2 rounded-xl text-xs font-bold cursor-pointer flex-shrink-0">Enviar</button>
                     </div>
                 </div>
@@ -211,27 +220,30 @@
             </section>
         </main>
 
-        <!-- BARRA DE NAVEGAÇÃO INFERIOR -->
-        <nav class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-xl bg-[#0b0f19]/95 backdrop-blur-lg border-t border-slate-900 z-40 px-6 py-2.5 flex justify-between items-center text-xs">
-            <button onclick="switchTab('feed')" id="nav-feed" class="flex flex-col items-center gap-1 text-violet-400 font-semibold cursor-pointer transition-all">
+        <!-- BARRA DE NAVEGAÇÃO INFERIOR (BOTÃO '+' PERFEITAMENTE NO CENTRO) -->
+        <nav class="fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-w-xl bg-[#0b0f19]/95 backdrop-blur-lg border-t border-slate-900 z-40 px-4 py-2 flex justify-around items-center text-xs">
+            <button onclick="switchTab('feed')" id="nav-feed" class="flex flex-col items-center gap-1 text-violet-400 font-semibold cursor-pointer transition-all p-1">
                 <i data-lucide="home" class="w-5 h-5"></i>
                 <span class="text-[10px]">Início</span>
             </button>
-            <button onclick="switchTab('communities')" id="nav-communities" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-all">
+            <button onclick="switchTab('communities')" id="nav-communities" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-all p-1">
                 <i data-lucide="compass" class="w-5 h-5"></i>
                 <span class="text-[10px]">Explorar</span>
             </button>
-            <button onclick="triggerCreatePost()" class="w-12 h-12 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 text-white flex items-center justify-center shadow-lg shadow-violet-600/40 transform -translate-y-3 hover:scale-105 transition-all cursor-pointer">
+            
+            <!-- BOTÃO DE CRIAR POST EXATAMENTE NO CENTRO -->
+            <button onclick="triggerCreatePost()" class="w-12 h-12 rounded-full bg-gradient-to-tr from-violet-600 to-fuchsia-600 text-white flex items-center justify-center shadow-lg shadow-violet-600/40 hover:scale-105 transition-all cursor-pointer">
                 <i data-lucide="plus" class="w-6 h-6"></i>
             </button>
-            <button onclick="switchTab('notifications')" id="nav-notifications" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-all relative">
+
+            <button onclick="switchTab('notifications')" id="nav-notifications" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-all relative p-1">
                 <i data-lucide="bell" class="w-5 h-5"></i>
-                <span id="nav-notif-dot" class="absolute -top-0.5 right-2 w-2 h-2 rounded-full bg-fuchsia-500 hidden"></span>
+                <span id="nav-notif-dot" class="absolute top-1 right-2 w-2 h-2 rounded-full bg-fuchsia-500 hidden"></span>
                 <span class="text-[10px]">Notificações</span>
             </button>
-            <button onclick="switchTab('friends')" id="nav-friends" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-all relative">
+            <button onclick="switchTab('friends')" id="nav-friends" class="flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-all relative p-1">
                 <i data-lucide="message-circle" class="w-5 h-5"></i>
-                <span id="nav-chat-dot" class="absolute -top-0.5 right-2 w-2 h-2 rounded-full bg-fuchsia-500 hidden"></span>
+                <span id="nav-chat-dot" class="absolute top-1 right-2 w-2 h-2 rounded-full bg-fuchsia-500 hidden"></span>
                 <span class="text-[10px]">Mensagens</span>
             </button>
         </nav>
@@ -242,7 +254,7 @@
         <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
                 <h3 class="font-bold text-slate-100 text-sm">Compartilhar Publicação</h3>
-                <button onclick="closeShareModal()" class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <button onclick="closeShareModal()" class="text-slate-400 cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div class="space-y-3">
                 <button onclick="shareToFeed()" class="w-full bg-violet-600 hover:bg-violet-500 text-white py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer">
@@ -265,7 +277,7 @@
         <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
                 <h3 class="font-bold text-slate-100 text-sm">Criar Novo Grupo / Comunidade</h3>
-                <button onclick="closeCreateGroupModal()" class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <button onclick="closeCreateGroupModal()" class="text-slate-400 cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div class="space-y-3">
                 <div>
@@ -278,8 +290,8 @@
                 </div>
             </div>
             <div class="flex justify-end gap-2 pt-2">
-                <button onclick="closeCreateGroupModal()" class="text-slate-400 text-xs">Cancelar</button>
-                <button onclick="submitCreateGroup()" class="bg-violet-600 text-white px-4 py-2 rounded-xl text-xs font-bold">Criar Grupo</button>
+                <button onclick="closeCreateGroupModal()" class="text-slate-400 text-xs cursor-pointer">Cancelar</button>
+                <button onclick="submitCreateGroup()" class="bg-violet-600 text-white px-4 py-2 rounded-xl text-xs font-bold cursor-pointer">Criar Grupo</button>
             </div>
         </div>
     </div>
@@ -292,7 +304,7 @@
         <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
                 <h3 class="font-bold text-slate-100 text-sm">Nova Publicação</h3>
-                <button onclick="closeCreatePostModal()" class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <button onclick="closeCreatePostModal()" class="text-slate-400 cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div class="space-y-3">
                 <div class="relative rounded-2xl overflow-hidden h-48 bg-slate-950 border border-slate-800">
@@ -355,7 +367,7 @@
         <div class="bg-slate-900 border border-slate-800 rounded-3xl w-full max-w-sm p-5 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
                 <h3 class="font-bold text-slate-100 text-sm">Quem viu este story</h3>
-                <button onclick="closeStoryViewersList()" class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <button onclick="closeStoryViewersList()" class="text-slate-400 cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div id="story-viewers-container" class="space-y-2 max-h-64 overflow-y-auto custom-scrollbar">
                 <div class="text-xs text-slate-500 text-center py-4">Nenhuma visualização ainda.</div>
@@ -369,7 +381,7 @@
         <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md p-6 shadow-2xl space-y-4">
             <div class="flex justify-between items-center border-b border-slate-800 pb-3">
                 <h3 class="font-bold text-slate-100 text-sm">Editar Perfil & Visual</h3>
-                <button onclick="closeEditProfileModal()" class="text-slate-400"><i data-lucide="x" class="w-5 h-5"></i></button>
+                <button onclick="closeEditProfileModal()" class="text-slate-400 cursor-pointer"><i data-lucide="x" class="w-5 h-5"></i></button>
             </div>
             <div class="space-y-3">
                 <div class="flex flex-col items-center gap-2">
@@ -390,8 +402,8 @@
                 </div>
             </div>
             <div class="flex justify-end gap-2 pt-2">
-                <button onclick="closeEditProfileModal()" class="text-slate-400 text-xs">Cancelar</button>
-                <button onclick="saveProfileChanges()" class="bg-violet-600 text-white px-4 py-2 rounded-xl text-xs font-bold">Salvar Alterações</button>
+                <button onclick="closeEditProfileModal()" class="text-slate-400 text-xs cursor-pointer">Cancelar</button>
+                <button onclick="saveProfileChanges()" class="bg-violet-600 text-white px-4 py-2 rounded-xl text-xs font-bold cursor-pointer">Salvar Alterações</button>
             </div>
         </div>
     </div>
@@ -434,7 +446,7 @@
         let typingTimeout = null, portalTimer = null, activeViewingStoryId = null;
         let storyTimer = null;
         let isSubmittingPost = false;
-        let sharingPostData = null; // Armazena dados do post sendo compartilhado
+        let sharingPostData = null;
 
         let currentAuthorStoriesList = [];
         let currentStoryIndex = 0;
@@ -671,15 +683,12 @@
             }
         }
 
-        // ==========================
-        // COMPARTILHAMENTO DE POSTS E NOTÍCIAS
-        // ==========================
+        // COMPARTILHAMENTO
         window.openShareModal = function(content, image, author) {
             sharingPostData = { content, image, author };
             const list = document.getElementById('share-chats-list');
             list.innerHTML = "";
 
-            // Lista grupos e amigos para compartilhar
             let itemsHtml = "";
             Object.keys(globalGroupsCache).forEach(gId => {
                 const g = globalGroupsCache[gId];
@@ -760,9 +769,7 @@
             showToast("Adicionado aos seus Stories!", "success");
         }
 
-        // ==========================
         // STORIES
-        // ==========================
         function listenStories() {
             const tray = document.getElementById('stories-tray');
             onValue(ref(db, 'stories'), (snap) => {
@@ -1050,7 +1057,6 @@
             lucide.createIcons();
         });
 
-        // FUNÇÃO DE SAIR DA CONTA (LOGOUT)
         window.logoutUser = async function() { 
             if(currentUser) {
                 await set(ref(db, `users/${currentUser.uid}/online`), false);
@@ -1062,9 +1068,17 @@
         window.switchTab = function(tabId) {
             document.querySelectorAll('main > section').forEach(s => s.classList.add('hidden'));
             document.getElementById(`tab-${tabId}`).classList.remove('hidden');
-            document.querySelectorAll('nav button').forEach(b => { if(!b.classList.contains('bg-gradient-to-tr')) b.className = "flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-all"; });
+            
+            // Atualiza destaque na barra inferior
+            document.querySelectorAll('nav button').forEach(b => { 
+                if(!b.classList.contains('bg-gradient-to-tr')) {
+                    b.className = "flex flex-col items-center gap-1 text-slate-400 hover:text-slate-200 cursor-pointer transition-all p-1";
+                }
+            });
             const btn = document.getElementById(`nav-${tabId}`);
-            if(btn) btn.className = "flex flex-col items-center gap-1 text-violet-400 font-semibold cursor-pointer transition-all";
+            if(btn && !btn.classList.contains('bg-gradient-to-tr')) {
+                btn.className = "flex flex-col items-center gap-1 text-violet-400 font-semibold cursor-pointer transition-all p-1";
+            }
         }
 
         function loadProfile() {
@@ -1076,6 +1090,7 @@
                 document.getElementById('profile-bio-text').innerText = d.bio || "Biografia...";
                 if(document.getElementById('story-my-avatar')) document.getElementById('story-my-avatar').src = av;
                 document.getElementById('profile-avatar-img').src = av;
+                document.getElementById('header-user-avatar').src = av;
                 if(d.banner) document.getElementById('profile-banner-container').style.backgroundImage = `url('${d.banner}')`;
             }, { onlyOnce: true });
         }
@@ -1372,8 +1387,8 @@
                                 </div>
                             </div>
                             <div class="flex gap-2">
-                                <button onclick="acceptFriend('${r.fromUid}', '${escapeHtml(r.fromName)}')" class="bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold">Aceitar</button>
-                                <button onclick="rejectFriend('${r.fromUid}')" class="bg-slate-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold">Recusar</button>
+                                <button onclick="acceptFriend('${r.fromUid}', '${escapeHtml(r.fromName)}')" class="bg-emerald-600 text-white px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer">Aceitar</button>
+                                <button onclick="rejectFriend('${r.fromUid}')" class="bg-slate-700 text-white px-3 py-1.5 rounded-xl text-xs font-bold cursor-pointer">Recusar</button>
                             </div>
                         </div>
                     `);
@@ -1411,7 +1426,10 @@
             });
 
             onValue(ref(db, `chats/${rId}`), (snap) => {
-                const box = document.getElementById('chat-messages'); box.innerHTML = ""; const msgs = snap.val() || {};
+                const box = document.getElementById('chat-messages'); 
+                box.innerHTML = ""; 
+                const msgs = snap.val() || {};
+                
                 Object.keys(msgs).forEach(k => {
                     const m = msgs[k], isMe = m.senderUid === currentUser.uid;
                     if (!isMe && !m.read) {
@@ -1433,6 +1451,7 @@
                         </div>
                     `);
                 });
+                // Rola para baixo automaticamente de forma suave
                 box.scrollTop = box.scrollHeight;
             });
         }
